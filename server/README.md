@@ -1,4 +1,4 @@
-# Astra Server
+# Zenith Server
 
 ## Overview
 
@@ -9,7 +9,7 @@ Main HTTP/2 API server application that combines the httpserver, logger, and mon
 ```
 [External Clients]
     ↓ HTTP/2 REST
-[Astra Server] (this module)
+[Zenith Server] (this module)
     ↓
 ├─ HTTP Server (nghttp2-asio)
 ├─ Logger (spdlog)
@@ -25,23 +25,23 @@ Main HTTP/2 API server application that combines the httpserver, logger, and mon
 ### Inside Container
 
 ```bash
-cd /app/zenith
+cd /app/Zenith
 cmake -B build -S .
-cmake --build build --target zenith_server
+cmake --build build --target Zenith_server
 ```
 
 ### From Host
 
 ```bash
-docker run --rm --network=host -v $(pwd):/app/zenith zenithbuilder:nghttp2 \
-  bash -c "cd /app/zenith && cmake -B build -S . && cmake --build build --target zenith_server"
+docker run --rm --network=host -v $(pwd):/app/Zenith Zenithbuilder:nghttp2 \
+  bash -c "cd /app/Zenith && cmake -B build -S . && cmake --build build --target Zenith_server"
 ```
 
 ## Running
 
 ```bash
-cd /app/zenith/build
-./server/zenith_server
+cd /app/Zenith/build
+./server/Zenith_server
 ```
 
 ## Configuration
@@ -63,7 +63,7 @@ cd /app/zenith/build
 ### Running Tests
 
 ```bash
-cd /app/zenith/build
+cd /app/Zenith/build
 ctest --output-on-failure
 ```
 
@@ -72,12 +72,12 @@ ctest --output-on-failure
 ```bash
 # In one terminal: watch for changes and rebuild
 while true; do
-    inotifywait -r -e modify /app/zenith/server
-    cmake --build build --target zenith_server
+    inotifywait -r -e modify /app/Zenith/server
+    cmake --build build --target Zenith_server
 done
 
 # In another terminal: run server
-./build/server/zenith_server
+./build/server/Zenith_server
 ```
 
 ## Deployment

@@ -2,14 +2,14 @@
 
 ## Overview
 
-MongoDB client library for the Astra project. Provides async MongoDB operations with connection pooling.
+MongoDB client library for the Zenith project. Provides async MongoDB operations with connection pooling.
 
 ## Building
 
 ### Inside Container
 
 ```bash
-cd /app/zenith/mongoclient
+cd /app/Zenith/mongoclient
 cmake -B build -S .
 cmake --build build
 ```
@@ -17,8 +17,8 @@ cmake --build build
 ### From Host
 
 ```bash
-docker run --rm --network=host -v $(pwd):/app/zenith zenithbuilder:nghttp2 \
-  bash -c "cd /app/zenith/mongoclient && cmake -B build -S . && cmake --build build"
+docker run --rm --network=host -v $(pwd):/app/Zenith Zenithbuilder:nghttp2 \
+  bash -c "cd /app/Zenith/mongoclient && cmake -B build -S . && cmake --build build"
 ```
 
 **Note:** The MongoDB C++ driver is automatically downloaded and built from source during the CMake configuration step.
@@ -28,13 +28,13 @@ docker run --rm --network=host -v $(pwd):/app/zenith zenithbuilder:nghttp2 \
 ### Using CTest
 
 ```bash
-cd /app/zenith/mongoclient/build
+cd /app/Zenith/mongoclient/build
 ctest --output-on-failure
 ```
 
 **Expected output:**
 ```
-Test project /app/zenith/mongoclient/build
+Test project /app/Zenith/mongoclient/build
     Start 1: MongoClientTest
 1/1 Test #1: MongoClientTest ..................   Passed    0.05 sec
 
@@ -44,14 +44,14 @@ Test project /app/zenith/mongoclient/build
 ### Running Test Executable Directly
 
 ```bash
-cd /app/zenith/mongoclient/build
+cd /app/Zenith/mongoclient/build
 ./test_mongoclient
 ```
 
 ### Running the Demo Application
 
 ```bash
-cd /app/zenith/mongoclient/build
+cd /app/Zenith/mongoclient/build
 ./mongo_app
 ```
 
@@ -137,8 +137,8 @@ If the application can't connect to MongoDB:
 
 ```bash
 # From project root
-docker run --rm --network=host -v $(pwd):/app/zenith zenithbuilder:nghttp2 \
-  bash -c "cd /app/zenith/mongoclient && rm -rf build && cmake -B build -S . && cmake --build build && cd build && ctest --output-on-failure"
+docker run --rm --network=host -v $(pwd):/app/Zenith Zenithbuilder:nghttp2 \
+  bash -c "cd /app/Zenith/mongoclient && rm -rf build && cmake -B build -S . && cmake --build build && cd build && ctest --output-on-failure"
 ```
 
 ### Interactive Development
@@ -148,10 +148,10 @@ docker run --rm --network=host -v $(pwd):/app/zenith zenithbuilder:nghttp2 \
 ./imagebuilder/build_container.py --up
 
 # Enter container
-docker exec -it zenith /bin/bash
+docker exec -it Zenith /bin/bash
 
 # Work in mongoclient directory
-cd /app/zenith/mongoclient
+cd /app/Zenith/mongoclient
 cmake -B build -S .
 cmake --build build
 cd build && ctest

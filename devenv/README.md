@@ -1,13 +1,13 @@
-# Astra Development Environment
+# Zenith Development Environment
 
 ## Build the Docker Image
 ```bash
-docker build --network=host -t zenithbuilder:v1 -f Dockerfile .
+docker build --network=host -t Zenithbuilder:v1 -f Dockerfile .
 ```
 
 ## Run the Container
 ```bash
-docker run -it --name zenith --dns 8.8.8.8 --dns 8.8.4.4 -v $(pwd):/app/zenith zenithbuilder:v1 bash
+docker run -it --name Zenith --dns 8.8.8.8 --dns 8.8.4.4 -v $(pwd):/app/Zenith Zenithbuilder:v1 bash
 ```
 
 ## Fix DNS (If Needed)

@@ -136,7 +136,7 @@ cmake --build build --target simple_server
 ### Inside Docker
 
 ```bash
-docker exec zenith bash -c "cd zenith/build && cmake .. && make http2server -j4"
+docker exec Zenith bash -c "cd Zenith/build && cmake .. && make http2server -j4"
 ```
 
 ## Running Tests

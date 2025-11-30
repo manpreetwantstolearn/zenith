@@ -1,6 +1,6 @@
 /**
  * @file test_logger.cpp
- * @brief Tests for Astra logging library
+ * @brief Tests for Zenith logging library
  */
 
 #include <Logger.h>
@@ -152,7 +152,7 @@ TEST(test_rapid_logging) {
 }
 
 int main() {
-    std::cout << "\n=== Astra Logger Tests ===\n" << std::endl;
+    std::cout << "\n=== Zenith Logger Tests ===\n" << std::endl;
     
     // Tests run automatically via static initialization
     

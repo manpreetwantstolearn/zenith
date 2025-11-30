@@ -1,6 +1,6 @@
-# Astra
+# Zenith
 
-**Astra** is a high-performance, production-ready C++ framework designed for building scalable microservices. It provides a robust set of libraries and abstractions for HTTP/1.1 and HTTP/2 communication, database interactions, state machine management, and observability.
+**Zenith** is a high-performance, production-ready C++ framework designed for building scalable microservices. It provides a robust set of libraries and abstractions for HTTP/1.1 and HTTP/2 communication, database interactions, state machine management, and observability.
 
 ## 🚀 Key Features
 
@@ -35,19 +35,19 @@ The project is designed to run inside a **Dockerized Development Environment** t
 ## 🏁 Quick Start
 
 ### 1. Start the Development Container
-All development and building should happen inside the `zenith` container.
+All development and building should happen inside the `Zenith` container.
 
 ```bash
 # Build and start the container (if not already running)
 cd devenv
-docker build -t zenithbuilder:v2 .
-docker run -itd --name zenith -v $(pwd)/..:/app/zenith zenithbuilder:v2 bash
+docker build -t Zenithbuilder:v2 .
+docker run -itd --name Zenith -v $(pwd)/..:/app/Zenith Zenithbuilder:v2 bash
 ```
 
 ### 2. Enter the Container
 ```bash
-docker exec -it zenith bash
-cd /app/zenith
+docker exec -it Zenith bash
+cd /app/Zenith
 ```
 
 ### 3. Build the Project
@@ -75,7 +75,7 @@ cmake --build build_clang -j$(nproc)
 
 ## 🧪 Testing & Verification
 
-Astra enforces strict quality gates using CTest and Valgrind.
+Zenith enforces strict quality gates using CTest and Valgrind.
 
 ### Run Unit Tests
 ```bash

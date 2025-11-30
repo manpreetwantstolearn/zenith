@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 project(exception)
 
-add_library(exception src/AstraException.cpp)
+add_library(exception src/ZenithException.cpp)
 
 target_include_directories(exception
     PUBLIC

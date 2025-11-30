@@ -8,7 +8,7 @@ using namespace httpserver;
 void rootHandler(const IRequest& req, IResponse& res) {
     LOG_INFO("Handling request for " + req.path());
     res.setStatus(200);
-    res.json(R"({"status": "ok", "message": "Welcome to Astra Server"})");
+    res.json(R"({"status": "ok", "message": "Welcome to Zenith Server"})");
 }
 
 void userHandler(const IRequest& req, IResponse& res) {
@@ -29,7 +29,7 @@ int main() {
     logger::Logger::initialize();
     logger::Logger::set_level(logger::Level::INFO);
     
-    LOG_INFO("Astra Server starting...");
+    LOG_INFO("Zenith Server starting...");
 
     try {
         // Create server instance (will use Mock for now, Proxygen later)
