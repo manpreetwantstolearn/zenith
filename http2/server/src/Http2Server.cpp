@@ -1,7 +1,7 @@
-#include "Http2Server.hpp"
-#include "Http2Request.hpp"
-#include "Http2Response.hpp"
-#include "backend/nghttp2/NgHttp2Server.hpp"
+#include "Http2Server.h"
+#include "Http2Request.h"
+#include "Http2Response.h"
+#include "backend/nghttp2/NgHttp2Server.h"
 
 namespace http2server {
 
@@ -14,7 +14,13 @@ public:
 };
 
 Server::Server(const std::string& address, const std::string& port, int threads)
-    : m_impl(std::make_unique<Impl>(address, port, threads)) {}
+    : m_impl(std::make_unique<Impl>(address, port, threads)) {
+    
+    // Default handler: Dispatch to Router
+    m_impl->backend.handle("*", "/", [this](Request& req, Response& res) {
+        router_.dispatch(req, res);
+    });
+}
 
 Server::~Server() = default;
 

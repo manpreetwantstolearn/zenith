@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.25)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -66,14 +66,14 @@ target_link_libraries(redisclient
 enable_testing()
 
 # Test executable
-add_executable(test_redisclient
-    tests/test_redis_unit.cpp
+zenith_add_test(
+    TARGET redis_integration_test
+    SOURCES tests/redis_integration_test.cpp
+    LIBRARIES redisclient
 )
 
-target_link_libraries(test_redisclient
-    PRIVATE
-        redisclient
+zenith_add_test(
+    TARGET redis_mock_test
+    SOURCES tests/redis_mock_test.cpp
+    LIBRARIES redisclient
 )
-
-# Add tests
-add_test(NAME RedisClientBasicTest COMMAND test_redisclient)

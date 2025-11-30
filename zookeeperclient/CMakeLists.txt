@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.25)
 project(zookeeperclient)
 
 # Try to find the Zookeeper C library
@@ -33,6 +33,9 @@ endif()
 target_compile_features(zookeeperclient PUBLIC cxx_std_17)
 
 enable_testing()
-add_executable(test_zookeeper_unit tests/test_zookeeper_unit.cpp)
-target_link_libraries(test_zookeeper_unit PRIVATE zookeeperclient)
-add_test(NAME ZookeeperUnitTests COMMAND test_zookeeper_unit)
+# GTest Integration
+zenith_add_test(
+    TARGET zookeeper_gtest
+    SOURCES tests/zookeeper_gtest.cpp
+    LIBRARIES zookeeperclient
+)

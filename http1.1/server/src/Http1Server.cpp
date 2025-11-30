@@ -1,6 +1,6 @@
-#include "Http1Server.hpp"
-#include "Http1Request.hpp"
-#include "Http1Response.hpp"
+#include "Http1Server.h"
+#include "Http1Request.h"
+#include "Http1Response.h"
 #include <iostream>
 
 namespace http1 {
@@ -20,6 +20,11 @@ Server::Server(const std::string& address, unsigned short port, int threads)
     acceptor_.set_option(net::socket_base::reuse_address(true));
     acceptor_.bind(endpoint);
     acceptor_.listen(net::socket_base::max_listen_connections);
+
+    // Default handler: Dispatch to Router
+    handler_ = [this](router::IRequest& req, router::IResponse& res) {
+        router_.dispatch(req, res);
+    };
 }
 
 Server::~Server() {
@@ -27,6 +32,7 @@ Server::~Server() {
 }
 
 void Server::handle(Handler handler) {
+    std::lock_guard<std::mutex> lock(handler_mutex_);
     handler_ = std::move(handler);
 }
 
@@ -138,7 +144,12 @@ void Server::do_accept() {
         net::make_strand(ioc_),
         [this](beast::error_code ec, tcp::socket socket) {
             if (!ec) {
-                std::make_shared<Session>(std::move(socket), handler_)->run();
+                Handler handler_copy;
+                {
+                    std::lock_guard<std::mutex> lock(handler_mutex_);
+                    handler_copy = handler_;
+                }
+                std::make_shared<Session>(std::move(socket), std::move(handler_copy))->run();
             }
             do_accept();
         });

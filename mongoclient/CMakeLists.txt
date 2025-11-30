@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.25)
 project(MongoClient)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -29,10 +29,18 @@ target_link_libraries(mongoclient
 )
 
 # Test executable
-add_executable(test_mongoclient tests/test_mongoclient.cpp)
-target_link_libraries(test_mongoclient PRIVATE mongoclient)
+# GTest Integration
+mongo_add_test(
+    TARGET mongo_integration_test
+    SOURCES tests/mongo_integration_test.cpp
+    LIBRARIES mongoclient
+)
 
-add_test(NAME MongoClientTest COMMAND test_mongoclient)
+mongo_add_test(
+    TARGET mongo_mock_test
+    SOURCES tests/mongo_mock_test.cpp
+    LIBRARIES mongoclient
+)
 
 # Main application executable
 add_executable(mongo_app main.cpp)

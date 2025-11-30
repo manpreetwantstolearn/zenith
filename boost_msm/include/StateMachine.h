@@ -8,7 +8,7 @@
 #include <boost/msm/front/state_machine_def.hpp>
 #include <boost/msm/front/functor_row.hpp>
 
-namespace astra::fsm {
+namespace zenith::fsm {
 
 namespace msm = boost::msm;
 namespace mpl = boost::mpl;
@@ -86,4 +86,4 @@ struct LifecycleStateMachine_ : public msmf::state_machine_def<LifecycleStateMac
 // Back-end
 using LifecycleStateMachine = msm::back::state_machine<LifecycleStateMachine_>;
 
-} // namespace astra::fsm
+} // namespace zenith::fsm

@@ -1,4 +1,4 @@
-#include "hfsm/Machine.hpp"
+#include "Machine.h"
 #include <iostream>
 #include <cassert>
 

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.25)
 project(http1.1server)
 
 find_package(Boost REQUIRED COMPONENTS system thread)
@@ -23,12 +23,15 @@ target_link_libraries(http1.1server
     PUBLIC
         Boost::system
         Boost::thread
-        http_abstractions
+        zenith_router
 )
 
 target_compile_features(http1.1server PUBLIC cxx_std_17)
 
 enable_testing()
-add_executable(test_http1.1server_unit tests/test_http1.1server_unit.cpp)
-target_link_libraries(test_http1.1server_unit PRIVATE http1.1server)
-add_test(NAME Http1.1ServerUnitTests COMMAND test_http1.1server_unit)
+
+zenith_add_test(
+    TARGET http1_server_integration_test
+    SOURCES tests/http1_server_integration_test.cpp
+    LIBRARIES http1.1server
+)

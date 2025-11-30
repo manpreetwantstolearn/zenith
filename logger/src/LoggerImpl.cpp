@@ -100,7 +100,7 @@ void LoggerImpl::initialize() {
             
             // Create async logger
             m_logger = std::make_shared<spdlog::async_logger>(
-                "Zenith_logger",
+                "zenith_logger",
                 stdout_sink,
                 spdlog::thread_pool(),
                 spdlog::async_overflow_policy::block
@@ -127,7 +127,7 @@ void LoggerImpl::shutdown() {
     if (m_is_initialized && m_logger && !m_is_shutdown) {
         m_is_shutdown = true;
         m_logger->flush();
-        spdlog::drop("Zenith_logger");
+        spdlog::drop("zenith_logger");
         m_is_initialized = false;
     }
 }

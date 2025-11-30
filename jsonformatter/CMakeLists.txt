@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.25)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -44,4 +44,4 @@ target_link_libraries(test_jsonformatter
 )
 
 # Add tests
-add_test(NAME JsonFormatterBasicTest COMMAND test_jsonformatter)
+add_test(NAME jsonformatter_basic_test COMMAND test_jsonformatter)

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.25)
 
 # nghttp2-asio is built by parent http2/CMakeLists.txt
 
@@ -9,6 +9,7 @@ set(HTTP2SERVER_SOURCES
     src/Http2Server.cpp
     src/Http2Request.cpp
     src/Http2Response.cpp
+    src/ResponseHandle.cpp
     src/backend/nghttp2/NgHttp2Server.cpp
 )
 
@@ -30,7 +31,7 @@ target_include_directories(http2server
 # Link libraries
 target_link_libraries(http2server 
     PUBLIC
-        http_abstractions
+        zenith_router
     PRIVATE 
         Boost::system 
         Boost::thread 
@@ -44,14 +45,16 @@ target_compile_definitions(http2server PRIVATE HAS_NGHTTP2)
 
 # Example executable
 add_executable(simple_server examples/simple_server.cpp)
-target_link_libraries(simple_server PRIVATE http2server router)
+target_link_libraries(simple_server PRIVATE http2server zenith_router)
 
 # Enable testing
 enable_testing()
 
 # Test executable
-add_executable(test_http2server_unit tests/test_http2server_unit.cpp)
-target_link_libraries(test_http2server_unit PRIVATE http2server)
-
-# Register test with CTest
-add_test(NAME Http2ServerUnitTests COMMAND test_http2server_unit)
+zenith_add_test(
+    TARGET http2_server_gtest
+    SOURCES 
+        tests/http2_server_gtest.cpp
+        tests/response_handle_test.cpp
+    LIBRARIES http2server
+)

@@ -2,7 +2,7 @@
 #include <iostream>
 #include <cassert>
 
-using namespace astra::fsm;
+using namespace zenith::fsm;
 
 void test_lifecycle() {
     LifecycleStateMachine fsm;

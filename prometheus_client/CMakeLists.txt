@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.25)
 project(prometheus_client)
 
 include(FetchContent)
@@ -34,6 +34,9 @@ target_link_libraries(prometheus_client
 target_compile_features(prometheus_client PUBLIC cxx_std_17)
 
 enable_testing()
-add_executable(test_prometheus_unit tests/test_prometheus_unit.cpp)
-target_link_libraries(test_prometheus_unit PRIVATE prometheus_client)
-add_test(NAME PrometheusUnitTests COMMAND test_prometheus_unit)
+# GTest Integration
+zenith_add_test(
+    TARGET prometheus_gtest
+    SOURCES tests/prometheus_gtest.cpp
+    LIBRARIES prometheus_client
+)

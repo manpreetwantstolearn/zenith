@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.25)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -42,4 +42,4 @@ target_link_libraries(test_logger
 )
 
 # Add tests
-add_test(NAME LoggerBasicTest COMMAND test_logger)
+add_test(NAME logger_basic_test COMMAND test_logger)

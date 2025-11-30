@@ -1,4 +1,4 @@
-#include "RedisClient.hpp"
+#include "RedisClient.h"
 #include <iostream>
 
 namespace redisclient {
@@ -14,7 +14,7 @@ RedisClient::RedisClient(const std::string& uri) {
 
 RedisClient::~RedisClient() = default;
 
-void RedisClient::set(const std::string& key, const std::string& value) {
+void RedisClient::set(std::string_view key, std::string_view value) {
     try {
         redis_->set(key, value);
     } catch (const std::exception& e) {
@@ -23,7 +23,7 @@ void RedisClient::set(const std::string& key, const std::string& value) {
     }
 }
 
-std::optional<std::string> RedisClient::get(const std::string& key) {
+std::optional<std::string> RedisClient::get(std::string_view key) {
     try {
         auto val = redis_->get(key);
         if (val) {
@@ -36,11 +36,20 @@ std::optional<std::string> RedisClient::get(const std::string& key) {
     }
 }
 
-bool RedisClient::del(const std::string& key) {
+bool RedisClient::del(std::string_view key) {
     try {
         return redis_->del(key) > 0;
     } catch (const std::exception& e) {
         std::cerr << "Redis del error: " << e.what() << std::endl;
+        throw;
+    }
+}
+
+long long RedisClient::incr(std::string_view key) {
+    try {
+        return redis_->incr(key);
+    } catch (const std::exception& e) {
+        std::cerr << "Redis incr error: " << e.what() << std::endl;
         throw;
     }
 }

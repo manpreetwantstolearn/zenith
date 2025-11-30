@@ -1,4 +1,4 @@
-#include "Http1Request.hpp"
+#include "Http1Request.h"
 
 namespace http1 {
 
@@ -25,6 +25,24 @@ std::string_view Request::header(std::string_view name) const {
 
 std::string_view Request::body() const {
     return req_.body();
+}
+
+std::string_view Request::path_param(std::string_view key) const {
+    auto it = path_params_.find(key);
+    if (it != path_params_.end()) {
+        return it->second;
+    }
+    return {};
+}
+
+std::string_view Request::query_param(std::string_view key) const {
+    // TODO: Implement query param parsing
+    (void)key;
+    return {};
+}
+
+void Request::set_path_params(std::unordered_map<std::string_view, std::string_view> params) {
+    path_params_ = std::move(params);
 }
 
 } // namespace http1
