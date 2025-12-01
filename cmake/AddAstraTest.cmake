@@ -1,39 +1,39 @@
-# Macro to add a standard Astra GTest executable
+# Macro to add a standard Zenith GTest executable
 # Usage:
-# astra_add_test(
+# zenith_add_test(
 #     TARGET <target_name>
 #     SOURCES <source_files>...
 #     [LIBRARIES <libs>...]
 #     [INCLUDE_DIRS <dirs>...]
 # )
-macro(astra_add_test)
+macro(zenith_add_test)
     set(options)
     set(oneValueArgs TARGET)
     set(multiValueArgs SOURCES LIBRARIES INCLUDE_DIRS)
-    cmake_parse_arguments(ASTRA_TEST "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+    cmake_parse_arguments(ZENITH_TEST "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-    if(NOT ASTRA_TEST_TARGET)
-        message(FATAL_ERROR "astra_add_test: TARGET argument is required")
+    if(NOT ZENITH_TEST_TARGET)
+        message(FATAL_ERROR "zenith_add_test: TARGET argument is required")
     endif()
 
-    if(NOT ASTRA_TEST_SOURCES)
-        message(FATAL_ERROR "astra_add_test: SOURCES argument is required")
+    if(NOT ZENITH_TEST_SOURCES)
+        message(FATAL_ERROR "zenith_add_test: SOURCES argument is required")
     endif()
 
-    add_executable(${ASTRA_TEST_TARGET} ${ASTRA_TEST_SOURCES})
+    add_executable(${ZENITH_TEST_TARGET} ${ZENITH_TEST_SOURCES})
 
-    if(ASTRA_TEST_INCLUDE_DIRS)
-        target_include_directories(${ASTRA_TEST_TARGET} PRIVATE ${ASTRA_TEST_INCLUDE_DIRS})
+    if(ZENITH_TEST_INCLUDE_DIRS)
+        target_include_directories(${ZENITH_TEST_TARGET} PRIVATE ${ZENITH_TEST_INCLUDE_DIRS})
     endif()
 
-    target_link_libraries(${ASTRA_TEST_TARGET}
+    target_link_libraries(${ZENITH_TEST_TARGET}
         PRIVATE
-            ${ASTRA_TEST_LIBRARIES}
+            ${ZENITH_TEST_LIBRARIES}
             GTest::gtest_main
             GTest::gmock
     )
 
     # Enable test discovery
     include(GoogleTest)
-    gtest_discover_tests(${ASTRA_TEST_TARGET})
+    gtest_discover_tests(${ZENITH_TEST_TARGET})
 endmacro()

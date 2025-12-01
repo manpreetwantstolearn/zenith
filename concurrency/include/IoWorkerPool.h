@@ -8,7 +8,7 @@
 #include <condition_variable>
 #include <atomic>
 
-namespace astra::concurrency {
+namespace zenith::concurrency {
 
 /**
  * @brief A Shared Queue Worker Pool for IO operations.
@@ -53,4 +53,4 @@ private:
     std::atomic<bool> m_running{false};
 };
 
-} // namespace astra::concurrency
+} // namespace zenith::concurrency

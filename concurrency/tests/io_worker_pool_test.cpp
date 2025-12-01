@@ -4,7 +4,7 @@
 #include <atomic>
 #include <chrono>
 
-using namespace astra::concurrency;
+using namespace zenith::concurrency;
 
 class IoWorkerPoolTest : public ::testing::Test {
 protected:

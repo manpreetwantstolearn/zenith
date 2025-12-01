@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
-project(Astra VERSION 1.0.0 LANGUAGES C CXX)
+project(Zenith VERSION 1.0.0 LANGUAGES C CXX)
 
 # -----------------------------------------------------------------------------
 # 1. Configuration
@@ -30,7 +30,7 @@ include(Valgrind)       # Custom Valgrind targets
 # 3. External Dependencies
 # -----------------------------------------------------------------------------
 include(AddGoogleTest)
-include(AddAstraTest)
+include(AddZenithTest)
 
 # -----------------------------------------------------------------------------
 # 3. Subdirectories

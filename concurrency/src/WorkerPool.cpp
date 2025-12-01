@@ -1,7 +1,7 @@
 #include "WorkerPool.h"
 #include <iostream>
 
-namespace astra::concurrency {
+namespace zenith::concurrency {
 
 WorkerPool::WorkerPool(size_t num_threads) : m_num_threads(num_threads) {
     m_workers.reserve(m_num_threads);
@@ -90,4 +90,4 @@ void WorkerPool::worker_loop(size_t index) {
     }
 }
 
-} // namespace astra::concurrency
+} // namespace zenith::concurrency

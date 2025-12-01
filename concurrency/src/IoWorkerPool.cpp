@@ -1,7 +1,7 @@
 #include "IoWorkerPool.h"
 #include <iostream>
 
-namespace astra::concurrency {
+namespace zenith::concurrency {
 
 IoWorkerPool::IoWorkerPool(size_t num_threads, size_t max_jobs) 
     : m_num_threads(num_threads), m_max_jobs(max_jobs) {
@@ -84,4 +84,4 @@ void IoWorkerPool::worker_loop() {
     }
 }
 
-} // namespace astra::concurrency
+} // namespace zenith::concurrency

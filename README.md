@@ -1,130 +1,97 @@
 # Zenith
 
-**Zenith** is a high-performance, production-ready C++ framework designed for building scalable microservices. It provides a robust set of libraries and abstractions for HTTP/1.1 and HTTP/2 communication, database interactions, state machine management, and observability.
+## 1. Development Environment
 
-## 🚀 Key Features
-
-*   **High-Performance Networking**:
-    *   **HTTP/1.1**: Asynchronous server and client based on **Boost.Beast**.
-    *   **HTTP/2**: Full HTTP/2 support using **nghttp2-asio** with a unified router abstraction.
-*   **Database Integrations**:
-    *   **MongoDB**: Modern C++ client wrapper with connection pooling and CRUD operations.
-    *   **Redis**: High-performance Redis client using `redis-plus-plus` and `hiredis`.
-*   **Distributed Systems**:
-    *   **Zookeeper**: Client for distributed coordination and configuration management.
-*   **Observability**:
-    *   **Prometheus**: Built-in metrics collection and exposition.
-    *   **Structured Logging**: High-performance asynchronous logging.
-*   **State Machines**:
-    *   Support for **HFSM2** (Hierarchical Finite State Machine) and **Boost.MSM**.
-*   **Quality Assurance**:
-    *   Integrated **Valgrind** support (MemCheck, Helgrind, Massif) for memory and thread safety.
-    *   Comprehensive Unit Testing with **CTest**.
-    *   Dual Compiler Support (**GCC** & **Clang**).
-
----
-
-## 🛠️ Prerequisites
-
-The project is designed to run inside a **Dockerized Development Environment** to ensure consistent dependencies.
-
-*   **Docker**: Ensure Docker is installed and running on your host machine.
-
----
-
-## 🏁 Quick Start
-
-### 1. Start the Development Container
-All development and building should happen inside the `Zenith` container.
-
+### Build Docker Image
 ```bash
-# Build and start the container (if not already running)
-cd devenv
-docker build -t Zenithbuilder:v2 .
-docker run -itd --name Zenith -v $(pwd)/..:/app/Zenith Zenithbuilder:v2 bash
+docker build --network=host -t zenithbuilder:v1 -f devenv/Dockerfile devenv
 ```
 
-### 2. Enter the Container
+### Run Container
 ```bash
-docker exec -it Zenith bash
-cd /app/Zenith
+docker run -it --name zenith -v $(pwd):/app/zenith zenithbuilder:v1 bash
 ```
 
-### 3. Build the Project
-You can build using **GCC** (default) or **Clang**.
+## Build Instructions
 
-#### Option A: Build with GCC (Default)
+We use **CMake Presets** to simplify building with different compilers and configurations. All builds are output to the `build/` directory.
+
+### 1. Standard Builds
+
+| Preset Name | Compiler | Build Type | Output Directory |
+| :--- | :--- | :--- | :--- |
+| `gcc-release` | GCC | Release | `build/gcc-release` |
+| `gcc-debug` | GCC | Debug | `build/gcc-debug` |
+| `clang-release` | Clang | Release | `build/clang-release` |
+| `clang-debug` | Clang | Debug | `build/clang-debug` |
+
+**Command:**
 ```bash
 # Configure
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --preset <preset-name>
 
-# Build
-cmake --build build -j$(nproc)
+# Build (Recommended: Use half of available cores to avoid freezing)
+cmake --build --preset <preset-name> -j$(($(nproc)/2))
 ```
 
-#### Option B: Build with Clang
+### 2. Sanitizer Builds (Debug)
+
+| Preset Name | Sanitizer | Compiler | Notes |
+| :--- | :--- | :--- | :--- |
+| `gcc-asan` | Address | GCC | **Recommended** for daily dev. |
+| `clang-asan` | Address | Clang | Alternative ASan build. |
+| `clang-tsan` | Thread | Clang | **Note**: May fail in Docker due to `personality` syscall restrictions. |
+| `clang-msan` | Memory | Clang | **Experimental**. Requires instrumented libc++. |
+
+**Example (GCC ASan):**
 ```bash
-# Configure
-cmake -S . -B build_clang -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_BUILD_TYPE=Release
-
-# Build
-cmake --build build_clang -j$(nproc)
+cmake --preset gcc-asan
+cmake --build --preset gcc-asan -j$(($(nproc)/2))
 ```
 
----
+## Testing
 
-## 🧪 Testing & Verification
+We use **GoogleTest** for all unit tests.
 
-Zenith enforces strict quality gates using CTest and Valgrind.
-
-### Run Unit Tests
+### Run All Tests
 ```bash
-cd build
-ctest --output-on-failure
+# Using CTest (Recommended)
+ctest --preset gcc-debug
+
+# Or using Make directly
+cd build/gcc-debug && make test
 ```
 
-### Run Memory & Thread Safety Checks
-We use Valgrind to detect memory leaks and race conditions.
+### Run Specific Component Tests
+You can run tests for a specific component (e.g., `router`, `http1.1server`) by targeting its GTest executable.
 
 ```bash
-# Memory Leak Detection
-make test_memcheck
-
-# Thread Error Detection (Race Conditions)
-make test_helgrind
-
-# Heap Profiling
-make test_massif
+# Build and run just the router tests
+cmake --build --preset gcc-debug --target router_gtest
+./build/gcc-debug/router/tests/router_gtest
 ```
 
----
+### Run Specific Test Cases
+Use `--gtest_filter` to run specific test cases.
 
-## 📂 Project Structure
+```bash
+# Run only the ExactMatch test in Router
+./build/gcc-debug/router/tests/router_gtest --gtest_filter=RouterTest.ExactMatch
+```
 
-| Directory | Description |
-| :--- | :--- |
-| `http1.1/` | HTTP/1.1 Server & Client implementation (Boost.Beast). |
-| `http2/` | HTTP/2 Server & Client implementation (nghttp2). |
-| `router/` | Unified request routing and middleware layer. |
-| `mongoclient/` | MongoDB C++ driver wrapper. |
-| `redisclient/` | Redis client wrapper. |
-| `zookeeperclient/` | Zookeeper client wrapper. |
-| `prometheus_client/` | Metrics collection library. |
-| `logger/` | Asynchronous structured logging. |
-| `hfsm/` | Hierarchical Finite State Machine integration. |
-| `devenv/` | Docker environment configuration. |
+## Verification (Valgrind)
 
----
+We provide a unified target to run all Valgrind tools (MemCheck, Helgrind, Massif, Callgrind, Cachegrind).
+**Note**: Valgrind targets are only available in **Debug** builds (e.g., `gcc-debug`).
 
-## 📝 Development Guidelines
+### Run All Valgrind Checks
+```bash
+cmake --build --preset gcc-debug --target test_valgrind_all
+```
 
-1.  **Code Style**: Follow standard C++17/20 practices.
-2.  **Testing**: Every new feature must have a corresponding unit test in `tests/`.
-3.  **Memory Safety**: Run `test_memcheck` before committing to ensure zero leaks.
-4.  **Compilers**: Verify builds on both GCC and Clang to ensure portability.
-
----
-
-## 📜 License
-
-This project is licensed under the MIT License.
+### Run Specific Checks
+```bash
+cmake --build --preset gcc-debug --target test_memcheck   # Memory Leaks
+cmake --build --preset gcc-debug --target test_helgrind   # Thread Safety
+cmake --build --preset gcc-debug --target test_massif     # Heap Profiling
+```

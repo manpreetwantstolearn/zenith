@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 
-using namespace astra::concurrency;
+using namespace zenith::concurrency;
 
 void test_basic_lifecycle() {
     std::cout << "Running test_basic_lifecycle..." << std::endl;

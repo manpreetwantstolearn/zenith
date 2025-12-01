@@ -1,7 +1,7 @@
 #include <any>
 #include <cstdint>
 
-namespace astra::concurrency {
+namespace zenith::concurrency {
 
 /**
  * @brief Represents the type of job/event in the system.
@@ -25,4 +25,4 @@ struct Job {
     std::any payload;    // Type-safe container for ANY object
 };
 
-} // namespace astra::concurrency
+} // namespace zenith::concurrency

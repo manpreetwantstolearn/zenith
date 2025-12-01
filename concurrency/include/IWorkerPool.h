@@ -2,7 +2,7 @@
 
 #include "Job.h"
 
-namespace astra::concurrency {
+namespace zenith::concurrency {
 
 /**
  * @brief Interface for a Worker Thread Pool.
@@ -32,4 +32,4 @@ public:
     virtual bool submit(Job job) = 0;
 };
 
-} // namespace astra::concurrency
+} // namespace zenith::concurrency

@@ -8,7 +8,7 @@
 #include <condition_variable>
 #include <atomic>
 
-namespace astra::concurrency {
+namespace zenith::concurrency {
 
 /**
  * @brief A Sharded Worker Pool implementation.
@@ -47,4 +47,4 @@ private:
     std::atomic<bool> m_running{false};
 };
 
-} // namespace astra::concurrency
+} // namespace zenith::concurrency
