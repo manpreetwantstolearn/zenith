@@ -1,0 +1,5 @@
+add_subdirectory(http2)
+add_subdirectory(http1.1)
+add_subdirectory(router)
+add_subdirectory(server)
+add_subdirectory(http_abstractions)
