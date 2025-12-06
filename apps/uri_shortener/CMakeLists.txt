@@ -26,7 +26,7 @@ target_include_directories(uri_shortner_app
 # Link Libraries
 target_link_libraries(uri_shortner_app
     PRIVATE
-        astra_router
+        zenith_router
         redisclient
         mongoclient
         http1.1server
@@ -40,12 +40,12 @@ target_compile_features(uri_shortner_app PUBLIC cxx_std_17)
 
 # Testing
 enable_testing()
-astra_add_test(
+zenith_add_test(
     TARGET uri_shortener_gtest
     SOURCES tests/uri_shortener_gtest.cpp ${URI_SHORTENER_SOURCES}
     INCLUDE_DIRS include src
     LIBRARIES 
-        astra_router
+        zenith_router
         redisclient
         mongoclient
         http1.1server
@@ -67,7 +67,7 @@ target_link_libraries(load_test
 add_executable(mock_server mock_server.cpp ${URI_SHORTENER_SOURCES})
 target_link_libraries(mock_server
     PRIVATE
-        astra_router
+        zenith_router
         http1.1server
         http2server
         redisclient
