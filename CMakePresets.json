@@ -64,6 +64,17 @@
       }
     },
     {
+     "name": "gcc-coverage",
+      "inherits": "gcc-base",
+      "displayName": "GCC Code Coverage",
+      "description": "Debug build using GCC with code coverage instrumentation",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "SANITIZE_MODE": "none",
+        "ENABLE_COVERAGE" : "ON"
+      }
+    },
+    {
       "name": "clang-release",
       "inherits": "clang-base",
       "displayName": "Clang Release",
@@ -122,6 +133,17 @@
         "CMAKE_BUILD_TYPE": "Debug",
         "SANITIZE_MODE": "undefined"
       }
+    },
+    {
+     "name": "clang-coverage",
+      "inherits": "clang-base",
+      "displayName": "Clang Code Coverage",
+      "description": "Debug build using Clang with code coverage instrumentation",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "SANITIZE_MODE": "none",
+	"ENABLE_COVERAGE" : "ON"
+      }
     }
   ],
   "buildPresets": [
@@ -136,6 +158,10 @@
     {
       "name": "gcc-asan",
       "configurePreset": "gcc-asan"
+    },
+    {
+      "name": "gcc-coverage",
+      "configurePreset": "gcc-coverage"
     },
     {
       "name": "clang-release",
@@ -160,6 +186,10 @@
     {
       "name": "clang-ubsan",
       "configurePreset": "clang-ubsan"
+    },
+    {
+      "name": "clang-coverage",
+      "configurePreset": "clang-coverage"
     }
   ],
   "testPresets": [
@@ -183,6 +213,13 @@
       "output": {
         "outputOnFailure": true
       }
+    },
+    {
+      "name": "gcc-coverage",
+     "configurePreset": "gcc-coverage",
+     "output": {
+       "outputOnFailure": true
+     }
     },
     {
       "name": "clang-release",
@@ -225,6 +262,12 @@
       "output": {
         "outputOnFailure": true
       }
+    },
+    {
+      "name": "clang-coverage",
+      "configurePreset": "clang-coverage",
+      "output": {
+	"outputOnFailure": true
     }
   ]
 }

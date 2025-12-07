@@ -37,6 +37,10 @@ RUN apt-get update && apt-get install -y \
     lldb \
     valgrind \
     #
+    # Code Coverage Tools
+    lcov \
+    llvm \
+    #
     # Utilities
     curl \
     dnsutils \

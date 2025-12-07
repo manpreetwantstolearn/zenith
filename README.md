@@ -126,3 +126,79 @@ cmake --build --preset gcc-debug --target test_memcheck   # Memory Leaks
 cmake --build --preset gcc-debug --target test_helgrind   # Thread Safety
 cmake --build --preset gcc-debug --target test_massif     # Heap Profiling
 ```
+
+## Code Coverage
+
+We support code coverage analysis for both **GCC** (using gcov/lcov) and **Clang** (using llvm-cov).
+Coverage reports are generated as HTML for easy visualization.
+
+### Coverage Presets
+
+| Preset Name | Compiler | Coverage Tool | Output Directory |
+| :--- | :--- | :--- | :--- |
+| `gcc-coverage` | GCC | gcov + lcov | `build/gcc-coverage` |
+| `clang-coverage` | Clang | llvm-cov | `build/clang-coverage` |
+
+### Workflow
+
+**1. Configure with coverage preset:**
+```bash
+cmake --preset gcc-coverage
+# or
+cmake --preset clang-coverage
+```
+
+**2. Build the project:**
+```bash
+cmake --build --preset gcc-coverage -j2
+# or
+cmake --build --preset clang-coverage -j2
+```
+
+**3. Run tests to generate coverage data:**
+```bash
+ctest --preset gcc-coverage
+# or
+ctest --preset clang-coverage
+```
+
+**4. Generate HTML coverage report:**
+```bash
+cmake --build --preset gcc-coverage --target coverage_report
+# or
+cmake --build --preset clang-coverage --target coverage_report
+```
+
+**5. View the report:**
+
+If running in Docker, copy the coverage report to your local machine:
+```bash
+# From your local machine (outside Docker)
+docker cp zenith:/app/zenith/build/gcc-coverage/coverage_html ./coverage_html
+# or
+docker cp zenith:/app/zenith/build/clang-coverage/coverage_html ./coverage_html
+```
+
+Then open `index.html` in your browser:
+```bash
+# On your local machine
+open coverage_html/index.html  # macOS
+xdg-open coverage_html/index.html  # Linux
+start coverage_html/index.html  # Windows
+```
+
+Alternatively, if running natively (not in Docker):
+```bash
+xdg-open build/gcc-coverage/coverage_html/index.html
+# or
+xdg-open build/clang-coverage/coverage_html/index.html
+```
+
+### Clean Coverage Data
+
+To reset coverage counters and remove reports:
+```bash
+cmake --build --preset gcc-coverage --target coverage_clean
+# or
+cmake --build --preset clang-coverage --target coverage_clean
+```
