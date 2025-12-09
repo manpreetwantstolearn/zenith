@@ -17,17 +17,18 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-# Testing
-enable_testing()
-include(GoogleTest)
-
 # Custom Modules
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
+# Valgrind must be included BEFORE CTest to set MEMORYCHECK variables
+include(Valgrind)
+
+# Testing (CTest generates DartConfiguration.tcl needed for memcheck)
+include(CTest)
+include(GoogleTest)
 include(AddGoogleTest) # Handles GTest dependency
 include(AddAstraTest)
 include(Sanitizers)
-include(Valgrind)
-include(coverage)
 
 # Subdirectories
 add_subdirectory(libs)
