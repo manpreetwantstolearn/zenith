@@ -48,3 +48,7 @@ Testing/
 
 # Dev environment
 .vscode/
+
+compile_commands.json
+
+.gitignore
