@@ -1,8 +1,3 @@
-cmake_minimum_required(VERSION 3.25)
-
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 include(FetchContent)
 find_package(PkgConfig REQUIRED)
 
@@ -58,7 +53,8 @@ target_include_directories(redisclient
 )
 
 target_link_libraries(redisclient
-    PUBLIC
+   PRIVATE 
+        zenith_sanitizers
         redis++::redis++
 )
 
@@ -69,11 +65,15 @@ enable_testing()
 zenith_add_test(
     TARGET redis_integration_test
     SOURCES tests/redis_integration_test.cpp
-    LIBRARIES redisclient
+    LIBRARIES
+        redisclient
+	redis++::redis++
 )
 
 zenith_add_test(
     TARGET redis_mock_test
     SOURCES tests/redis_mock_test.cpp
-    LIBRARIES redisclient
+    LIBRARIES
+        redisclient
+	redis++::redis++
 )

@@ -27,7 +27,7 @@ include(Valgrind)
 include(CTest)
 include(GoogleTest)
 include(AddGoogleTest) # Handles GTest dependency
-include(AddAstraTest)
+include(AddZenithTest)
 include(Sanitizers)
 
 # Subdirectories

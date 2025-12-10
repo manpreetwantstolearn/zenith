@@ -64,14 +64,14 @@
       }
     },
     {
-     "name": "gcc-coverage",
+      "name": "gcc-coverage",
       "inherits": "gcc-base",
       "displayName": "GCC Code Coverage",
       "description": "Debug build using GCC with code coverage instrumentation",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "SANITIZE_MODE": "none",
-        "ENABLE_COVERAGE" : "ON"
+        "ENABLE_COVERAGE": "ON"
       }
     },
     {
@@ -135,14 +135,14 @@
       }
     },
     {
-     "name": "clang-coverage",
+      "name": "clang-coverage",
       "inherits": "clang-base",
       "displayName": "Clang Code Coverage",
       "description": "Debug build using Clang with code coverage instrumentation",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "SANITIZE_MODE": "none",
-	"ENABLE_COVERAGE" : "ON"
+        "ENABLE_COVERAGE": "ON"
       }
     }
   ],
@@ -216,10 +216,10 @@
     },
     {
       "name": "gcc-coverage",
-     "configurePreset": "gcc-coverage",
-     "output": {
-       "outputOnFailure": true
-     }
+      "configurePreset": "gcc-coverage",
+      "output": {
+        "outputOnFailure": true
+      }
     },
     {
       "name": "clang-release",
@@ -267,7 +267,8 @@
       "name": "clang-coverage",
       "configurePreset": "clang-coverage",
       "output": {
-	"outputOnFailure": true
+        "outputOnFailure": true
+      }
     }
   ]
 }

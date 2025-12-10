@@ -1,7 +1,3 @@
-cmake_minimum_required(VERSION 3.25)
-project(MongoClient)
-
-set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 enable_testing()
@@ -22,10 +18,12 @@ target_include_directories(mongoclient
 
 # Link libraries
 target_link_libraries(mongoclient
-    PUBLIC
-        logger
+   PRIVATE
+        zenith_sanitizers
         mongocxx_static
         bsoncxx_static
+   PUBLIC
+        observability
 )
 
 # Test executable
@@ -33,15 +31,17 @@ target_link_libraries(mongoclient
 zenith_add_test(
     TARGET mongo_integration_test
     SOURCES tests/mongo_integration_test.cpp
-    LIBRARIES mongoclient
+    LIBRARIES
+        mongoclient
+	mongocxx_static
+	bsoncxx_static
 )
 
 zenith_add_test(
     TARGET mongo_mock_test
     SOURCES tests/mongo_mock_test.cpp
-    LIBRARIES mongoclient
+    LIBRARIES
+        mongoclient
+	mongocxx_static
+	bsoncxx_static
 )
-
-# Main application executable
-add_executable(mongo_app main.cpp)
-target_link_libraries(mongo_app PRIVATE mongoclient)
