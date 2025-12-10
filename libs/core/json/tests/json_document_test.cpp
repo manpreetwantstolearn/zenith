@@ -8,7 +8,7 @@ using namespace json;
 
 void test_parse_valid_json() {
     std::string json_str = R"({
-        "name": "Astra",
+        "name": "Zenith",
         "port": 8080,
         "enabled": true,
         "ratio": 1.5
@@ -22,7 +22,7 @@ void test_parse_valid_json() {
         assert(doc.contains("enabled"));
         assert(!doc.contains("missing"));
         
-        assert(doc.get_string("name") == "Astra");
+        assert(doc.get_string("name") == "Zenith");
         assert(doc.get_int("port") == 8080);
         assert(doc.get_bool("enabled") == true);
         // assert(doc.get_double("ratio") == 1.5); // Floating point comparison needs epsilon

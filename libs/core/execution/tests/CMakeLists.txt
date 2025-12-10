@@ -1,0 +1,19 @@
+add_executable(test_thread_pool thread_pool_test.cpp)
+target_link_libraries(test_thread_pool PRIVATE zenith_execution GTest::gtest_main)
+add_test(NAME thread_pool_test COMMAND test_thread_pool)
+
+add_executable(test_job_context job_context_test.cpp)
+target_link_libraries(test_job_context PRIVATE zenith_execution GTest::gtest_main)
+add_test(NAME job_context_test COMMAND test_job_context)
+
+add_executable(test_executor executor_test.cpp)
+target_link_libraries(test_executor PRIVATE zenith_execution GTest::gtest_main)
+add_test(NAME executor_test COMMAND test_executor)
+
+add_executable(striped_message_pool_test striped_message_pool_test.cpp)
+target_link_libraries(striped_message_pool_test PRIVATE zenith_execution GTest::gtest_main)
+add_test(NAME striped_message_pool_test COMMAND striped_message_pool_test)
+
+add_executable(observable_message_pool_test observable_message_pool_test.cpp)
+target_link_libraries(observable_message_pool_test PRIVATE zenith_execution GTest::gtest_main)
+add_test(NAME observable_message_pool_test COMMAND observable_message_pool_test)

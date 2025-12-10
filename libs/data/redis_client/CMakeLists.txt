@@ -53,7 +53,7 @@ target_include_directories(redisclient
 )
 
 target_link_libraries(redisclient
-   PRIVATE 
+    PRIVATE 
         zenith_sanitizers
         redis++::redis++
 )
@@ -67,7 +67,7 @@ zenith_add_test(
     SOURCES tests/redis_integration_test.cpp
     LIBRARIES
         redisclient
-	redis++::redis++
+	    redis++::redis++
 )
 
 zenith_add_test(
@@ -75,5 +75,5 @@ zenith_add_test(
     SOURCES tests/redis_mock_test.cpp
     LIBRARIES
         redisclient
-	redis++::redis++
+	    redis++::redis++
 )
