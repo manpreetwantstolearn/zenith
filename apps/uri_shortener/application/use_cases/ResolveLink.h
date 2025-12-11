@@ -4,8 +4,10 @@
 #pragma once
 
 #include "Result.h"
-#include "domain/ports/ILinkRepository.h"
+
 #include "domain/errors/DomainErrors.h"
+#include "domain/ports/ILinkRepository.h"
+
 #include <memory>
 #include <string>
 
@@ -13,28 +15,28 @@ namespace url_shortener::application {
 
 /**
  * @brief ResolveLink use case
- * 
+ *
  * Resolves a short code to its original URL.
  * Returns error if link not found or expired.
  */
 class ResolveLink {
 public:
-    struct Input {
-        std::string short_code;
-    };
+  struct Input {
+    std::string short_code;
+  };
 
-    struct Output {
-        std::string original_url;
-    };
+  struct Output {
+    std::string original_url;
+  };
 
-    using Result = zenith::Result<Output, domain::DomainError>;
+  using Result = zenith::Result<Output, domain::DomainError>;
 
-    explicit ResolveLink(std::shared_ptr<domain::ILinkRepository> repository);
+  explicit ResolveLink(std::shared_ptr<domain::ILinkRepository> repository);
 
-    Result execute(const Input& input);
+  Result execute(const Input& input);
 
 private:
-    std::shared_ptr<domain::ILinkRepository> m_repository;
+  std::shared_ptr<domain::ILinkRepository> m_repository;
 };
 
 } // namespace url_shortener::application

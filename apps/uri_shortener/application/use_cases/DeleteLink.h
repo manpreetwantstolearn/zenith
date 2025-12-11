@@ -4,8 +4,10 @@
 #pragma once
 
 #include "Result.h"
-#include "domain/ports/ILinkRepository.h"
+
 #include "domain/errors/DomainErrors.h"
+#include "domain/ports/ILinkRepository.h"
+
 #include <memory>
 #include <string>
 
@@ -13,24 +15,24 @@ namespace url_shortener::application {
 
 /**
  * @brief DeleteLink use case
- * 
+ *
  * Removes a link by its short code.
  * Returns error if link not found.
  */
 class DeleteLink {
 public:
-    struct Input {
-        std::string short_code;
-    };
+  struct Input {
+    std::string short_code;
+  };
 
-    using Result = zenith::Result<void, domain::DomainError>;
+  using Result = zenith::Result<void, domain::DomainError>;
 
-    explicit DeleteLink(std::shared_ptr<domain::ILinkRepository> repository);
+  explicit DeleteLink(std::shared_ptr<domain::ILinkRepository> repository);
 
-    Result execute(const Input& input);
+  Result execute(const Input& input);
 
 private:
-    std::shared_ptr<domain::ILinkRepository> m_repository;
+  std::shared_ptr<domain::ILinkRepository> m_repository;
 };
 
 } // namespace url_shortener::application

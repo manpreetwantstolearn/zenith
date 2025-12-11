@@ -5,7 +5,7 @@ namespace config {
 
 class JsonConfigParser : public IConfigParser {
 public:
-    Config parse(const std::string& raw_config) const override;
+  Config parse(const std::string& raw_config) const override;
 };
 
-}
+} // namespace config

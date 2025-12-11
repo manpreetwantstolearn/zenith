@@ -1,40 +1,41 @@
 #pragma once
 
+#include <obs/Context.h>
+
 #include <IMessageHandler.h>
-#include <StripedMessagePool.h>
 #include <IRequest.h>
 #include <IResponse.h>
-#include <obs/Context.h>
+#include <StripedMessagePool.h>
 
 namespace url_shortener {
 
 /**
  * @brief Request Handler for URI Shortener
- * 
+ *
  * Entry point for HTTP requests. Creates HttpRequestMsg and submits to pool.
  * This replaces direct handler registration with router.
  */
 class UriShortenerRequestHandler {
 public:
-    explicit UriShortenerRequestHandler(zenith::execution::StripedMessagePool& pool);
-    
-    /**
-     * @brief Handle incoming HTTP request
-     * 
-     * Creates HttpRequestMsg with copies of request/response,
-     * then submits to pool for async processing.
-     */
-    void handle(router::IRequest& req, router::IResponse& res);
+  explicit UriShortenerRequestHandler(zenith::execution::StripedMessagePool& pool);
+
+  /**
+   * @brief Handle incoming HTTP request
+   *
+   * Creates HttpRequestMsg with copies of request/response,
+   * then submits to pool for async processing.
+   */
+  void handle(router::IRequest& req, router::IResponse& res);
 
 private:
-    zenith::execution::StripedMessagePool& m_pool;
-    
-    /**
-     * @brief Generate session ID from request
-     * 
-     * Uses request path hash for session affinity.
-     */
-    uint64_t generate_session_id(router::IRequest& req);
+  zenith::execution::StripedMessagePool& m_pool;
+
+  /**
+   * @brief Generate session ID from request
+   *
+   * Uses request path hash for session affinity.
+   */
+  uint64_t generate_session_id(router::IRequest& req);
 };
 
 } // namespace url_shortener

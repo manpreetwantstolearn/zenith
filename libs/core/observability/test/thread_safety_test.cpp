@@ -5,15 +5,17 @@
 // TSan will detect data races if any exist.
 // =============================================================================
 #include "MockBackend.h"
-#include <atomic>
-#include <chrono>
+
 #include <gtest/gtest.h>
-#include <mutex>
 #include <obs/Context.h>
 #include <obs/IBackend.h>
 #include <obs/Log.h>
 #include <obs/Metrics.h>
 #include <obs/Span.h>
+
+#include <atomic>
+#include <chrono>
+#include <mutex>
 #include <queue>
 #include <thread>
 #include <vector>
@@ -31,10 +33,12 @@ protected:
     obs::set_backend(std::move(mock));
   }
 
-  void TearDown() override { obs::shutdown(); }
+  void TearDown() override {
+    obs::shutdown();
+  }
 
   std::unique_ptr<ThreadSafeMockBackend> mock;
-  ThreadSafeMockBackend *mock_ptr;
+  ThreadSafeMockBackend* mock_ptr;
 
   static constexpr int NUM_THREADS = 8;
   static constexpr int OPS_PER_THREAD = 100;
@@ -54,8 +58,9 @@ TEST_F(ThreadSafetyTest, ConcurrentSpanCreation) {
     });
   }
 
-  for (auto &t : threads)
+  for (auto& t : threads) {
     t.join();
+  }
 
   EXPECT_EQ(mock_ptr->span_count.load(), NUM_THREADS * OPS_PER_THREAD);
 }
@@ -72,8 +77,9 @@ TEST_F(ThreadSafetyTest, ConcurrentSpanWithContext) {
     });
   }
 
-  for (auto &t : threads)
+  for (auto& t : threads) {
     t.join();
+  }
 }
 
 // =============================================================================
@@ -91,8 +97,9 @@ TEST_F(ThreadSafetyTest, ConcurrentLogging) {
     });
   }
 
-  for (auto &t : threads)
+  for (auto& t : threads) {
     t.join();
+  }
 
   EXPECT_EQ(mock_ptr->log_count.load(), NUM_THREADS * OPS_PER_THREAD);
 }
@@ -125,8 +132,9 @@ TEST_F(ThreadSafetyTest, ConcurrentMixedLogLevels) {
     });
   }
 
-  for (auto &t : threads)
+  for (auto& t : threads) {
     t.join();
+  }
 }
 
 // =============================================================================
@@ -137,15 +145,16 @@ TEST_F(ThreadSafetyTest, ConcurrentCounterAccess) {
 
   for (int i = 0; i < NUM_THREADS; i++) {
     threads.emplace_back([]() {
-      auto &counter = obs::counter("shared_counter");
+      auto& counter = obs::counter("shared_counter");
       for (int j = 0; j < OPS_PER_THREAD; j++) {
         counter.inc();
       }
     });
   }
 
-  for (auto &t : threads)
+  for (auto& t : threads) {
     t.join();
+  }
 }
 
 TEST_F(ThreadSafetyTest, ConcurrentHistogramAccess) {
@@ -153,15 +162,16 @@ TEST_F(ThreadSafetyTest, ConcurrentHistogramAccess) {
 
   for (int i = 0; i < NUM_THREADS; i++) {
     threads.emplace_back([i]() {
-      auto &hist = obs::histogram("shared_histogram");
+      auto& hist = obs::histogram("shared_histogram");
       for (int j = 0; j < OPS_PER_THREAD; j++) {
         hist.record(static_cast<double>(i * j));
       }
     });
   }
 
-  for (auto &t : threads)
+  for (auto& t : threads) {
     t.join();
+  }
 }
 
 TEST_F(ThreadSafetyTest, ConcurrentMultipleCounters) {
@@ -170,15 +180,16 @@ TEST_F(ThreadSafetyTest, ConcurrentMultipleCounters) {
   for (int i = 0; i < NUM_THREADS; i++) {
     threads.emplace_back([i]() {
       std::string name = "counter_" + std::to_string(i % 3);
-      auto &counter = obs::counter(name);
+      auto& counter = obs::counter(name);
       for (int j = 0; j < OPS_PER_THREAD; j++) {
         counter.inc(j);
       }
     });
   }
 
-  for (auto &t : threads)
+  for (auto& t : threads) {
     t.join();
+  }
 }
 
 // =============================================================================
@@ -200,8 +211,9 @@ TEST_F(ThreadSafetyTest, ConcurrentMixedOperations) {
     });
   }
 
-  for (auto &t : threads)
+  for (auto& t : threads) {
     t.join();
+  }
 }
 
 // =============================================================================
@@ -219,19 +231,19 @@ TEST_F(ThreadSafetyTest, ConcurrentContextCreation) {
     });
   }
 
-  for (auto &t : threads)
+  for (auto& t : threads) {
     t.join();
+  }
 
   // Verify all contexts are unique
-  for (const auto &ctx : contexts) {
+  for (const auto& ctx : contexts) {
     EXPECT_TRUE(ctx.is_valid());
   }
 }
 
 TEST_F(ThreadSafetyTest, ConcurrentTraceparentParsing) {
   std::vector<std::thread> threads;
-  std::string header =
-      "00-0123456789abcdeffedcba9876543210-aabbccddeeff0011-01";
+  std::string header = "00-0123456789abcdeffedcba9876543210-aabbccddeeff0011-01";
 
   for (int i = 0; i < NUM_THREADS; i++) {
     threads.emplace_back([&header]() {
@@ -243,8 +255,9 @@ TEST_F(ThreadSafetyTest, ConcurrentTraceparentParsing) {
     });
   }
 
-  for (auto &t : threads)
+  for (auto& t : threads) {
     t.join();
+  }
 }
 
 // =============================================================================
@@ -267,7 +280,7 @@ TEST_F(ThreadSafetyTest, ShutdownWhileOperating) {
     workers.emplace_back([&keep_running]() {
       int iter = 0;
       int MAX_ITERS = 100000;
-      const char *memcheck = std::getenv("UNDER_MEMCHECK");
+      const char* memcheck = std::getenv("UNDER_MEMCHECK");
       if (memcheck && std::string(memcheck) == "1") {
         MAX_ITERS = 1000;
       }
@@ -275,8 +288,9 @@ TEST_F(ThreadSafetyTest, ShutdownWhileOperating) {
         auto span = obs::span("working");
         obs::info("log");
         obs::counter("ops").inc();
-        if ((iter & 0xFF) == 0)
+        if ((iter & 0xFF) == 0) {
           std::this_thread::sleep_for(std::chrono::microseconds(50));
+        }
       }
     });
   }
@@ -291,8 +305,9 @@ TEST_F(ThreadSafetyTest, ShutdownWhileOperating) {
   // Signal workers to stop
   keep_running.store(false);
 
-  for (auto &t : workers)
+  for (auto& t : workers) {
     t.join();
+  }
 
   // Test passes if no crash or TSan errors occur during concurrent shutdown
   // Note: mock_ptr is invalid after shutdown() - cannot access it
@@ -305,7 +320,7 @@ TEST_F(ThreadSafetyTest, UseAfterShutdown) {
   // These should all be no-ops, not crashes
   auto span = obs::span("after_shutdown");
   obs::info("log after shutdown");
-  auto &counter = obs::counter("counter_after");
+  auto& counter = obs::counter("counter_after");
   counter.inc();
 
   EXPECT_EQ(span, nullptr);
@@ -319,7 +334,7 @@ TEST(ThreadSafetyBackendTest, ConcurrentBackendReplacement) {
   std::vector<std::thread> threads;
 
   int MAX_ITERS = 100000;
-  const char *memcheck = std::getenv("UNDER_MEMCHECK");
+  const char* memcheck = std::getenv("UNDER_MEMCHECK");
   if (memcheck && std::string(memcheck) == "1") {
     MAX_ITERS = 1000;
   }
@@ -341,8 +356,9 @@ TEST(ThreadSafetyBackendTest, ConcurrentBackendReplacement) {
   }
 
   keep_running.store(false);
-  for (auto &t : threads)
+  for (auto& t : threads) {
     t.join();
+  }
 
   obs::shutdown();
 }
@@ -356,15 +372,16 @@ TEST_F(ThreadSafetyTest, HighContentionSingleCounter) {
 
   for (int i = 0; i < NUM_THREADS; i++) {
     threads.emplace_back([]() {
-      auto &counter = obs::counter("hot_counter");
+      auto& counter = obs::counter("hot_counter");
       for (int j = 0; j < HIGH_OPS; j++) {
         counter.inc();
       }
     });
   }
 
-  for (auto &t : threads)
+  for (auto& t : threads) {
     t.join();
+  }
 }
 
 TEST_F(ThreadSafetyTest, HighContentionMixedMetrics) {
@@ -383,8 +400,9 @@ TEST_F(ThreadSafetyTest, HighContentionMixedMetrics) {
     });
   }
 
-  for (auto &t : threads)
+  for (auto& t : threads) {
     t.join();
+  }
 }
 
 // =============================================================================
@@ -407,11 +425,12 @@ TEST_F(ThreadSafetyTest, ConcurrentChildContextCreation) {
     });
   }
 
-  for (auto &t : threads)
+  for (auto& t : threads) {
     t.join();
+  }
 
   // All children should have same trace_id as parent
-  for (const auto &child : children) {
+  for (const auto& child : children) {
     EXPECT_EQ(child.trace_id.high, parent.trace_id.high);
     EXPECT_EQ(child.trace_id.low, parent.trace_id.low);
   }
@@ -436,8 +455,9 @@ TEST_F(ThreadSafetyTest, ConcurrentBaggageModification) {
     });
   }
 
-  for (auto &t : threads)
+  for (auto& t : threads) {
     t.join();
+  }
 }
 
 TEST_F(ThreadSafetyTest, ConcurrentBaggageParsing) {
@@ -454,8 +474,9 @@ TEST_F(ThreadSafetyTest, ConcurrentBaggageParsing) {
     });
   }
 
-  for (auto &t : threads)
+  for (auto& t : threads) {
     t.join();
+  }
 }
 
 // =============================================================================
@@ -465,11 +486,14 @@ TEST_F(ThreadSafetyTest, ConcurrentDoubleShutdown) {
   std::vector<std::thread> threads;
 
   for (int i = 0; i < NUM_THREADS; i++) {
-    threads.emplace_back([]() { obs::shutdown(); });
+    threads.emplace_back([]() {
+      obs::shutdown();
+    });
   }
 
-  for (auto &t : threads)
+  for (auto& t : threads) {
     t.join();
+  }
 
   // Should be safe - no crash, no TSan errors
 }
@@ -482,7 +506,7 @@ TEST(ThreadSafetyInitTest, ConcurrentInitShutdown) {
   std::atomic<bool> keep_running{true};
 
   int MAX_ITERS = 100000;
-  const char *memcheck = std::getenv("UNDER_MEMCHECK");
+  const char* memcheck = std::getenv("UNDER_MEMCHECK");
   if (memcheck && std::string(memcheck) == "1") {
     MAX_ITERS = 1000;
   }
@@ -510,8 +534,9 @@ TEST(ThreadSafetyInitTest, ConcurrentInitShutdown) {
   std::this_thread::sleep_for(std::chrono::milliseconds(50));
   keep_running.store(false);
 
-  for (auto &t : threads)
+  for (auto& t : threads) {
     t.join();
+  }
   obs::shutdown();
 }
 
@@ -536,8 +561,9 @@ TEST_F(ThreadSafetyTest, StaggeredThreadStart) {
     });
   }
 
-  for (auto &t : threads)
+  for (auto& t : threads) {
     t.join();
+  }
   EXPECT_EQ(started.load(), NUM_THREADS);
 }
 
@@ -550,7 +576,7 @@ TEST_F(ThreadSafetyTest, ProducerConsumerContextPassing) {
   std::mutex queue_mutex;
 
   int MAX_ITERS = 100;
-  const char *memcheck = std::getenv("UNDER_MEMCHECK");
+  const char* memcheck = std::getenv("UNDER_MEMCHECK");
   if (memcheck && std::string(memcheck) == "1") {
     MAX_ITERS = 10;
   }
@@ -591,18 +617,21 @@ TEST_F(ThreadSafetyTest, ProducerConsumerContextPassing) {
         } else if (done.load()) {
           // Only exit when done AND queue is empty (checked inside lock)
           std::lock_guard<std::mutex> lock(queue_mutex);
-          if (queue.empty())
+          if (queue.empty()) {
             break;
+          }
         }
       }
     });
   }
 
-  for (auto &t : producers)
+  for (auto& t : producers) {
     t.join();
+  }
   done.store(true);
-  for (auto &t : consumers)
+  for (auto& t : consumers) {
     t.join();
+  }
 }
 
 // =============================================================================
@@ -628,8 +657,9 @@ TEST_F(ThreadSafetyTest, BurstTraffic) {
   // Trigger burst
   go.store(true);
 
-  for (auto &t : threads)
+  for (auto& t : threads) {
     t.join();
+  }
 }
 
 // =============================================================================
@@ -655,8 +685,9 @@ TEST_F(ThreadSafetyTest, ConcurrentSpanAttributeSetting) {
     });
   }
 
-  for (auto &t : threads)
+  for (auto& t : threads) {
     t.join();
+  }
   EXPECT_EQ(completed.load(), NUM_THREADS);
 }
 
@@ -671,14 +702,15 @@ TEST_F(ThreadSafetyTest, MetricNameCollision) {
     threads.emplace_back([]() {
       for (int j = 0; j < OPS_PER_THREAD; j++) {
         // Same exact name - tests cache lookup races
-        auto &c = obs::counter("collision_counter", "same desc");
+        auto& c = obs::counter("collision_counter", "same desc");
         c.inc();
       }
     });
   }
 
-  for (auto &t : threads)
+  for (auto& t : threads) {
     t.join();
+  }
 }
 
 // =============================================================================
@@ -691,7 +723,7 @@ TEST_F(ThreadSafetyTest, SEDAStageSimulation) {
   };
 
   int MAX_JOBS = 100;
-  const char *memcheck = std::getenv("UNDER_MEMCHECK");
+  const char* memcheck = std::getenv("UNDER_MEMCHECK");
   if (memcheck && std::string(memcheck) == "1") {
     MAX_JOBS = 10;
   }
@@ -773,10 +805,12 @@ TEST_F(ThreadSafetyTest, SEDAStageSimulation) {
   std::this_thread::sleep_for(std::chrono::milliseconds(50));
   done.store(true);
 
-  for (auto &t : workers)
+  for (auto& t : workers) {
     t.join();
-  for (auto &t : io_threads)
+  }
+  for (auto& t : io_threads) {
     t.join();
+  }
 
   EXPECT_EQ(processed.load(), MAX_JOBS);
 }

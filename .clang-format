@@ -1,0 +1,132 @@
+---
+Language: Cpp
+BasedOnStyle: LLVM
+Standard: c++17
+
+# =============================================================================
+# Line Width and Formatting Stability
+# =============================================================================
+ColumnLimit: 100
+UseTab: Never
+IndentWidth: 2
+TabWidth: 2
+ContinuationIndentWidth: 4
+
+# =============================================================================
+# Safety and Predictability
+# =============================================================================
+InsertBraces: true                 # Prevents "dangling else" and one-line if bugs
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
+AllowShortBlocksOnASingleLine: Never
+
+# =============================================================================
+# Pointers, References, Qualifiers
+# =============================================================================
+PointerAlignment: Left             # Industry default. Avoids misleading "int* a, b"
+ReferenceAlignment: Left
+DerivePointerAlignment: false
+
+QualifierAlignment: Left           # Traditional: const int*
+SpaceAfterLogicalNot: false
+
+# =============================================================================
+# Includes and Header Organization
+# =============================================================================
+IncludeBlocks: Regroup
+SortIncludes: CaseSensitive
+
+IncludeCategories:
+  - Regex: '^"[^/]*\.h"$'
+    Priority: 0                    # Main header of the translation unit
+  - Regex: '^"'
+    Priority: 1                    # Project-local headers
+  - Regex: '^<[^/]+/.*>'
+    Priority: 2                    # Third-party libraries
+  - Regex: '^<[a-zA-Z0-9_]+>$'
+    Priority: 3                    # Standard C++ headers
+  - Regex: '^<.*\.h>'
+    Priority: 4                    # C system headers
+
+IncludeIsMainRegex: '(_test|_unittest|_mock)?$'
+
+# =============================================================================
+# Braces, Namespaces, Scopes
+# =============================================================================
+BreakBeforeBraces: Attach
+NamespaceIndentation: None
+FixNamespaceComments: true
+CompactNamespaces: false
+
+# =============================================================================
+# Constructor Initializers and Inheritance
+# =============================================================================
+BreakConstructorInitializers: AfterColon
+ConstructorInitializerIndentWidth: 4
+BreakInheritanceList: AfterColon
+
+# =============================================================================
+# Alignment Rules
+# =============================================================================
+AlignAfterOpenBracket: Align
+AlignOperands: AlignAfterOperator
+AlignTrailingComments:
+  Kind: Always
+  OverEmptyLines: 1
+
+AlignArrayOfStructures: Left
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false
+AlignConsecutiveMacros: false
+
+# =============================================================================
+# Spacing and Operators
+# =============================================================================
+SpaceBeforeParens: ControlStatements   # if (), while (), for ()
+SpaceBeforeRangeBasedForLoopColon: true
+SpacesInParentheses: false
+SpacesInSquareBrackets: false
+SpacesInAngles: Never
+SpaceInEmptyBlock: false
+
+# =============================================================================
+# Lambdas and Functions
+# =============================================================================
+AllowShortLambdasOnASingleLine: Empty
+LambdaBodyIndentation: Signature
+AlwaysBreakAfterReturnType: None
+
+# =============================================================================
+# Comments
+# =============================================================================
+ReflowComments: true
+SpacesInLineCommentPrefix:
+  Minimum: 1
+  Maximum: 1
+
+# =============================================================================
+# Line Breaking Behavior
+# =============================================================================
+BreakBeforeBinaryOperators: None
+BreakBeforeTernaryOperators: true
+BreakStringLiterals: true
+AlwaysBreakTemplateDeclarations: Yes
+
+KeepEmptyLinesAtTheStartOfBlocks: false
+MaxEmptyLinesToKeep: 1
+
+# =============================================================================
+# Penalties (kept conservative to avoid excessive churn)
+# =============================================================================
+PenaltyBreakComment: 200
+PenaltyBreakString: 500
+PenaltyExcessCharacter: 10000     # Soft encouragement to stay inside column limit
+PenaltyReturnTypeOnItsOwnLine: 80
+
+# =============================================================================
+# Macros
+# =============================================================================
+AttributeMacros: []
+StatementMacros: []
+...
