@@ -2,7 +2,7 @@
 # Supports: Address (ASan), Thread (TSan), Memory (MSan), Undefined (UBSan)
 # Works with: Clang and GCC (MSan is Clang-only)
 #
-# USAGE: Link your Astra libraries to zenith_sanitizers PRIVATE:
+# USAGE: Link your Zenith libraries to zenith_sanitizers PRIVATE:
 #   target_link_libraries(my_library PRIVATE zenith_sanitizers)
 #
 # This approach prevents third-party dependencies from inheriting sanitizer flags.
