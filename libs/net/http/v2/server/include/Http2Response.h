@@ -6,49 +6,39 @@
 #include <memory>
 #include <optional>
 #include <string>
-#include <string_view>
 
-namespace http2server {
+#include <IScopedResource.h>
 
-class ResponseHandle; // Forward declaration
+namespace zenith::http2 {
 
-/**
- * @brief Lightweight copyable response handle.
- *
- * Holds response data directly (status, headers, body).
- * Uses weak_ptr<ResponseHandle> for sending via io_context.
- *
- * Design notes:
- * - m_status is optional (forces explicit set_status call)
- * - m_closed prevents double-send
- * - Copyable - copies are independent (own m_closed flag)
- */
-class Response final : public router::IResponse {
+class Http2ResponseWriter;
+
+class Http2Response final : public zenith::router::IResponse {
 public:
-  Response() = default;
-  explicit Response(std::weak_ptr<ResponseHandle> handle);
+  Http2Response() = default;
+  explicit Http2Response(std::weak_ptr<Http2ResponseWriter> writer);
 
-  // Copyable (default)
-  Response(const Response&) = default;
-  Response& operator=(const Response&) = default;
+  Http2Response(const Http2Response&) = default;
+  Http2Response& operator=(const Http2Response&) = default;
+  Http2Response(Http2Response&&) noexcept = default;
+  Http2Response& operator=(Http2Response&&) noexcept = default;
 
-  // Also movable
-  Response(Response&&) noexcept = default;
-  Response& operator=(Response&&) noexcept = default;
-
-  ~Response() override = default;
+  ~Http2Response() override = default;
 
   void set_status(int code) noexcept override;
-  void set_header(std::string_view key, std::string_view value) override;
-  void write(std::string_view data) override;
+  void set_header(const std::string& key, const std::string& value) override;
+  void write(const std::string& data) override;
   void close() override;
+  [[nodiscard]] bool is_alive() const noexcept override;
+
+  void add_scoped_resource(std::unique_ptr<zenith::execution::IScopedResource> resource);
 
 private:
   std::optional<int> m_status;
   std::map<std::string, std::string> m_headers;
   std::string m_body;
-  std::weak_ptr<ResponseHandle> m_handle;
+  std::weak_ptr<Http2ResponseWriter> m_writer;
   bool m_closed = false;
 };
 
-} // namespace http2server
+} // namespace zenith::http2

@@ -4,7 +4,7 @@
 
 #include <gmock/gmock.h>
 
-namespace mongoclient {
+namespace zenith::mongo {
 
 class MockMongoClient : public IMongoClient {
 public:
@@ -43,4 +43,4 @@ public:
               (override));
 };
 
-} // namespace mongoclient
+} // namespace zenith::mongo

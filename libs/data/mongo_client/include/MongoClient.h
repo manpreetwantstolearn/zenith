@@ -7,7 +7,7 @@
 
 #include <memory>
 
-namespace mongoclient {
+namespace zenith::mongo {
 
 class MongoClient : public IMongoClient {
 public:
@@ -42,4 +42,4 @@ private:
   std::unique_ptr<mongocxx::client> m_client;
 };
 
-} // namespace mongoclient
+} // namespace zenith::mongo

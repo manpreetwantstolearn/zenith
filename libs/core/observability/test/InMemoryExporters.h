@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-namespace observability {
+namespace zenith::observability {
 namespace testing {
 
 // In-memory log exporter for testing
@@ -46,7 +46,7 @@ public:
 
   void export_spans(const std::vector<Span>& spans);
   std::vector<Span> get_spans() const;
-  Span find_span(std::string_view name) const;
+  Span find_span(const std::string& name) const;
   void clear();
 
 private:
@@ -73,4 +73,4 @@ void initialize_in_memory(std::shared_ptr<InMemoryLogExporter> log_exporter = nu
                           std::shared_ptr<InMemoryMetricsReader> metrics_reader = nullptr);
 
 } // namespace testing
-} // namespace observability
+} // namespace zenith::observability

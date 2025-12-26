@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 
-using namespace json;
+using namespace zenith::json;
 
 void test_basic_json() {
   JsonWriter json;

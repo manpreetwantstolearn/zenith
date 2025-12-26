@@ -50,8 +50,8 @@ protected:
       m_port = dis(gen);
 
       try {
-        server_ = std::make_unique<http1::Server>("127.0.0.1", m_port, 4);
-        server_->handle([](const router::IRequest& req, router::IResponse& res) {
+        server_ = std::make_unique<zenith::http1::Server>("127.0.0.1", m_port, 4);
+        server_->handle([](const zenith::router::IRequest& req, zenith::router::IResponse& res) {
           if (req.path() == "/test") {
             res.set_status(200);
             res.write("Hello Test");
@@ -91,7 +91,7 @@ protected:
   }
 
   int m_port;
-  std::unique_ptr<http1::Server> server_;
+  std::unique_ptr<zenith::http1::Server> server_;
   std::thread server_thread_;
 };
 

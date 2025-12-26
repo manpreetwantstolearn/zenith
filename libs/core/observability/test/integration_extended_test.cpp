@@ -365,8 +365,8 @@ TEST_F(IntegrationExtendedTest, ObservabilityOverheadMeasurement) {
   auto overhead_us = overhead_per_op / 1000.0;
 
   // Report the measurement (always useful for tracking)
-  std::cout << "[BENCHMARK] Observability overhead: " << overhead_us << " μs/op "
-            << "(" << total_ns / 1000000.0 << " ms for " << iterations << " ops)" << std::endl;
+  std::cout << "[BENCHMARK] Observability overhead: " << overhead_us << " μs/op " << "("
+            << total_ns / 1000000.0 << " ms for " << iterations << " ops)" << std::endl;
 
   obs::info("Overhead per operation", {
                                           {"us", std::to_string(overhead_us)}

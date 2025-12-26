@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-namespace http1 {
+namespace zenith::http1 {
 
 namespace beast = boost::beast;
 namespace http = beast::http;
@@ -21,9 +21,13 @@ Server::Server(const std::string& address, unsigned short port, int threads) :
   m_acceptor.bind(endpoint);
   m_acceptor.listen(net::socket_base::max_listen_connections);
 
-  // Default handler: Dispatch to Router
-  m_handler = [this](router::IRequest& req, router::IResponse& res) {
-    m_router.dispatch(req, res);
+  // Default handler: Dispatch to Router using shared_ptr wrappers
+  m_handler = [this](zenith::router::IRequest& req, zenith::router::IResponse& res) {
+    // Use aliasing constructor to create shared_ptr that doesn't own the object
+    // This is safe because the request/response outlive the dispatch call
+    auto req_ptr = std::shared_ptr<zenith::router::IRequest>(std::shared_ptr<void>{}, &req);
+    auto res_ptr = std::shared_ptr<zenith::router::IResponse>(std::shared_ptr<void>{}, &res);
+    m_router.dispatch(req_ptr, res_ptr);
   };
 }
 
@@ -162,4 +166,4 @@ void Server::do_session(tcp::socket socket) {
   // Deprecated/Unused
 }
 
-} // namespace http1
+} // namespace zenith::http1

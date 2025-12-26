@@ -1,7 +1,7 @@
 #include "IMessageHandler.h"
 #include "Message.h"
 #include "ObservableMessagePool.h"
-#include "StripedMessagePool.h"
+#include "StickyQueue.h"
 
 #include <gtest/gtest.h>
 
@@ -35,7 +35,7 @@ protected:
 };
 
 TEST_F(ObservableMessagePoolTest, SubmitIncrementsCounter) {
-  StripedMessagePool core(2, handler);
+  StickyQueue core(2, handler);
   ObservableMessagePool pool(core);
 
   pool.start();
@@ -50,7 +50,7 @@ TEST_F(ObservableMessagePoolTest, SubmitIncrementsCounter) {
 }
 
 TEST_F(ObservableMessagePoolTest, DelegatesStartStop) {
-  StripedMessagePool core(2, handler);
+  StickyQueue core(2, handler);
   ObservableMessagePool pool(core);
 
   pool.start();
@@ -66,23 +66,17 @@ TEST_F(ObservableMessagePoolTest, DelegatesStartStop) {
   EXPECT_EQ(handler.m_count, 5);
 }
 
-TEST_F(ObservableMessagePoolTest, ThreadCountDelegates) {
-  StripedMessagePool core(8, handler);
-  ObservableMessagePool pool(core);
-
-  EXPECT_EQ(pool.thread_count(), 8);
-}
-
 TEST_F(ObservableMessagePoolTest, HandlerWrapperDecrementsQueueDepth) {
   // Test that ObservableHandlerWrapper works correctly
-  obs::Gauge& depth = obs::gauge("test.queue_depth", "test");
+  auto depth = obs::gauge("test.queue_depth", obs::Unit::Dimensionless);
 
+  // Pass by value (copy)
   ObservableHandlerWrapper wrapper(handler, depth);
 
   // Simulate: submit 3 messages (inc queue_depth 3 times)
-  depth.inc();
-  depth.inc();
-  depth.inc();
+  depth.add(1);
+  depth.add(1);
+  depth.add(1);
 
   // Handle messages (dec queue_depth)
   Message msg1{1, obs::Context{}, std::any{}};
@@ -94,4 +88,11 @@ TEST_F(ObservableMessagePoolTest, HandlerWrapperDecrementsQueueDepth) {
   wrapper.handle(msg3);
 
   EXPECT_EQ(handler.m_count, 3);
+}
+
+TEST_F(ObservableMessagePoolTest, WorkerCountDelegates) {
+  StickyQueue core(8, handler);
+  ObservableMessagePool pool(core);
+
+  EXPECT_EQ(pool.worker_count(), 8);
 }

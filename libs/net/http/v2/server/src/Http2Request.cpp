@@ -1,61 +1,52 @@
 #include "Http2Request.h"
-#include "RequestData.h"
 
-namespace http2server {
+namespace zenith::http2 {
 
-Request::Request(std::weak_ptr<RequestData> data) : m_data(std::move(data)) {
+Http2Request::Http2Request(std::string method, std::string path,
+                           std::map<std::string, std::string> headers, std::string body,
+                           std::unordered_map<std::string, std::string> query_params) :
+    m_method(std::move(method)), m_path(std::move(path)), m_body(std::move(body)),
+    m_headers(std::move(headers)), m_query_params(std::move(query_params)) {
 }
 
-std::string_view Request::method() const {
-  if (auto d = m_data.lock()) {
-    return d->method;
+const std::string& Http2Request::method() const {
+  return m_method;
+}
+
+const std::string& Http2Request::path() const {
+  return m_path;
+}
+
+std::string Http2Request::header(const std::string& key) const {
+  auto it = m_headers.find(key);
+  if (it != m_headers.end()) {
+    return it->second;
   }
   return {};
 }
 
-std::string_view Request::path() const {
-  if (auto d = m_data.lock()) {
-    return d->path;
+const std::string& Http2Request::body() const {
+  return m_body;
+}
+
+std::string Http2Request::path_param(const std::string& key) const {
+  auto it = m_path_params.find(key);
+  if (it != m_path_params.end()) {
+    return it->second;
   }
   return {};
 }
 
-std::string_view Request::header(std::string_view key) const {
-  if (auto d = m_data.lock()) {
-    auto it = d->headers.find(std::string(key));
-    if (it != d->headers.end()) {
-      return it->second;
-    }
+std::string Http2Request::query_param(const std::string& key) const {
+  auto it = m_query_params.find(key);
+  if (it != m_query_params.end()) {
+    return it->second;
   }
   return {};
 }
 
-std::string_view Request::body() const {
-  if (auto d = m_data.lock()) {
-    return d->body;
-  }
-  return {};
+void Http2Request::set_path_params(std::unordered_map<std::string, std::string> params) {
+  m_path_params = std::move(params);
 }
 
-std::string_view Request::path_param(std::string_view key) const {
-  if (auto d = m_data.lock()) {
-    auto it = d->path_params.find(std::string(key));
-    if (it != d->path_params.end()) {
-      return it->second;
-    }
-  }
-  return {};
-}
-
-std::string_view Request::query_param(std::string_view /*key*/) const {
-  // TODO: Implement query param parsing
-  return {};
-}
-
-void Request::set_path_params(std::unordered_map<std::string, std::string> params) {
-  if (auto d = m_data.lock()) {
-    d->path_params = std::move(params);
-  }
-}
-
-} // namespace http2server
+} // namespace zenith::http2

@@ -1,41 +1,55 @@
 #include "Http2Response.h"
-#include "ResponseHandle.h"
+#include "Http2ResponseWriter.h"
 
-#include <obs/Log.h>
+#include <Log.h>
 
-namespace http2server {
+namespace zenith::http2 {
 
-Response::Response(std::weak_ptr<ResponseHandle> handle) : m_handle(std::move(handle)) {
+Http2Response::Http2Response(std::weak_ptr<Http2ResponseWriter> handle) :
+    m_writer(std::move(handle)) {
 }
 
-void Response::set_status(int code) noexcept {
+void Http2Response::set_status(int code) noexcept {
   m_status = code;
 }
 
-void Response::set_header(std::string_view key, std::string_view value) {
-  m_headers[std::string(key)] = std::string(value);
+void Http2Response::set_header(const std::string& key, const std::string& value) {
+  m_headers[key] = value;
 }
 
-void Response::write(std::string_view data) {
+void Http2Response::write(const std::string& data) {
   m_body.append(data);
 }
 
-void Response::close() {
+void Http2Response::close() {
   if (m_closed) {
-    return; // Prevent double-send
+    return;
   }
   m_closed = true;
 
-  if (auto handle = m_handle.lock()) {
-    // Use 500 if status not explicitly set (catches missing set_status calls)
+  if (auto handle = m_writer.lock()) {
     int status = m_status.value_or(500);
     if (!m_status.has_value()) {
-      obs::warn("Response closed without setting status code - defaulting to 500");
+      obs::warn("Http2Response closed without setting status code - defaulting to 500");
     }
     handle->send(status, std::move(m_headers), std::move(m_body));
   } else {
-    obs::debug("Cannot send response: stream already closed (ResponseHandle expired)");
+    obs::debug("Cannot send response: stream already closed");
   }
 }
 
-} // namespace http2server
+void Http2Response::add_scoped_resource(
+    std::unique_ptr<zenith::execution::IScopedResource> resource) {
+  if (auto handle = m_writer.lock()) {
+    handle->add_scoped_resource(std::move(resource));
+  }
+}
+
+bool Http2Response::is_alive() const noexcept {
+  if (auto handle = m_writer.lock()) {
+    return handle->is_alive();
+  }
+  return false;
+}
+
+} // namespace zenith::http2

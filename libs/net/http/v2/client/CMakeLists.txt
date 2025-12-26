@@ -5,7 +5,9 @@ protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS config/http2client.proto)
 # Sources
 set(HTTP2CLIENT_SOURCES
     src/Http2Client.cpp
-    src/Http2ClientPool.cpp
+    src/Http2ClientResponse.cpp
+    src/NgHttp2Client.cpp
+    src/ClientDispatcher.cpp
     ${PROTO_SRCS}
 )
 
@@ -20,11 +22,8 @@ target_compile_features(http2client PUBLIC cxx_std_17)
 # Include directories
 target_include_directories(http2client
     PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
-        $<INSTALL_INTERFACE:include>
-    PRIVATE
-        src
+        include
+        ${CMAKE_CURRENT_BINARY_DIR}  # For generated proto headers
 )
 
 # Link libraries
@@ -32,6 +31,7 @@ find_package(OpenSSL REQUIRED)
 target_link_libraries(http2client 
     PUBLIC
         protobuf::libprotobuf
+        outcome
     PRIVATE
         zenith_sanitizers
         nghttp2_asio

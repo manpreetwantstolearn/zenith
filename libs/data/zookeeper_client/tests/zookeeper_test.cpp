@@ -4,7 +4,7 @@
 #include <gtest/gtest.h>
 
 using namespace testing;
-using namespace zookeeperclient;
+using namespace zenith::zookeeper;
 
 TEST(ZookeeperClientTest, MockOperations) {
   ZookeeperClient client("127.0.0.1:2181");

@@ -1,48 +1,49 @@
 #pragma once
 
-#include "Middleware.h"
+#include "IRequest.h"
+#include "IResponse.h"
 
+#include <functional>
 #include <memory>
+#include <optional>
 #include <string>
-#include <string_view>
 #include <unordered_map>
 #include <vector>
 
-namespace router {
+namespace zenith::router {
+
+using Handler = std::function<void(std::shared_ptr<IRequest>, std::shared_ptr<IResponse>)>;
 
 class Router {
 public:
-  Router();
-  ~Router();
+  Router() = default;
+  ~Router() = default;
 
-  void use(Middleware middleware);
-
-  void get(std::string_view path, Handler handler);
-  void post(std::string_view path, Handler handler);
-  void put(std::string_view path, Handler handler);
-  void del(std::string_view path, Handler handler);
+  void get(const std::string& path, Handler handler);
+  void post(const std::string& path, Handler handler);
+  void put(const std::string& path, Handler handler);
+  void del(const std::string& path, Handler handler);
 
   struct MatchResult {
     Handler handler;
     std::unordered_map<std::string, std::string> params;
   };
 
-  [[nodiscard]] MatchResult match(std::string_view method, std::string_view path) const;
-  void dispatch(router::IRequest& req, router::IResponse& res);
+  [[nodiscard]] std::optional<MatchResult> match(const std::string& method,
+                                                 const std::string& path) const;
+  void dispatch(std::shared_ptr<IRequest> req, std::shared_ptr<IResponse> res);
 
 private:
   struct Node {
-    std::unordered_map<std::string_view, std::unique_ptr<Node>> children;
+    std::unordered_map<std::string, std::unique_ptr<Node>> children;
     std::unique_ptr<Node> wildcard_child;
     std::string param_name;
     Handler handler;
   };
 
   std::unordered_map<std::string, std::unique_ptr<Node>> m_roots;
-  std::vector<Middleware> m_middlewares;
 
-  void add_route(std::string_view method, std::string_view path, Handler handler);
-  void run_middleware(size_t index, router::IRequest& req, router::IResponse& res);
+  void add_route(const std::string& method, const std::string& path, Handler handler);
 };
 
-} // namespace router
+} // namespace zenith::router

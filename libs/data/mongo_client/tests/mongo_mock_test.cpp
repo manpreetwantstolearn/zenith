@@ -5,7 +5,7 @@
 #include <bsoncxx/json.hpp>
 #include <gtest/gtest.h>
 
-using namespace mongoclient;
+using namespace zenith::mongo;
 using bsoncxx::builder::basic::kvp;
 using bsoncxx::builder::basic::make_document;
 using ::testing::_;

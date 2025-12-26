@@ -1,18 +1,18 @@
 #pragma once
 
 #include "IMessageHandler.h"
-#include "StripedMessagePool.h"
-
-#include <obs/Metrics.h>
+#include "StickyQueue.h"
 
 #include <chrono>
+
+#include <MetricsRegistry.h>
 
 namespace zenith::execution {
 
 /**
- * @brief Observable decorator for StripedMessagePool.
+ * @brief Observable decorator for StickyQueue.
  *
- * Wraps a StripedMessagePool and adds observability:
+ * Wraps a StickyQueue and adds observability:
  * - Counter: message_pool.submitted
  * - Counter: message_pool.delivered
  * - Gauge: message_pool.queue_depth
@@ -24,21 +24,19 @@ public:
    * @brief Construct observable pool wrapper.
    * @param pool The underlying pool to wrap
    */
-  explicit ObservableMessagePool(StripedMessagePool& pool);
+  explicit ObservableMessagePool(StickyQueue& pool);
 
   void start();
   void stop();
   bool submit(Message msg);
 
-  [[nodiscard]] size_t thread_count() const {
-    return m_pool.thread_count();
+  [[nodiscard]] size_t worker_count() const {
+    return m_pool.worker_count();
   }
 
 private:
-  StripedMessagePool& m_pool;
-
-  obs::Counter& m_submitted;
-  obs::Gauge& m_queue_depth;
+  StickyQueue& m_pool;
+  obs::MetricsRegistry m_metrics;
 };
 
 /**
@@ -51,15 +49,14 @@ private:
  */
 class ObservableHandlerWrapper : public IMessageHandler {
 public:
-  ObservableHandlerWrapper(IMessageHandler& inner, obs::Gauge& queue_depth);
+  ObservableHandlerWrapper(IMessageHandler& inner, obs::Gauge queue_depth);
 
   void handle(Message& msg) override;
 
 private:
   IMessageHandler& m_inner;
-  obs::Counter& m_delivered;
-  obs::Gauge& m_queue_depth;
-  obs::Histogram& m_latency;
+  obs::Gauge m_queue_depth; // Shared with pool (lightweight wrapper)
+  obs::MetricsRegistry m_metrics;
 };
 
 } // namespace zenith::execution

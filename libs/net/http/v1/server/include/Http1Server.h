@@ -14,11 +14,11 @@
 #include <thread>
 #include <vector>
 
-namespace http1 {
+namespace zenith::http1 {
 
 class Server {
 public:
-  using Handler = std::function<void(router::IRequest&, router::IResponse&)>;
+  using Handler = std::function<void(zenith::router::IRequest&, zenith::router::IResponse&)>;
 
   Server(const std::string& address, unsigned short port, int threads = 1);
   ~Server();
@@ -27,7 +27,7 @@ public:
   void run();
   void stop();
 
-  router::Router& router() {
+  zenith::router::Router& router() {
     return m_router;
   }
 
@@ -39,11 +39,11 @@ private:
   unsigned short m_port;
   int m_threads;
   boost::asio::io_context m_ioc;
-  router::Router m_router;
+  zenith::router::Router m_router;
   boost::asio::ip::tcp::acceptor m_acceptor;
   std::vector<std::thread> m_thread_pool;
   Handler m_handler;
   mutable std::mutex m_handler_mutex;
 };
 
-} // namespace http1
+} // namespace zenith::http1

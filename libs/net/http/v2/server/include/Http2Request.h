@@ -2,48 +2,43 @@
 
 #include "IRequest.h"
 
-#include <memory>
-#include <string_view>
+#include <map>
+#include <string>
 #include <unordered_map>
 
-namespace http2server {
+namespace zenith::http2 {
 
-struct RequestData; // Forward declaration
-
-/**
- * @brief Lightweight copyable handle to HTTP request data.
- *
- * Holds weak_ptr<RequestData>. Each method locks the weak_ptr
- * and returns empty if the underlying data has expired.
- * This provides graceful behavior when the stream closes.
- */
-class Request final : public router::IRequest {
+class Http2Request final : public zenith::router::IRequest {
 public:
-  Request() = default;
-  explicit Request(std::weak_ptr<RequestData> data);
+  Http2Request() = default;
+  Http2Request(std::string method, std::string path,
+               std::map<std::string, std::string> headers = {}, std::string body = {},
+               std::unordered_map<std::string, std::string> query_params = {});
 
-  // Copyable (default)
-  Request(const Request&) = default;
-  Request& operator=(const Request&) = default;
+  Http2Request(const Http2Request&) = default;
+  Http2Request& operator=(const Http2Request&) = default;
+  Http2Request(Http2Request&&) noexcept = default;
+  Http2Request& operator=(Http2Request&&) noexcept = default;
 
-  // Also movable
-  Request(Request&&) noexcept = default;
-  Request& operator=(Request&&) noexcept = default;
+  ~Http2Request() override = default;
 
-  ~Request() override = default;
+  [[nodiscard]] const std::string& method() const override;
+  [[nodiscard]] const std::string& path() const override;
+  [[nodiscard]] std::string header(const std::string& key) const override;
+  [[nodiscard]] const std::string& body() const override;
 
-  [[nodiscard]] std::string_view method() const override;
-  [[nodiscard]] std::string_view path() const override;
-  [[nodiscard]] std::string_view header(std::string_view key) const override;
-  [[nodiscard]] std::string_view body() const override;
-
-  [[nodiscard]] std::string_view path_param(std::string_view key) const override;
-  [[nodiscard]] std::string_view query_param(std::string_view key) const override;
+  [[nodiscard]] std::string path_param(const std::string& key) const override;
+  [[nodiscard]] std::string query_param(const std::string& key) const override;
 
   void set_path_params(std::unordered_map<std::string, std::string> params) override;
 
 private:
-  std::weak_ptr<RequestData> m_data;
+  std::string m_method;
+  std::string m_path;
+  std::string m_body;
+  std::map<std::string, std::string> m_headers;
+  std::unordered_map<std::string, std::string> m_path_params;
+  std::unordered_map<std::string, std::string> m_query_params;
 };
 
-} // namespace http2server
+} // namespace zenith::http2

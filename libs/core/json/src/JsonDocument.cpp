@@ -1,12 +1,11 @@
 #include "JsonDocument.h"
 
 #include <boost/json.hpp>
-#include <boost/json/src.hpp>
 #include <boost/system/error_code.hpp>
 
 #include <stdexcept>
 
-namespace json {
+namespace zenith::json {
 
 class JsonDocument::Impl {
 public:
@@ -136,4 +135,4 @@ bool JsonDocument::is_null() const {
   return m_impl->val.is_null();
 }
 
-} // namespace json
+} // namespace zenith::json

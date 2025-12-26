@@ -11,8 +11,8 @@ set(HTTP2SERVER_SOURCES
     src/Http2Server.cpp
     src/Http2Request.cpp
     src/Http2Response.cpp
-    src/ResponseHandle.cpp
-    src/backend/nghttp2/NgHttp2Server.cpp
+    src/Http2ResponseWriter.cpp
+    src/NgHttp2Server.cpp
     ${PROTO_SRCS}
 )
 
@@ -25,11 +25,8 @@ target_compile_features(http2server PUBLIC cxx_std_17)
 # Include directories
 target_include_directories(http2server
     PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
-        $<INSTALL_INTERFACE:include>
-    PRIVATE
-        src
+        include
+        ${CMAKE_CURRENT_BINARY_DIR}  # For generated proto headers
 )
 
 # Link libraries
@@ -39,6 +36,7 @@ target_link_libraries(http2server
         protobuf::libprotobuf
         zenith_router
         zenith_execution
+        outcome
     PRIVATE
         zenith_utils
         zenith_sanitizers
@@ -62,7 +60,7 @@ zenith_add_test(
     TARGET http2_server_test
     SOURCES 
         tests/http2_server_test.cpp
-        tests/response_handle_test.cpp
+        tests/http2_response_writer_test.cpp
         tests/request_handle_test.cpp
         tests/response_integration_test.cpp
         tests/handler_signature_test.cpp

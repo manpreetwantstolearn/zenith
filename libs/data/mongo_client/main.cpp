@@ -5,16 +5,17 @@
 #include <mongocxx/client.hpp>
 #include <mongocxx/instance.hpp>
 #include <mongocxx/uri.hpp>
-#include <obs/Log.h>
 
 #include <iostream>
+
+#include <Log.h>
 
 using bsoncxx::builder::basic::kvp;
 int main() {
   obs::info("MongoDB Client Application started");
 
   try {
-    mongoclient::MongoClient client;
+    zenith::mongo::MongoClient client;
 
     // Connect to MongoDB
     client.connect("mongodb://localhost:27017");

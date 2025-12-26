@@ -2,22 +2,21 @@
 
 #include <optional>
 #include <string>
-#include <string_view>
 
-namespace redisclient {
+namespace zenith::redis {
 
 class IRedisClient {
 public:
   virtual ~IRedisClient() = default;
 
   // Basic operations
-  virtual void set(std::string_view key, std::string_view value) = 0;
-  [[nodiscard]] virtual std::optional<std::string> get(std::string_view key) = 0;
-  virtual bool del(std::string_view key) = 0;
-  virtual long long incr(std::string_view key) = 0;
+  virtual void set(const std::string& key, const std::string& value) = 0;
+  [[nodiscard]] virtual std::optional<std::string> get(const std::string& key) = 0;
+  virtual bool del(const std::string& key) = 0;
+  virtual long long incr(const std::string& key) = 0;
 
   // Check connection
   virtual bool ping() = 0;
 };
 
-} // namespace redisclient
+} // namespace zenith::redis

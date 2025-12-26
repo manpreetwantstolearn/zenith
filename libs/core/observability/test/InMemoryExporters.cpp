@@ -1,6 +1,6 @@
 #include "InMemoryExporters.h"
 
-namespace observability {
+namespace zenith::observability {
 namespace testing {
 
 // InMemoryLogExporter implementation
@@ -30,7 +30,7 @@ std::vector<InMemorySpanExporter::Span> InMemorySpanExporter::get_spans() const 
   return m_spans;
 }
 
-InMemorySpanExporter::Span InMemorySpanExporter::find_span(std::string_view name) const {
+InMemorySpanExporter::Span InMemorySpanExporter::find_span(const std::string& name) const {
   std::lock_guard lock(m_mutex);
   for (const auto& span : m_spans) {
     if (span.name == name) {
@@ -71,4 +71,4 @@ void initialize_in_memory(std::shared_ptr<InMemoryLogExporter> /* log_exporter *
 }
 
 } // namespace testing
-} // namespace observability
+} // namespace zenith::observability

@@ -1,44 +1,42 @@
 #include "Http2Request.h"
 #include "Http2Response.h"
 #include "Http2Server.h"
+#include "NgHttp2Server.h"
 
-#include "backend/nghttp2/NgHttp2Server.h"
+namespace zenith::http2 {
 
-namespace http2server {
-
-class Server::Impl {
+class Http2Server::Impl {
 public:
-  Impl(const std::string& address, const std::string& port, int threads) :
-      backend(address, port, threads) {
+  Impl(const ServerConfig& config) : backend(config) {
   }
 
-  backend::NgHttp2Server backend;
+  NgHttp2Server backend;
 };
 
-Server::Server(const std::string& address, const std::string& port, int threads) :
-    m_impl(std::make_unique<Impl>(address, port, threads)) {
-  // Default handler: Dispatch to Router
-  m_impl->backend.handle("*", "/", [this](Request& req, Response& res) {
-    m_router.dispatch(req, res);
-  });
+Http2Server::Http2Server(const ServerConfig& config) : m_impl(std::make_unique<Impl>(config)) {
+  m_impl->backend.handle("*", "/",
+                         [this](std::shared_ptr<zenith::router::IRequest> req,
+                                std::shared_ptr<zenith::router::IResponse> res) {
+                           m_router.dispatch(req, res);
+                         });
 }
 
-Server::~Server() = default;
+Http2Server::~Http2Server() = default;
 
-void Server::handle(const std::string& method, const std::string& path, Handler handler) {
+void Http2Server::handle(const std::string& method, const std::string& path, Handler handler) {
   m_impl->backend.handle(method, path, handler);
 }
 
-void Server::run() {
-  m_impl->backend.run();
+zenith::outcome::Result<void, Http2ServerError> Http2Server::start() {
+  return m_impl->backend.start();
 }
 
-void Server::stop() {
-  m_impl->backend.stop();
+zenith::outcome::Result<void, Http2ServerError> Http2Server::join() {
+  return m_impl->backend.join();
 }
 
-void Server::wait_until_ready() {
-  m_impl->backend.wait_until_ready();
+zenith::outcome::Result<void, Http2ServerError> Http2Server::stop() {
+  return m_impl->backend.stop();
 }
 
-} // namespace http2server
+} // namespace zenith::http2

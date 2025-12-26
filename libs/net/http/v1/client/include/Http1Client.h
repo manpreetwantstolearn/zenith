@@ -5,7 +5,7 @@
 #include <map>
 #include <string>
 
-namespace http1 {
+namespace zenith::http1 {
 
 struct Response {
   int status_code;
@@ -29,4 +29,4 @@ private:
                            const std::string& body);
 };
 
-} // namespace http1
+} // namespace zenith::http1

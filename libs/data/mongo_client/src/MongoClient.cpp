@@ -1,10 +1,10 @@
 #include "MongoClient.h"
 
-#include <obs/Log.h>
-
 #include <stdexcept>
 
-namespace mongoclient {
+#include <Log.h>
+
+namespace zenith::mongo {
 MongoClient::MongoClient() : m_client(nullptr) {
   // The mongocxx::instance constructor and destructor initialize and shut down the driver,
   // respectively. Therefore, a mongocxx::instance must be created before using the driver and
@@ -57,11 +57,11 @@ std::optional<bsoncxx::document::value> MongoClient::findOne(const std::string& 
 
   if (result) {
     obs::debug("Document found");
+    return std::optional<bsoncxx::document::value>(std::move(*result));
   } else {
     obs::debug("No document found");
+    return std::nullopt;
   }
-
-  return result;
 }
 
 void MongoClient::insertOne(const std::string& database, const std::string& collection,
@@ -142,4 +142,4 @@ std::vector<bsoncxx::document::value> MongoClient::find(const std::string& datab
   obs::debug("Found " + std::to_string(results.size()) + " documents");
   return results;
 }
-} // namespace mongoclient
+} // namespace zenith::mongo

@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-using namespace redisclient;
+using namespace zenith::redis;
 using ::testing::_;
 using ::testing::Return;
 

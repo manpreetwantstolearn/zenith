@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-namespace mongoclient {
+namespace zenith::mongo {
 
 class IMongoClient {
 public:
@@ -37,4 +37,4 @@ public:
        const bsoncxx::document::view& query) = 0;
 };
 
-} // namespace mongoclient
+} // namespace zenith::mongo

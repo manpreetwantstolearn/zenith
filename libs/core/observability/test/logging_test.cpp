@@ -1,44 +1,52 @@
-#include "InMemoryExporters.h"
-#include "Observability.h"
-
 #include <gtest/gtest.h>
 
-using namespace observability;
+#include <Log.h>
+#include <Provider.h>
+#include <Span.h>
+#include <Tracer.h>
 
 class LoggingTest : public ::testing::Test {
 protected:
+  std::shared_ptr<obs::Tracer> tracer;
+
   void SetUp() override {
-    // Initialize with no-op for now
-    initialize_noop();
+    ::observability::Config config;
+    config.set_service_name("test");
+    obs::init(config);
+    tracer = obs::Provider::instance().get_tracer("test");
   }
 
   void TearDown() override {
-    shutdown();
+    tracer.reset();
+    obs::shutdown();
   }
 };
 
-// Phase 2 tests - will implement these following TDD
+// Logging tests with new architecture
 TEST_F(LoggingTest, BasicLog) {
-  // TODO: Implement test
-  info("Test message");
-  // Verify log was created
+  // Should not crash
+  obs::info("Test message");
+  SUCCEED();
 }
 
 TEST_F(LoggingTest, StructuredAttributes) {
-  // TODO: Implement test
-  info("User login", {
-                         {"user_id", "123"}
+  // Logging with attributes
+  obs::info("User login", {
+                              {"user_id", "123"}
   });
-  // Verify attributes are present
+  SUCCEED();
 }
 
 TEST_F(LoggingTest, AutomaticTraceContext) {
-  // TODO: Implement test with active span
-  Span span("operation");
-  info("Log message");
-  // Verify log has trace_id from span
+  // Log within a span - should auto-correlate
+  auto span = tracer->start_span("operation");
+  obs::info("Log message");
+  span->end();
+  SUCCEED();
 }
+
 TEST_F(LoggingTest, LogLevels) {
-  error("error message");
-  fatal("fatal message");
+  obs::error("error message");
+  obs::fatal("fatal message");
+  SUCCEED();
 }

@@ -9,7 +9,7 @@ class RedisClientTest : public Test {
 protected:
   void SetUp() override {
     try {
-      m_client = std::make_unique<redisclient::RedisClient>("tcp://127.0.0.1:6379");
+      m_client = std::make_unique<zenith::redis::RedisClient>("tcp://127.0.0.1:6379");
       if (!m_client->ping()) {
         GTEST_SKIP() << "Redis server not available at tcp://127.0.0.1:6379";
       }
@@ -18,7 +18,7 @@ protected:
     }
   }
 
-  std::unique_ptr<redisclient::RedisClient> m_client;
+  std::unique_ptr<zenith::redis::RedisClient> m_client;
 };
 
 TEST_F(RedisClientTest, SetAndGet) {

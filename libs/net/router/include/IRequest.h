@@ -1,24 +1,23 @@
 #pragma once
 
 #include <string>
-#include <string_view>
 #include <unordered_map>
 
-namespace router {
+namespace zenith::router {
 
 class IRequest {
 public:
   virtual ~IRequest() = default;
 
-  [[nodiscard]] virtual std::string_view method() const = 0;
-  [[nodiscard]] virtual std::string_view path() const = 0;
-  [[nodiscard]] virtual std::string_view header(std::string_view key) const = 0;
-  [[nodiscard]] virtual std::string_view body() const = 0;
+  [[nodiscard]] virtual const std::string& method() const = 0;
+  [[nodiscard]] virtual const std::string& path() const = 0;
+  [[nodiscard]] virtual std::string header(const std::string& key) const = 0;
+  [[nodiscard]] virtual const std::string& body() const = 0;
 
-  [[nodiscard]] virtual std::string_view path_param(std::string_view key) const = 0;
-  [[nodiscard]] virtual std::string_view query_param(std::string_view key) const = 0;
+  [[nodiscard]] virtual std::string path_param(const std::string& key) const = 0;
+  [[nodiscard]] virtual std::string query_param(const std::string& key) const = 0;
 
   virtual void set_path_params(std::unordered_map<std::string, std::string> params) = 0;
 };
 
-} // namespace router
+} // namespace zenith::router

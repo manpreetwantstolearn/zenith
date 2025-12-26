@@ -4,7 +4,7 @@
 
 #include <string>
 
-using namespace zenith;
+using namespace zenith::outcome;
 
 struct TestError {
   int code;

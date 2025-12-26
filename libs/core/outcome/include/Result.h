@@ -3,7 +3,7 @@
 #include <stdexcept>
 #include <variant>
 
-namespace zenith {
+namespace zenith::outcome {
 
 /// Unit type - represents "no value" for Result<void, E> equivalent
 struct Unit {
@@ -144,4 +144,4 @@ private:
   std::variant<Unit, E> m_data;
 };
 
-} // namespace zenith
+} // namespace zenith::outcome
