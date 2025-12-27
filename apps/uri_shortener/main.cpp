@@ -1,18 +1,15 @@
-/// @file main.cpp
-/// @brief URI Shortener entry point
+#include "UriShortenerBuilder.h"
 
-#include "UriShortenerApp.h"
-
-#include <iostream>
+#include <Log.h>
 
 int main() {
-  url_shortener::UriShortenerApp::Config config{.address = "0.0.0.0", .port = "8080"};
-
-  auto result = url_shortener::UriShortenerApp::create(config);
+  auto result = uri_shortener::UriShortenerBuilder::bootstrap();
   if (result.is_err()) {
-    std::cerr << "Failed to start URI Shortener\n";
+    obs::error("Failed to start URI Shortener",
+               {
+                   {"error", uri_shortener::to_string(result.error())}
+    });
     return 1;
   }
-
   return result.value().run();
 }

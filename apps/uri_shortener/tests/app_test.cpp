@@ -1,60 +1,68 @@
-/// @file test_app.cpp
-/// @brief TDD tests for UriShortenerApp
-
-#include "UriShortenerApp.h"
-
-#include "infrastructure/generators/RandomCodeGenerator.h"
-#include "infrastructure/persistence/InMemoryLinkRepository.h"
+#include "InMemoryLinkRepository.h"
+#include "RandomCodeGenerator.h"
+#include "UriShortenerBuilder.h"
 
 #include <gtest/gtest.h>
 
-namespace url_shortener::test {
+namespace uri_shortener::test {
 
-// =============================================================================
-// Factory Tests
-// =============================================================================
+uri_shortener::Config makeValidConfig() {
+  uri_shortener::Config config;
+  config.set_schema_version(1);
+  config.mutable_bootstrap()->mutable_server()->set_address("127.0.0.1");
+  config.mutable_bootstrap()->mutable_server()->set_port(8080);
+  config.mutable_bootstrap()->mutable_execution()->mutable_shared_queue()->set_num_workers(2);
+  config.mutable_bootstrap()->mutable_service()->set_name("uri-shortener-test");
+  config.mutable_bootstrap()->mutable_service()->set_environment("test");
+  return config;
+}
 
-TEST(UriShortenerAppTest, Create_WithValidConfig_Succeeds) {
-  UriShortenerApp::Config config{.address = "127.0.0.1", .port = "8080"};
+TEST(UriShortenerAppTest, Build_WithValidConfig_Succeeds) {
+  auto config = makeValidConfig();
 
-  auto result = UriShortenerApp::create(config);
+  auto result = UriShortenerBuilder(config).domain().backend().messaging().resilience().build();
 
   EXPECT_TRUE(result.is_ok());
 }
 
-TEST(UriShortenerAppTest, Create_WithEmptyAddress_Fails) {
-  UriShortenerApp::Config config{.address = "", .port = "8080"};
+TEST(UriShortenerAppTest, Build_WithEmptyAddress_Fails) {
+  auto config = makeValidConfig();
+  config.mutable_bootstrap()->mutable_server()->set_address("");
 
-  auto result = UriShortenerApp::create(config);
-
-  EXPECT_TRUE(result.is_err());
-}
-
-TEST(UriShortenerAppTest, Create_WithEmptyPort_Fails) {
-  UriShortenerApp::Config config{.address = "127.0.0.1", .port = ""};
-
-  auto result = UriShortenerApp::create(config);
+  auto result = UriShortenerBuilder(config).domain().backend().messaging().resilience().build();
 
   EXPECT_TRUE(result.is_err());
 }
 
-// =============================================================================
-// Dependency Injection Tests
-// =============================================================================
+TEST(UriShortenerAppTest, Build_WithZeroPort_Fails) {
+  auto config = makeValidConfig();
+  config.mutable_bootstrap()->mutable_server()->set_port(0);
 
-TEST(UriShortenerAppTest, Create_WithCustomRepository_UsesIt) {
-  auto repo = std::make_shared<infrastructure::InMemoryLinkRepository>();
-  auto gen = std::make_shared<infrastructure::RandomCodeGenerator>();
+  auto result = UriShortenerBuilder(config).domain().backend().messaging().resilience().build();
 
-  UriShortenerApp::Config config{
-      .address = "127.0.0.1", .port = "8080", .repository = repo, .code_generator = gen};
+  EXPECT_TRUE(result.is_err());
+}
 
-  auto result = UriShortenerApp::create(config);
+TEST(UriShortenerAppTest, Build_WithMinimalConfig_Succeeds) {
+  uri_shortener::Config config;
+  config.set_schema_version(1);
+  config.mutable_bootstrap()->mutable_server()->set_address("127.0.0.1");
+  config.mutable_bootstrap()->mutable_server()->set_port(8080);
+
+  auto result = UriShortenerBuilder(config).domain().backend().messaging().resilience().build();
 
   EXPECT_TRUE(result.is_ok());
 }
 
-// Note: We can't easily test run() in unit tests since it blocks.
-// That would be an integration test.
+TEST(UriShortenerAppTest, Build_WithObservabilityConfig_Succeeds) {
+  auto config = makeValidConfig();
+  config.mutable_bootstrap()->mutable_observability()->set_metrics_enabled(true);
+  config.mutable_bootstrap()->mutable_observability()->set_tracing_enabled(false);
+  config.mutable_bootstrap()->mutable_observability()->set_otlp_endpoint("http://otel:4317");
 
-} // namespace url_shortener::test
+  auto result = UriShortenerBuilder(config).domain().backend().messaging().resilience().build();
+
+  EXPECT_TRUE(result.is_ok());
+}
+
+} // namespace uri_shortener::test

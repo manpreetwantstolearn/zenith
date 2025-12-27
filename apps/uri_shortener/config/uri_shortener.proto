@@ -1,0 +1,49 @@
+syntax = "proto3";
+package uri_shortener;
+
+// Import library configs
+import "observability.proto";
+import "resilience.proto";
+import "execution.proto";
+import "http2server.proto";
+import "http2client.proto";
+
+// =============================================================================
+// BOOTSTRAP CONFIG (immutable after startup)
+// =============================================================================
+
+message ServiceConfig {
+    string name = 1;
+    string environment = 2;
+}
+
+message DataServiceClientConfig {
+    zenith.http2.ClientConfig client = 1;
+    resilience.Config resilience = 2;
+}
+
+message BootstrapConfig {
+    zenith.http2.ServerConfig server = 1;
+    execution.Config execution = 2;
+    observability.Config observability = 3;
+    DataServiceClientConfig dataservice = 4;
+    ServiceConfig service = 5;
+}
+
+// =============================================================================
+// RUNTIME CONFIG (hot-reloadable)
+// =============================================================================
+
+message RuntimeConfig {
+    resilience.LoadShedderPolicy load_shedder = 1;
+}
+
+// =============================================================================
+// TOP-LEVEL CONFIG
+// =============================================================================
+
+message Config {
+    int32 schema_version = 1;
+    BootstrapConfig bootstrap = 2;
+    RuntimeConfig runtime = 3;
+}
