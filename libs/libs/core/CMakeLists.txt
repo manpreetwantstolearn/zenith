@@ -1,6 +1,0 @@
-add_subdirectory(execution)
-add_subdirectory(observability)
-add_subdirectory(outcome)
-add_subdirectory(json)
-add_subdirectory(resilience)
-add_subdirectory(utils)
