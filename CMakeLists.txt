@@ -33,3 +33,6 @@ include(Sanitizers)
 # Subdirectories
 add_subdirectory(libs)
 add_subdirectory(apps)
+
+# Container build targets (image-release, push-release, etc.)
+include(ContainerTargets)

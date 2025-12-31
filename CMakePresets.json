@@ -190,6 +190,34 @@
     {
       "name": "clang-coverage",
       "configurePreset": "clang-coverage"
+    },
+    {
+      "name": "image-release",
+      "configurePreset": "clang-release",
+      "targets": [
+        "image-release"
+      ]
+    },
+    {
+      "name": "image-debug",
+      "configurePreset": "clang-debug",
+      "targets": [
+        "image-debug"
+      ]
+    },
+    {
+      "name": "push-release",
+      "configurePreset": "clang-release",
+      "targets": [
+        "push-release"
+      ]
+    },
+    {
+      "name": "push-debug",
+      "configurePreset": "clang-debug",
+      "targets": [
+        "push-debug"
+      ]
     }
   ],
   "testPresets": [

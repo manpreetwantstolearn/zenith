@@ -4,13 +4,20 @@
 
 ### Build Docker Image
 ```bash
-docker build --network=host -t zenithbuilder:v6 -f devenv/Dockerfile devenv
+docker build --network=host -t Zenithbuilder:v11 -f tools/Dockerfile tools
 ```
 
 ### Run Container
 ```bash
-docker run -it --name zenith -v $(pwd):/app/zenith zenithbuilder:v6 bash
+docker run -it --name Zenith -v $(pwd):/app/Zenith Zenithbuilder:v11 bash
 ```
+
+### Run Container (with Sanitizer Support)
+For running ThreadSanitizer (TSan) or AddressSanitizer (ASan) tests, use:
+```bash
+docker run -it --name Zenith --cap-add=SYS_PTRACE --security-opt seccomp=unconfined -v $(pwd):/app/Zenith Zenithbuilder:v11 bash
+```
+> **Note**: `--cap-add=SYS_PTRACE` enables process tracing for sanitizers. `--security-opt seccomp=unconfined` allows the `personality` syscall needed by TSan to disable ASLR.
 
 ## Build Instructions
 
@@ -39,6 +46,7 @@ cmake --build --preset <preset-name> -j2
 | Preset Name | Sanitizer | Compiler | Notes |
 | :--- | :--- | :--- | :--- |
 | `gcc-asan` | Address | GCC | **Recommended** for daily dev. |
+| `gcc-tsan` | Thread | GCC | Thread safety via GCC. |
 | `clang-asan` | Address | Clang | Alternative ASan build. |
 | `clang-tsan` | Thread | Clang | **Note**: May fail in Docker due to `personality` syscall restrictions. |
 | `clang-msan` | Memory | Clang | **Experimental**. Requires instrumented libc++. |
@@ -127,78 +135,57 @@ cmake --build --preset gcc-debug --target test_helgrind   # Thread Safety
 cmake --build --preset gcc-debug --target test_massif     # Heap Profiling
 ```
 
-## Code Coverage
+## Container Builds
 
-We support code coverage analysis for both **GCC** (using gcov/lcov) and **Clang** (using llvm-cov).
-Coverage reports are generated as HTML for easy visualization.
+Build and push container images to ghcr.io using CMake presets.
 
-### Coverage Presets
+### Create GitHub Token
 
-| Preset Name | Compiler | Coverage Tool | Output Directory |
-| :--- | :--- | :--- | :--- |
-| `gcc-coverage` | GCC | gcov + lcov | `build/gcc-coverage` |
-| `clang-coverage` | Clang | llvm-cov | `build/clang-coverage` |
+1. Go to **[github.com](https://github.com)** → Click profile picture → **Settings**
+2. Scroll down left sidebar → **Developer settings**
+3. **Personal access tokens** → **Tokens (classic)** → **Generate new token (classic)**
+4. Configure:
+   - **Note**: `ghcr-push` (or any name)
+   - **Expiration**: 90 days (or your preference)
+   - **Scopes**: ✅ `write:packages`, ✅ `read:packages`
+5. Click **Generate token** and **copy immediately** (starts with `ghp_`)
 
-### Workflow
+> **Warning**: The token is only shown once. Save it securely!
 
-**1. Configure with coverage preset:**
+### Build Container Image
 ```bash
-cmake --preset gcc-coverage
-# or
-cmake --preset clang-coverage
+# Configure first (if not already done)
+cmake --preset clang-release
+
+# Build the release binary
+cmake --build --preset clang-release
+
+# Build the container image
+cmake --build --preset image-release
 ```
 
-**2. Build the project:**
+### Push to Registry
 ```bash
-cmake --build --preset gcc-coverage -j2
-# or
-cmake --build --preset clang-coverage -j2
+# Login to ghcr.io (set GITHUB_TOKEN first)
+export GITHUB_TOKEN=ghp_xxxxx
+echo "$GITHUB_TOKEN" | buildah login ghcr.io -u <username> --password-stdin
+
+# Push the image
+cmake --build --preset push-release
 ```
 
-**3. Run tests to generate coverage data:**
-```bash
-ctest --preset gcc-coverage
-# or
-ctest --preset clang-coverage
-```
+### Available Presets
 
-**4. Generate HTML coverage report:**
-```bash
-cmake --build --preset gcc-coverage --target coverage_report
-# or
-cmake --build --preset clang-coverage --target coverage_report
-```
+| Preset | Description |
+| :--- | :--- |
+| `image-release` | Build release container (`uri-shortener:v1`) |
+| `image-debug` | Build debug container (`uri-shortener:v1-debug`) |
+| `push-release` | Push release image to ghcr.io |
+| `push-debug` | Push debug image to ghcr.io |
 
-**5. View the report:**
+### Verify Push
 
-If running in Docker, copy the coverage report to your local machine:
-```bash
-# From your local machine (outside Docker)
-docker cp zenith:/app/zenith/build/gcc-coverage/coverage_html ./coverage_html
-# or
-docker cp zenith:/app/zenith/build/clang-coverage/coverage_html ./coverage_html
-```
+1. Go to [github.com](https://github.com) → Your Profile → **Packages** tab
+2. Or direct: `https://github.com/YOUR_USERNAME?tab=packages`
 
-Then open `index.html` in your browser:
-```bash
-# On your local machine
-open coverage_html/index.html  # macOS
-xdg-open coverage_html/index.html  # Linux
-start coverage_html/index.html  # Windows
-```
-
-Alternatively, if running natively (not in Docker):
-```bash
-xdg-open build/gcc-coverage/coverage_html/index.html
-# or
-xdg-open build/clang-coverage/coverage_html/index.html
-```
-
-### Clean Coverage Data
-
-To reset coverage counters and remove reports:
-```bash
-cmake --build --preset gcc-coverage --target coverage_clean
-# or
-cmake --build --preset clang-coverage --target coverage_clean
-```
+> **Note**: Packages are private by default. To make public: Package settings → Danger Zone → Change visibility

@@ -42,6 +42,9 @@ RUN apt-get update && apt-get install -y \
     lldb \
     valgrind \
     #
+    # Container Build Tools
+    buildah \
+    #
     # Utilities
     curl \
     dnsutils \
