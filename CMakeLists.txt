@@ -22,13 +22,21 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 # Valgrind must be included BEFORE CTest to set MEMORYCHECK variables
 include(Valgrind)
+# Testing
+enable_testing()
 
 # Testing (CTest generates DartConfiguration.tcl needed for memcheck)
 include(CTest)
 include(GoogleTest)
-include(AddGoogleTest) # Handles GTest dependency
+find_package(GTest REQUIRED)  # Pre-installed in Docker image
 include(AddZenithTest)
 include(Sanitizers)
+
+# FuzzTest Support (downloads via FetchContent when ENABLE_FUZZTEST=ON)
+include(FuzzTest)
+
+# Benchmark Support (uses pre-installed Google Benchmark when ENABLE_BENCHMARK=ON)
+include(Benchmark)
 
 # Subdirectories
 add_subdirectory(libs)

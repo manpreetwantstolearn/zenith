@@ -64,6 +64,16 @@
       }
     },
     {
+      "name": "gcc-tsan",
+      "inherits": "gcc-base",
+      "displayName": "GCC ThreadSanitizer",
+      "description": "Debug build using GCC with ThreadSanitizer",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "SANITIZE_MODE": "thread"
+      }
+    },
+    {
       "name": "gcc-coverage",
       "inherits": "gcc-base",
       "displayName": "GCC Code Coverage",
@@ -144,6 +154,38 @@
         "SANITIZE_MODE": "none",
         "ENABLE_COVERAGE": "ON"
       }
+    },
+    {
+      "name": "clang-unit-fuzz",
+      "inherits": "clang-base",
+      "displayName": "Clang Unit Fuzz Testing",
+      "description": "Build with FuzzTest for CI - fuzz tests run quickly as unit tests",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "ENABLE_FUZZTEST": "ON"
+      }
+    },
+    {
+      "name": "clang-deep-fuzz",
+      "inherits": "clang-base",
+      "displayName": "Clang Deep Fuzz Testing",
+      "description": "Build with FuzzTest for deep bug hunting with coverage instrumentation",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "ENABLE_FUZZTEST": "ON",
+        "FUZZTEST_FUZZING_MODE": "ON",
+        "SANITIZE_MODE": "address"
+      }
+    },
+    {
+      "name": "clang-bench",
+      "inherits": "clang-base",
+      "displayName": "Clang Benchmarks",
+      "description": "Build with Google Benchmark for performance testing",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "ENABLE_BENCHMARK": "ON"
+      }
     }
   ],
   "buildPresets": [
@@ -158,6 +200,10 @@
     {
       "name": "gcc-asan",
       "configurePreset": "gcc-asan"
+    },
+    {
+      "name": "gcc-tsan",
+      "configurePreset": "gcc-tsan"
     },
     {
       "name": "gcc-coverage",
@@ -190,6 +236,18 @@
     {
       "name": "clang-coverage",
       "configurePreset": "clang-coverage"
+    },
+    {
+      "name": "clang-unit-fuzz",
+      "configurePreset": "clang-unit-fuzz"
+    },
+    {
+      "name": "clang-deep-fuzz",
+      "configurePreset": "clang-deep-fuzz"
+    },
+    {
+      "name": "clang-bench",
+      "configurePreset": "clang-bench"
     },
     {
       "name": "image-release",
@@ -238,6 +296,13 @@
     {
       "name": "gcc-asan",
       "configurePreset": "gcc-asan",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "gcc-tsan",
+      "configurePreset": "gcc-tsan",
       "output": {
         "outputOnFailure": true
       }
@@ -296,6 +361,42 @@
       "configurePreset": "clang-coverage",
       "output": {
         "outputOnFailure": true
+      }
+    },
+    {
+      "name": "clang-unit-fuzz",
+      "configurePreset": "clang-unit-fuzz",
+      "output": {
+        "outputOnFailure": true
+      },
+      "filter": {
+        "include": {
+          "label": "fuzz"
+        }
+      }
+    },
+    {
+      "name": "clang-deep-fuzz",
+      "configurePreset": "clang-deep-fuzz",
+      "output": {
+        "outputOnFailure": true
+      },
+      "filter": {
+        "include": {
+          "label": "fuzz"
+        }
+      }
+    },
+    {
+      "name": "clang-bench",
+      "configurePreset": "clang-bench",
+      "output": {
+        "outputOnFailure": true
+      },
+      "filter": {
+        "include": {
+          "label": "bench"
+        }
       }
     }
   ]
