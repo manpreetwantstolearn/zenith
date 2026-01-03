@@ -28,18 +28,17 @@ set(LIB_PATTERNS
     "redis"
 )
 
-# Generate the copy commands for libraries
-set(LIB_COPY_COMMANDS "")
+# Generate copy script at configure time
+set(COPY_SCRIPT "${CMAKE_BINARY_DIR}/copy-libs.sh")
+file(WRITE ${COPY_SCRIPT} "#!/bin/bash\n")
+file(APPEND ${COPY_SCRIPT} "mkdir -p ${CONTAINER_LIBS_DIR}\n")
 foreach(pattern ${LIB_PATTERNS})
-    list(APPEND LIB_COPY_COMMANDS
-        COMMAND sh -c "cp -f /usr/local/lib/lib${pattern}*.so* ${CONTAINER_LIBS_DIR}/ 2>/dev/null || true"
-    )
+    file(APPEND ${COPY_SCRIPT} "cp -f /usr/local/lib/lib${pattern}*.so* ${CONTAINER_LIBS_DIR}/ 2>/dev/null || true\n")
 endforeach()
 
 # Prepare runtime libraries
 add_custom_target(prepare-libs
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${CONTAINER_LIBS_DIR}
-    ${LIB_COPY_COMMANDS}
+    COMMAND bash ${COPY_SCRIPT}
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Copying runtime libraries to libs-runtime/"
 )
