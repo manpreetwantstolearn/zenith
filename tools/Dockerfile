@@ -40,6 +40,7 @@ RUN apt-get update && apt-get install -y \
     # Debugging & Profiling
     gdb \
     lcov \
+    llvm \
     lldb \
     valgrind \
     clang-format \
