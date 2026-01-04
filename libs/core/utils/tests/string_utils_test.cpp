@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-using namespace zenith::utils;
+using namespace astra::utils;
 
 TEST(StringUtilsTest, SplitByChar) {
   auto result = split("a/b/c", '/');

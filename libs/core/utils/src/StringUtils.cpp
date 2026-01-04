@@ -1,8 +1,8 @@
 #include "StringUtils.h"
 
-namespace zenith::utils {
+namespace astra::utils {
 
-std::vector<std::string> split(const std::string& str, char delimiter) {
+std::vector<std::string> split(const std::string &str, char delimiter) {
   std::vector<std::string> segments;
   size_t start = 0;
 
@@ -22,4 +22,4 @@ std::vector<std::string> split(const std::string& str, char delimiter) {
   return segments;
 }
 
-} // namespace zenith::utils
+} // namespace astra::utils

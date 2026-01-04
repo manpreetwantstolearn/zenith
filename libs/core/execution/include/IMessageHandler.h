@@ -2,13 +2,13 @@
 
 #include "Message.h"
 
-namespace zenith::execution {
+namespace astra::execution {
 
 class IMessageHandler {
 public:
   virtual ~IMessageHandler() = default;
 
-  virtual void handle(Message& msg) = 0;
+  virtual void handle(Message &msg) = 0;
 };
 
-} // namespace zenith::execution
+} // namespace astra::execution

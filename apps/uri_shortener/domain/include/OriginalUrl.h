@@ -9,19 +9,19 @@ namespace uri_shortener::domain {
 
 class OriginalUrl {
 public:
-  using CreateResult = zenith::outcome::Result<OriginalUrl, DomainError>;
+  using CreateResult = astra::outcome::Result<OriginalUrl, DomainError>;
 
-  [[nodiscard]] static CreateResult create(const std::string& raw);
+  [[nodiscard]] static CreateResult create(const std::string &raw);
   [[nodiscard]] static OriginalUrl from_trusted(std::string raw);
-  [[nodiscard]] const std::string& value() const noexcept {
+  [[nodiscard]] const std::string &value() const noexcept {
     return m_value;
   }
 
-  [[nodiscard]] bool operator==(const OriginalUrl& other) const noexcept {
+  [[nodiscard]] bool operator==(const OriginalUrl &other) const noexcept {
     return m_value == other.m_value;
   }
 
-  [[nodiscard]] bool operator!=(const OriginalUrl& other) const noexcept {
+  [[nodiscard]] bool operator!=(const OriginalUrl &other) const noexcept {
     return !(*this == other);
   }
 

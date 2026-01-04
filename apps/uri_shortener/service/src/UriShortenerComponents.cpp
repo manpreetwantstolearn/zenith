@@ -16,7 +16,9 @@ namespace uri_shortener {
 // These definitions require complete types for unique_ptr members
 UriShortenerComponents::UriShortenerComponents() = default;
 UriShortenerComponents::~UriShortenerComponents() = default;
-UriShortenerComponents::UriShortenerComponents(UriShortenerComponents&&) = default;
-UriShortenerComponents& UriShortenerComponents::operator=(UriShortenerComponents&&) = default;
+UriShortenerComponents::UriShortenerComponents(UriShortenerComponents &&) =
+    default;
+UriShortenerComponents &
+UriShortenerComponents::operator=(UriShortenerComponents &&) = default;
 
 } // namespace uri_shortener

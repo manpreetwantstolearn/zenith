@@ -3,7 +3,6 @@
 #include "UriMessages.h"
 
 #include <gtest/gtest.h>
-
 #include <variant>
 
 using namespace uri_shortener;
@@ -15,8 +14,8 @@ using namespace uri_shortener;
 class UriMessagesTest : public ::testing::Test {};
 
 TEST_F(UriMessagesTest, UriPayloadVariantHoldsHttpRequestMsg) {
-  auto req = std::make_shared<zenith::http2::Http2Request>();
-  auto resp = std::make_shared<zenith::http2::Http2Response>();
+  auto req = std::make_shared<astra::http2::Http2Request>();
+  auto resp = std::make_shared<astra::http2::Http2Response>();
 
   UriPayload payload = HttpRequestMsg{req, resp};
 
@@ -24,55 +23,53 @@ TEST_F(UriMessagesTest, UriPayloadVariantHoldsHttpRequestMsg) {
 }
 
 TEST_F(UriMessagesTest, UriPayloadVariantHoldsDbQueryMsg) {
-  auto resp = std::make_shared<zenith::http2::Http2Response>();
+  auto resp = std::make_shared<astra::http2::Http2Response>();
 
   UriPayload payload = DbQueryMsg{"shorten", "http://test.com", resp};
 
   EXPECT_TRUE(std::holds_alternative<DbQueryMsg>(payload));
 
-  auto& query = std::get<DbQueryMsg>(payload);
+  auto &query = std::get<DbQueryMsg>(payload);
   EXPECT_EQ(query.operation, "shorten");
   EXPECT_EQ(query.data, "http://test.com");
 }
 
 TEST_F(UriMessagesTest, UriPayloadVariantHoldsDbResponseMsg) {
-  auto resp = std::make_shared<zenith::http2::Http2Response>();
+  auto resp = std::make_shared<astra::http2::Http2Response>();
 
   UriPayload payload = DbResponseMsg{"abc123", true, "", resp};
 
   EXPECT_TRUE(std::holds_alternative<DbResponseMsg>(payload));
 
-  auto& response = std::get<DbResponseMsg>(payload);
+  auto &response = std::get<DbResponseMsg>(payload);
   EXPECT_EQ(response.result, "abc123");
   EXPECT_TRUE(response.success);
 }
 
 TEST_F(UriMessagesTest, OverloadedVisitorDispatchesCorrectly) {
-  auto resp = std::make_shared<zenith::http2::Http2Response>();
-  auto req = std::make_shared<zenith::http2::Http2Request>();
+  auto resp = std::make_shared<astra::http2::Http2Response>();
+  auto req = std::make_shared<astra::http2::Http2Request>();
 
-  std::vector<UriPayload> payloads = {
-      HttpRequestMsg{req, resp},
-      DbQueryMsg{"resolve", "abc", resp},
-      DbResponseMsg{"result", true, "", resp}
-  };
+  std::vector<UriPayload> payloads = {HttpRequestMsg{req, resp},
+                                      DbQueryMsg{"resolve", "abc", resp},
+                                      DbResponseMsg{"result", true, "", resp}};
 
   std::vector<int> dispatched;
 
-  auto visitor = overloaded{[&](HttpRequestMsg&) {
+  auto visitor = overloaded{[&](HttpRequestMsg &) {
                               dispatched.push_back(0);
                             },
-                            [&](DbQueryMsg&) {
+                            [&](DbQueryMsg &) {
                               dispatched.push_back(1);
                             },
-                            [&](DbResponseMsg&) {
+                            [&](DbResponseMsg &) {
                               dispatched.push_back(2);
                             },
-                            [&](service::DataServiceResponse&) {
+                            [&](service::DataServiceResponse &) {
                               dispatched.push_back(3);
                             }};
 
-  for (auto& payload : payloads) {
+  for (auto &payload : payloads) {
     std::visit(visitor, payload);
   }
 
@@ -83,7 +80,7 @@ TEST_F(UriMessagesTest, OverloadedVisitorDispatchesCorrectly) {
 }
 
 TEST_F(UriMessagesTest, DbQueryMsgHoldsData) {
-  auto resp = std::make_shared<zenith::http2::Http2Response>();
+  auto resp = std::make_shared<astra::http2::Http2Response>();
 
   DbQueryMsg query{"delete", "xyz789", resp};
 
@@ -92,7 +89,7 @@ TEST_F(UriMessagesTest, DbQueryMsgHoldsData) {
 }
 
 TEST_F(UriMessagesTest, DbResponseMsgHoldsError) {
-  auto resp = std::make_shared<zenith::http2::Http2Response>();
+  auto resp = std::make_shared<astra::http2::Http2Response>();
 
   DbResponseMsg response{"", false, "Not found", resp};
 

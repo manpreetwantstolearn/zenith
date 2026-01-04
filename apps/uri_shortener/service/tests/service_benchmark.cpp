@@ -4,7 +4,6 @@
 #include "ShortenLink.h"
 
 #include <benchmark/benchmark.h>
-
 #include <memory>
 
 using namespace uri_shortener::application;
@@ -15,7 +14,7 @@ using namespace uri_shortener::infrastructure;
 // ShortenLink Use Case Benchmarks
 // =============================================================================
 
-static void BM_ShortenLink(benchmark::State& state) {
+static void BM_ShortenLink(benchmark::State &state) {
   auto repo = std::make_shared<InMemoryLinkRepository>();
   auto generator = std::make_shared<RandomCodeGenerator>();
   ShortenLink useCase(repo, generator);
@@ -31,7 +30,7 @@ static void BM_ShortenLink(benchmark::State& state) {
 }
 BENCHMARK(BM_ShortenLink);
 
-static void BM_ShortenLinkWithExpiry(benchmark::State& state) {
+static void BM_ShortenLinkWithExpiry(benchmark::State &state) {
   auto repo = std::make_shared<InMemoryLinkRepository>();
   auto generator = std::make_shared<RandomCodeGenerator>();
   ShortenLink useCase(repo, generator);
@@ -52,7 +51,7 @@ BENCHMARK(BM_ShortenLinkWithExpiry);
 // ResolveLink Use Case Benchmarks
 // =============================================================================
 
-static void BM_ResolveLink(benchmark::State& state) {
+static void BM_ResolveLink(benchmark::State &state) {
   auto repo = std::make_shared<InMemoryLinkRepository>();
   auto generator = std::make_shared<RandomCodeGenerator>();
 
@@ -82,7 +81,7 @@ static void BM_ResolveLink(benchmark::State& state) {
 }
 BENCHMARK(BM_ResolveLink);
 
-static void BM_ResolveLinkNotFound(benchmark::State& state) {
+static void BM_ResolveLinkNotFound(benchmark::State &state) {
   auto repo = std::make_shared<InMemoryLinkRepository>();
   ResolveLink resolve(repo);
 
@@ -100,7 +99,7 @@ BENCHMARK(BM_ResolveLinkNotFound);
 // Repository Benchmarks
 // =============================================================================
 
-static void BM_RepositoryLookup(benchmark::State& state) {
+static void BM_RepositoryLookup(benchmark::State &state) {
   auto repo = std::make_shared<InMemoryLinkRepository>();
   auto generator = std::make_shared<RandomCodeGenerator>();
 

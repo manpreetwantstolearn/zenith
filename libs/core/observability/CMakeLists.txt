@@ -34,7 +34,7 @@ target_include_directories(observability
 # Link OTel (PRIVATE - consumers don't see OTel headers)
 target_link_libraries(observability
     PRIVATE
-        zenith_sanitizers
+        astra_sanitizers
         opentelemetry-cpp::api
         opentelemetry-cpp::sdk
         opentelemetry-cpp::logs
@@ -75,7 +75,7 @@ add_executable(test_observability
 target_link_libraries(test_observability
     PRIVATE
         observability
-        zenith_execution
+        astra_execution
         GTest::gtest_main
 )
 

@@ -1,16 +1,15 @@
 #include "Router.h"
 
 #include <benchmark/benchmark.h>
-
 #include <string>
 
-using namespace zenith::router;
+using namespace astra::router;
 
 // =============================================================================
 // Match Benchmarks
 // =============================================================================
 
-static void BM_MatchStatic(benchmark::State& state) {
+static void BM_MatchStatic(benchmark::State &state) {
   Router router;
   router.get("/users", [](auto, auto) {});
   router.get("/posts", [](auto, auto) {});
@@ -23,7 +22,7 @@ static void BM_MatchStatic(benchmark::State& state) {
 }
 BENCHMARK(BM_MatchStatic);
 
-static void BM_MatchParam(benchmark::State& state) {
+static void BM_MatchParam(benchmark::State &state) {
   Router router;
   router.get("/users/:id", [](auto, auto) {});
 
@@ -34,9 +33,10 @@ static void BM_MatchParam(benchmark::State& state) {
 }
 BENCHMARK(BM_MatchParam);
 
-static void BM_MatchMultiParam(benchmark::State& state) {
+static void BM_MatchMultiParam(benchmark::State &state) {
   Router router;
-  router.get("/users/:userId/posts/:postId/comments/:commentId", [](auto, auto) {});
+  router.get("/users/:userId/posts/:postId/comments/:commentId",
+             [](auto, auto) {});
 
   for (auto _ : state) {
     auto result = router.match("GET", "/users/123/posts/456/comments/789");
@@ -45,7 +45,7 @@ static void BM_MatchMultiParam(benchmark::State& state) {
 }
 BENCHMARK(BM_MatchMultiParam);
 
-static void BM_MatchManyRoutes(benchmark::State& state) {
+static void BM_MatchManyRoutes(benchmark::State &state) {
   Router router;
   // Add 100 routes
   for (int i = 0; i < 100; ++i) {
@@ -60,7 +60,7 @@ static void BM_MatchManyRoutes(benchmark::State& state) {
 }
 BENCHMARK(BM_MatchManyRoutes);
 
-static void BM_MatchNotFound(benchmark::State& state) {
+static void BM_MatchNotFound(benchmark::State &state) {
   Router router;
   router.get("/users", [](auto, auto) {});
 
@@ -75,7 +75,7 @@ BENCHMARK(BM_MatchNotFound);
 // Add Route Benchmarks
 // =============================================================================
 
-static void BM_AddRoute(benchmark::State& state) {
+static void BM_AddRoute(benchmark::State &state) {
   for (auto _ : state) {
     Router router;
     router.get("/users/:id", [](auto, auto) {});
@@ -84,7 +84,7 @@ static void BM_AddRoute(benchmark::State& state) {
 }
 BENCHMARK(BM_AddRoute);
 
-static void BM_AddManyRoutes(benchmark::State& state) {
+static void BM_AddManyRoutes(benchmark::State &state) {
   for (auto _ : state) {
     Router router;
     for (int i = 0; i < 100; ++i) {

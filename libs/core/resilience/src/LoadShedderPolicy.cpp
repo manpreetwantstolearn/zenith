@@ -3,8 +3,8 @@
 
 #include "resilience/policy/LoadShedderPolicy.h"
 
-namespace zenith::resilience {
+namespace astra::resilience {
 
 // Currently all implementation is in the header
 
-} // namespace zenith::resilience
+} // namespace astra::resilience

@@ -1,17 +1,16 @@
 #include "Http2Client.h"
 
-#include <benchmark/benchmark.h>
-
 #include <atomic>
+#include <benchmark/benchmark.h>
 #include <memory>
 
-using namespace zenith::http2;
+using namespace astra::http2;
 
 // =============================================================================
 // Client Construction Benchmarks
 // =============================================================================
 
-static void BM_ClientConstruction(benchmark::State& state) {
+static void BM_ClientConstruction(benchmark::State &state) {
   ClientConfig config;
   config.set_request_timeout_ms(100);
 
@@ -26,7 +25,7 @@ BENCHMARK(BM_ClientConstruction);
 // Submit Benchmarks (Error Path - Non-Blocking)
 // =============================================================================
 
-static void BM_SubmitSinglePeer(benchmark::State& state) {
+static void BM_SubmitSinglePeer(benchmark::State &state) {
   ClientConfig config;
   config.set_request_timeout_ms(100);
   Http2Client client(config);
@@ -34,16 +33,17 @@ static void BM_SubmitSinglePeer(benchmark::State& state) {
   std::atomic<int> completed{0};
 
   for (auto _ : state) {
-    client.submit("127.0.0.1", 19999, "GET", "/test", "", {}, [&completed](auto) {
-      completed++;
-    });
+    client.submit("127.0.0.1", 19999, "GET", "/test", "", {},
+                  [&completed](auto) {
+                    completed++;
+                  });
   }
 
   state.SetItemsProcessed(state.iterations());
 }
 BENCHMARK(BM_SubmitSinglePeer);
 
-static void BM_SubmitMultiplePeers(benchmark::State& state) {
+static void BM_SubmitMultiplePeers(benchmark::State &state) {
   ClientConfig config;
   config.set_request_timeout_ms(100);
   Http2Client client(config);
@@ -53,9 +53,10 @@ static void BM_SubmitMultiplePeers(benchmark::State& state) {
 
   for (auto _ : state) {
     uint16_t port = 19990 + (port_offset++ % 10);
-    client.submit("127.0.0.1", port, "GET", "/test", "", {}, [&completed](auto) {
-      completed++;
-    });
+    client.submit("127.0.0.1", port, "GET", "/test", "", {},
+                  [&completed](auto) {
+                    completed++;
+                  });
   }
 
   state.SetItemsProcessed(state.iterations());
@@ -66,7 +67,7 @@ BENCHMARK(BM_SubmitMultiplePeers);
 // Request Payload Benchmarks
 // =============================================================================
 
-static void BM_SubmitWithHeaders(benchmark::State& state) {
+static void BM_SubmitWithHeaders(benchmark::State &state) {
   ClientConfig config;
   config.set_request_timeout_ms(100);
   Http2Client client(config);
@@ -79,8 +80,8 @@ static void BM_SubmitWithHeaders(benchmark::State& state) {
   std::atomic<int> completed{0};
 
   for (auto _ : state) {
-    client.submit("127.0.0.1", 19999, "POST", "/api/data", R"({"key": "value"})", headers,
-                  [&completed](auto) {
+    client.submit("127.0.0.1", 19999, "POST", "/api/data",
+                  R"({"key": "value"})", headers, [&completed](auto) {
                     completed++;
                   });
   }
@@ -89,7 +90,7 @@ static void BM_SubmitWithHeaders(benchmark::State& state) {
 }
 BENCHMARK(BM_SubmitWithHeaders);
 
-static void BM_SubmitLargeBody(benchmark::State& state) {
+static void BM_SubmitLargeBody(benchmark::State &state) {
   ClientConfig config;
   config.set_request_timeout_ms(100);
   Http2Client client(config);
@@ -98,9 +99,10 @@ static void BM_SubmitLargeBody(benchmark::State& state) {
   std::atomic<int> completed{0};
 
   for (auto _ : state) {
-    client.submit("127.0.0.1", 19999, "POST", "/upload", large_body, {}, [&completed](auto) {
-      completed++;
-    });
+    client.submit("127.0.0.1", 19999, "POST", "/upload", large_body, {},
+                  [&completed](auto) {
+                    completed++;
+                  });
   }
 
   state.SetItemsProcessed(state.iterations());
@@ -112,7 +114,7 @@ BENCHMARK(BM_SubmitLargeBody)->Range(1024, 65536);
 // Response Object Benchmarks
 // =============================================================================
 
-static void BM_ResponseConstruction(benchmark::State& state) {
+static void BM_ResponseConstruction(benchmark::State &state) {
   std::map<std::string, std::string> headers;
   headers["content-type"] = "application/json";
   headers["x-request-id"] = "12345";
@@ -124,7 +126,7 @@ static void BM_ResponseConstruction(benchmark::State& state) {
 }
 BENCHMARK(BM_ResponseConstruction);
 
-static void BM_ResponseHeaderLookup(benchmark::State& state) {
+static void BM_ResponseHeaderLookup(benchmark::State &state) {
   std::map<std::string, std::string> headers;
   for (int i = 0; i < 20; ++i) {
     headers["header-" + std::to_string(i)] = "value-" + std::to_string(i);

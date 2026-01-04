@@ -3,7 +3,7 @@
 #include <stdexcept>
 #include <string>
 
-namespace zenith::resilience {
+namespace astra::resilience {
 
 struct LoadShedderPolicy {
   size_t max_concurrent{0};
@@ -17,4 +17,4 @@ struct LoadShedderPolicy {
   }
 };
 
-} // namespace zenith::resilience
+} // namespace astra::resilience

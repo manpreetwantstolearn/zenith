@@ -19,11 +19,11 @@ public:
     std::string original_url;
   };
 
-  using Result = zenith::outcome::Result<Output, domain::DomainError>;
+  using Result = astra::outcome::Result<Output, domain::DomainError>;
 
   explicit ResolveLink(std::shared_ptr<domain::ILinkRepository> repository);
 
-  Result execute(const Input& input);
+  Result execute(const Input &input);
 
 private:
   std::shared_ptr<domain::ILinkRepository> m_repository;

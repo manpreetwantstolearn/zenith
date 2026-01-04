@@ -2,17 +2,17 @@
 
 #include <memory>
 
-namespace zenith::http2 {
+namespace astra::http2 {
 class Http2Server;
 class Http2Client;
-} // namespace zenith::http2
-namespace zenith::service_discovery {
+} // namespace astra::http2
+namespace astra::service_discovery {
 class IServiceResolver;
 }
-namespace zenith::execution {
+namespace astra::execution {
 class AffinityExecutor;
 }
-namespace zenith::resilience {
+namespace astra::resilience {
 class AtomicLoadShedder;
 }
 
@@ -42,25 +42,25 @@ struct UriShortenerComponents {
   std::shared_ptr<application::ResolveLink> resolve;
   std::shared_ptr<application::DeleteLink> del;
 
-  std::unique_ptr<zenith::http2::Http2Client> http_client;
-  std::unique_ptr<zenith::service_discovery::IServiceResolver> resolver;
+  std::unique_ptr<astra::http2::Http2Client> http_client;
+  std::unique_ptr<astra::service_discovery::IServiceResolver> resolver;
   std::shared_ptr<service::IDataServiceAdapter> data_adapter;
 
   std::unique_ptr<UriShortenerMessageHandler> msg_handler;
   std::unique_ptr<ObservableMessageHandler> obs_msg_handler;
-  std::unique_ptr<zenith::execution::AffinityExecutor> executor;
+  std::unique_ptr<astra::execution::AffinityExecutor> executor;
   std::unique_ptr<UriShortenerRequestHandler> req_handler;
   std::unique_ptr<ObservableRequestHandler> obs_req_handler;
 
-  std::unique_ptr<zenith::http2::Http2Server> server;
-  std::unique_ptr<zenith::resilience::AtomicLoadShedder> load_shedder;
+  std::unique_ptr<astra::http2::Http2Server> server;
+  std::unique_ptr<astra::resilience::AtomicLoadShedder> load_shedder;
 
   UriShortenerComponents();
   ~UriShortenerComponents();
-  UriShortenerComponents(UriShortenerComponents&&);
-  UriShortenerComponents& operator=(UriShortenerComponents&&);
-  UriShortenerComponents(const UriShortenerComponents&) = delete;
-  UriShortenerComponents& operator=(const UriShortenerComponents&) = delete;
+  UriShortenerComponents(UriShortenerComponents &&);
+  UriShortenerComponents &operator=(UriShortenerComponents &&);
+  UriShortenerComponents(const UriShortenerComponents &) = delete;
+  UriShortenerComponents &operator=(const UriShortenerComponents &) = delete;
 };
 
 } // namespace uri_shortener

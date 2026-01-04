@@ -1,19 +1,20 @@
 /// @file ShortenLink.cpp
 /// @brief ShortenLink use case implementation
 
+#include "ShortenLink.h"
+
 #include "ExpirationPolicy.h"
 #include "OriginalUrl.h"
 #include "ShortLink.h"
-#include "ShortenLink.h"
 
 namespace uri_shortener::application {
 
 ShortenLink::ShortenLink(std::shared_ptr<domain::ILinkRepository> repository,
-                         std::shared_ptr<domain::ICodeGenerator> generator) :
-    m_repository(std::move(repository)), m_generator(std::move(generator)) {
+                         std::shared_ptr<domain::ICodeGenerator> generator)
+    : m_repository(std::move(repository)), m_generator(std::move(generator)) {
 }
 
-ShortenLink::Result ShortenLink::execute(const Input& input) {
+ShortenLink::Result ShortenLink::execute(const Input &input) {
   // 1. Validate the original URL
   auto url_result = domain::OriginalUrl::create(input.original_url);
   if (url_result.is_err()) {
@@ -25,9 +26,10 @@ ShortenLink::Result ShortenLink::execute(const Input& input) {
   auto code = m_generator->generate();
 
   // 3. Create expiration policy
-  auto expiration = input.expires_after.has_value()
-                      ? domain::ExpirationPolicy::after(input.expires_after.value())
-                      : domain::ExpirationPolicy::never();
+  auto expiration =
+      input.expires_after.has_value()
+          ? domain::ExpirationPolicy::after(input.expires_after.value())
+          : domain::ExpirationPolicy::never();
 
   // 4. Create the link
   auto link_result = domain::ShortLink::create(code, original_url, expiration);
@@ -43,8 +45,9 @@ ShortenLink::Result ShortenLink::execute(const Input& input) {
   }
 
   // 6. Return output
-  return Result::Ok(Output{.short_code = std::string(link.code().value()),
-                           .original_url = std::string(link.original().value())});
+  return Result::Ok(
+      Output{.short_code = std::string(link.code().value()),
+             .original_url = std::string(link.original().value())});
 }
 
 } // namespace uri_shortener::application

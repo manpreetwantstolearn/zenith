@@ -42,8 +42,8 @@ target_include_directories(uri_shortener_domain
         ${CMAKE_SOURCE_DIR}/libs/core/service_discovery/include
 )
 target_link_libraries(uri_shortener_domain
-    PRIVATE zenith_sanitizers
-    PUBLIC uri_shortener_config http2server http2client zenith_router observability zenith_execution resilience service_discovery
+    PRIVATE astra_sanitizers
+    PUBLIC uri_shortener_config http2server http2client astra_router observability astra_execution resilience service_discovery
 )
 
 target_compile_features(uri_shortener_domain PUBLIC cxx_std_17)

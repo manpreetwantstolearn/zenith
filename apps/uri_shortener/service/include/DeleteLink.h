@@ -24,11 +24,11 @@ public:
     std::string short_code;
   };
 
-  using Result = zenith::outcome::Result<void, domain::DomainError>;
+  using Result = astra::outcome::Result<void, domain::DomainError>;
 
   explicit DeleteLink(std::shared_ptr<domain::ILinkRepository> repository);
 
-  Result execute(const Input& input);
+  Result execute(const Input &input);
 
 private:
   std::shared_ptr<domain::ILinkRepository> m_repository;

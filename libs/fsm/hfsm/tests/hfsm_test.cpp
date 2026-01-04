@@ -14,19 +14,19 @@ struct Off;
 using FSM = M::PeerRoot<On, Off>;
 
 struct On : FSM::State {
-  void enter(PlanControl& control) {
+  void enter(PlanControl &control) {
     std::cout << "Entering On" << std::endl;
   }
-  void exit(PlanControl& control) {
+  void exit(PlanControl &control) {
     std::cout << "Exiting On" << std::endl;
   }
 };
 
 struct Off : FSM::State {
-  void enter(PlanControl& control) {
+  void enter(PlanControl &control) {
     std::cout << "Entering Off" << std::endl;
   }
-  void exit(PlanControl& control) {
+  void exit(PlanControl &control) {
     std::cout << "Exiting Off" << std::endl;
   }
 };

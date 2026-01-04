@@ -2,10 +2,9 @@
 #include "StaticServiceResolver.h"
 
 #include <gtest/gtest.h>
-
 #include <string>
 
-using namespace zenith::service_discovery;
+using namespace astra::service_discovery;
 
 // =============================================================================
 // IServiceResolver Interface Tests (via StaticServiceResolver)
@@ -70,14 +69,17 @@ TEST_F(StaticServiceResolverTest, ResolveUnknownServiceThrows) {
 TEST_F(StaticServiceResolverTest, RegisterEmptyServiceNameThrows) {
   StaticServiceResolver resolver;
 
-  EXPECT_THROW({ resolver.register_service("", "host", 8080); }, std::invalid_argument);
+  EXPECT_THROW(
+      { resolver.register_service("", "host", 8080); }, std::invalid_argument);
 }
 
 // Empty host throws on registration
 TEST_F(StaticServiceResolverTest, RegisterEmptyHostThrows) {
   StaticServiceResolver resolver;
 
-  EXPECT_THROW({ resolver.register_service("service", "", 8080); }, std::invalid_argument);
+  EXPECT_THROW(
+      { resolver.register_service("service", "", 8080); },
+      std::invalid_argument);
 }
 
 // Port 0 is allowed (ephemeral port)

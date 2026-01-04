@@ -1,11 +1,10 @@
 #include "JsonDocument.h"
 
 #include <gtest/gtest.h>
-
 #include <limits>
 #include <string>
 
-using namespace zenith::json;
+using namespace astra::json;
 
 // =============================================================================
 // Parsing Tests
@@ -13,7 +12,7 @@ using namespace zenith::json;
 
 TEST(JsonDocumentTest, ParseValidJson) {
   std::string json_str = R"({
-        "name": "Zenith",
+        "name": "Astra",
         "port": 8080,
         "enabled": true,
         "ratio": 1.5
@@ -27,7 +26,7 @@ TEST(JsonDocumentTest, ParseValidJson) {
     EXPECT_TRUE(doc.contains("enabled"));
     EXPECT_FALSE(doc.contains("missing"));
 
-    EXPECT_EQ(doc.get_string("name"), "Zenith");
+    EXPECT_EQ(doc.get_string("name"), "Astra");
     EXPECT_EQ(doc.get_int("port"), 8080);
     EXPECT_EQ(doc.get_bool("enabled"), true);
     EXPECT_DOUBLE_EQ(doc.get_double("ratio"), 1.5);

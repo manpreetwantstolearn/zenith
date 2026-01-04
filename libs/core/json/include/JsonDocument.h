@@ -6,28 +6,28 @@
 #include <string>
 #include <vector>
 
-namespace zenith::json {
+namespace astra::json {
 
 class JsonDocument {
 public:
   JsonDocument();
   ~JsonDocument();
 
-  JsonDocument(const JsonDocument&) = delete;
-  JsonDocument& operator=(const JsonDocument&) = delete;
-  JsonDocument(JsonDocument&&) noexcept;
-  JsonDocument& operator=(JsonDocument&&) noexcept;
+  JsonDocument(const JsonDocument &) = delete;
+  JsonDocument &operator=(const JsonDocument &) = delete;
+  JsonDocument(JsonDocument &&) noexcept;
+  JsonDocument &operator=(JsonDocument &&) noexcept;
 
-  [[nodiscard]] static JsonDocument parse(const std::string& json_str);
+  [[nodiscard]] static JsonDocument parse(const std::string &json_str);
 
-  [[nodiscard]] bool contains(const std::string& key) const;
-  [[nodiscard]] std::string get_string(const std::string& key) const;
-  [[nodiscard]] int get_int(const std::string& key) const;
-  [[nodiscard]] uint64_t get_uint64(const std::string& key) const;
-  [[nodiscard]] bool get_bool(const std::string& key) const;
-  [[nodiscard]] double get_double(const std::string& key) const;
+  [[nodiscard]] bool contains(const std::string &key) const;
+  [[nodiscard]] std::string get_string(const std::string &key) const;
+  [[nodiscard]] int get_int(const std::string &key) const;
+  [[nodiscard]] uint64_t get_uint64(const std::string &key) const;
+  [[nodiscard]] bool get_bool(const std::string &key) const;
+  [[nodiscard]] double get_double(const std::string &key) const;
 
-  [[nodiscard]] JsonDocument get_child(const std::string& key) const;
+  [[nodiscard]] JsonDocument get_child(const std::string &key) const;
 
   [[nodiscard]] bool is_object() const;
   [[nodiscard]] bool is_array() const;
@@ -43,4 +43,4 @@ private:
   explicit JsonDocument(std::unique_ptr<Impl> impl);
 };
 
-} // namespace zenith::json
+} // namespace astra::json

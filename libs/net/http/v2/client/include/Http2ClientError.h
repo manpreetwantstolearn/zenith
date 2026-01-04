@@ -1,6 +1,6 @@
 #pragma once
 
-namespace zenith::http2 {
+namespace astra::http2 {
 
 enum class Http2ClientError {
   ConnectionFailed,
@@ -10,4 +10,4 @@ enum class Http2ClientError {
   SubmitFailed
 };
 
-} // namespace zenith::http2
+} // namespace astra::http2

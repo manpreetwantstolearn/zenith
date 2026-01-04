@@ -1,16 +1,14 @@
-#include <gtest/gtest.h>
-
-#include <atomic>
-#include <chrono>
-#include <thread>
-#include <vector>
-
 #include <Log.h>
 #include <Metrics.h>
 #include <MetricsRegistry.h>
 #include <Provider.h>
 #include <Span.h>
 #include <Tracer.h>
+#include <atomic>
+#include <chrono>
+#include <gtest/gtest.h>
+#include <thread>
+#include <vector>
 
 class ThreadSafetyExtendedTest : public ::testing::Test {
 protected:
@@ -47,7 +45,7 @@ TEST_F(ThreadSafetyExtendedTest, Metrics100ThreadsConcurrent) {
     });
   }
 
-  for (auto& t : threads) {
+  for (auto &t : threads) {
     t.join();
   }
 
@@ -105,13 +103,14 @@ TEST_F(ThreadSafetyExtendedTest, ActiveSpanStackIsolation) {
 
   for (int i = 0; i < 50; ++i) {
     threads.emplace_back([local_tracer, i]() {
-      auto span1 = local_tracer->start_span("thread." + std::to_string(i) + ".span1");
+      auto span1 =
+          local_tracer->start_span("thread." + std::to_string(i) + ".span1");
       {
-        auto span2 =
-            local_tracer->start_span("thread." + std::to_string(i) + ".span2", span1->context());
+        auto span2 = local_tracer->start_span(
+            "thread." + std::to_string(i) + ".span2", span1->context());
         {
-          auto span3 =
-              local_tracer->start_span("thread." + std::to_string(i) + ".span3", span2->context());
+          auto span3 = local_tracer->start_span(
+              "thread." + std::to_string(i) + ".span3", span2->context());
           span3->end();
         }
         span2->end();
@@ -120,7 +119,7 @@ TEST_F(ThreadSafetyExtendedTest, ActiveSpanStackIsolation) {
     });
   }
 
-  for (auto& t : threads) {
+  for (auto &t : threads) {
     t.join();
   }
 
@@ -139,7 +138,7 @@ TEST_F(ThreadSafetyExtendedTest, MetricRegistrationRace) {
     });
   }
 
-  for (auto& t : threads) {
+  for (auto &t : threads) {
     t.join();
   }
 
@@ -167,7 +166,7 @@ TEST_F(ThreadSafetyExtendedTest, MetricsRegistryConcurrentAccess) {
     });
   }
 
-  for (auto& t : threads) {
+  for (auto &t : threads) {
     t.join();
   }
 
@@ -180,12 +179,12 @@ TEST_F(ThreadSafetyExtendedTest, ProviderConcurrentAccess) {
 
   for (int i = 0; i < 100; ++i) {
     threads.emplace_back([]() {
-      auto& provider = obs::Provider::instance();
+      auto &provider = obs::Provider::instance();
       (void)provider; // Just access it
     });
   }
 
-  for (auto& t : threads) {
+  for (auto &t : threads) {
     t.join();
   }
 
@@ -205,7 +204,7 @@ TEST_F(ThreadSafetyExtendedTest, ConcurrentContextExtraction) {
     });
   }
 
-  for (auto& t : threads) {
+  for (auto &t : threads) {
     t.join();
   }
 
@@ -238,7 +237,7 @@ TEST_F(ThreadSafetyExtendedTest, SpanParentChildRace) {
     });
   }
 
-  for (auto& t : threads) {
+  for (auto &t : threads) {
     t.join();
   }
 
@@ -285,7 +284,7 @@ TEST_F(ThreadSafetyExtendedTest, TLSIsolationVerification) {
     });
   }
 
-  for (auto& t : threads) {
+  for (auto &t : threads) {
     t.join();
   }
 
@@ -310,14 +309,12 @@ TEST_F(ThreadSafetyExtendedTest, HighContentionScenario) {
         span->attr("thread", static_cast<int64_t>(i));
         span->end();
 
-        obs::info("High contention", {
-                                         {"t", std::to_string(i)}
-        });
+        obs::info("High contention", {{"t", std::to_string(i)}});
       }
     });
   }
 
-  for (auto& t : threads) {
+  for (auto &t : threads) {
     t.join();
   }
 
@@ -338,7 +335,7 @@ TEST_F(ThreadSafetyExtendedTest, ConcurrentSpansSameName) {
     });
   }
 
-  for (auto& t : threads) {
+  for (auto &t : threads) {
     t.join();
   }
 
@@ -351,19 +348,15 @@ TEST_F(ThreadSafetyExtendedTest, ConcurrentLoggingWithScopes) {
 
   for (int i = 0; i < 50; ++i) {
     threads.emplace_back([i]() {
-      obs::ScopedLogAttributes scope({
-          {"thread", std::to_string(i)}
-      });
+      obs::ScopedLogAttributes scope({{"thread", std::to_string(i)}});
 
       for (int j = 0; j < 100; ++j) {
-        obs::info("Scoped log", {
-                                    {"iteration", std::to_string(j)}
-        });
+        obs::info("Scoped log", {{"iteration", std::to_string(j)}});
       }
     });
   }
 
-  for (auto& t : threads) {
+  for (auto &t : threads) {
     t.join();
   }
 
@@ -404,7 +397,7 @@ TEST_F(ThreadSafetyExtendedTest, MixedWorkloadStress) {
   std::this_thread::sleep_for(std::chrono::milliseconds(200));
   stop.store(true);
 
-  for (auto& t : threads) {
+  for (auto &t : threads) {
     t.join();
   }
 

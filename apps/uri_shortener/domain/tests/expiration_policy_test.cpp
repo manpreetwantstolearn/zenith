@@ -3,9 +3,8 @@
 
 #include "ExpirationPolicy.h"
 
-#include <gtest/gtest.h>
-
 #include <chrono>
+#include <gtest/gtest.h>
 
 namespace uri_shortener::domain::test {
 
@@ -55,7 +54,8 @@ TEST(ExpirationPolicyTest, AfterDuration_ExpiresAfterDuration) {
   EXPECT_FALSE(policy.has_expired_at(created + std::chrono::minutes(30)));
 
   // Expired after 1 hour + 1 second
-  EXPECT_TRUE(policy.has_expired_at(created + std::chrono::hours(1) + std::chrono::seconds(1)));
+  EXPECT_TRUE(policy.has_expired_at(created + std::chrono::hours(1) +
+                                    std::chrono::seconds(1)));
 }
 
 TEST(ExpirationPolicyTest, AtTime_ExpiresAtSpecifiedTime) {

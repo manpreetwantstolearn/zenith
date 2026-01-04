@@ -10,12 +10,11 @@
 #include "resilience.pb.h"
 #include "uri_shortener.pb.h"
 
+#include <atomic>
+#include <fstream>
 #include <google/protobuf/util/json_util.h>
 #include <google/protobuf/util/message_differencer.h>
 #include <gtest/gtest.h>
-
-#include <atomic>
-#include <fstream>
 #include <limits>
 #include <thread>
 #include <vector>
@@ -31,7 +30,7 @@ public:
   }
 };
 
-[[maybe_unused]] static ::testing::Environment* const protobuf_env =
+[[maybe_unused]] static ::testing::Environment *const protobuf_env =
     ::testing::AddGlobalTestEnvironment(new ProtobufEnvironment);
 
 // =============================================================================
@@ -39,13 +38,13 @@ public:
 // =============================================================================
 
 TEST(EdgeCasesTest, PortZero) {
-  zenith::http2::ServerConfig server;
+  astra::http2::ServerConfig server;
   server.set_port(0);
   EXPECT_EQ(server.port(), 0);
 }
 
 TEST(EdgeCasesTest, PortMaxUint32) {
-  zenith::http2::ServerConfig server;
+  astra::http2::ServerConfig server;
   server.set_port(std::numeric_limits<uint32_t>::max());
   EXPECT_EQ(server.port(), std::numeric_limits<uint32_t>::max());
 }
@@ -98,13 +97,13 @@ TEST(StringEdgeCasesTest, UnicodeServiceName) {
 }
 
 TEST(StringEdgeCasesTest, ServerAddressIPv6) {
-  zenith::http2::ServerConfig server;
+  astra::http2::ServerConfig server;
   server.set_address("::1");
   EXPECT_EQ(server.address(), "::1");
 }
 
 TEST(StringEdgeCasesTest, ServerAddressHostname) {
-  zenith::http2::ServerConfig server;
+  astra::http2::ServerConfig server;
   server.set_address("localhost");
   EXPECT_EQ(server.address(), "localhost");
 }
@@ -126,7 +125,7 @@ TEST(StringEdgeCasesTest, LogLevelError) {
 // =============================================================================
 
 TEST(JsonEdgeCasesTest, ParsesNullValues) {
-  const char* json = R"({
+  const char *json = R"({
         "schema_version": 1,
         "bootstrap": null
     })";
@@ -134,13 +133,14 @@ TEST(JsonEdgeCasesTest, ParsesNullValues) {
   uri_shortener::Config config;
   google::protobuf::util::JsonParseOptions options;
   options.ignore_unknown_fields = true;
-  auto status = google::protobuf::util::JsonStringToMessage(json, &config, options);
+  auto status =
+      google::protobuf::util::JsonStringToMessage(json, &config, options);
   EXPECT_TRUE(status.ok());
   EXPECT_FALSE(config.has_bootstrap());
 }
 
 TEST(JsonEdgeCasesTest, ParsesEmptyNestedObject) {
-  const char* json = R"({
+  const char *json = R"({
         "bootstrap": {}
     })";
 
@@ -152,7 +152,7 @@ TEST(JsonEdgeCasesTest, ParsesEmptyNestedObject) {
 }
 
 TEST(JsonEdgeCasesTest, FailsOnTypeMismatchStringForInt) {
-  const char* json = R"({
+  const char *json = R"({
         "schema_version": "not a number"
     })";
 
@@ -162,7 +162,8 @@ TEST(JsonEdgeCasesTest, FailsOnTypeMismatchStringForInt) {
 }
 
 TEST(JsonEdgeCasesTest, ParsesMinifiedJson) {
-  const char* json = R"({"schema_version":1,"bootstrap":{"server":{"port":8080}}})";
+  const char *json =
+      R"({"schema_version":1,"bootstrap":{"server":{"port":8080}}})";
 
   uri_shortener::Config config;
   auto status = google::protobuf::util::JsonStringToMessage(json, &config);
@@ -171,7 +172,7 @@ TEST(JsonEdgeCasesTest, ParsesMinifiedJson) {
 }
 
 TEST(JsonEdgeCasesTest, FailsOnArrayWhereObjectExpected) {
-  const char* json = R"({
+  const char *json = R"({
         "bootstrap": []
     })";
 
@@ -196,7 +197,7 @@ protected:
     std::remove(test_file_.c_str());
   }
 
-  void WriteFile(const std::string& content) {
+  void WriteFile(const std::string &content) {
     std::ofstream file(test_file_);
     file << content;
     file.close();
@@ -204,12 +205,14 @@ protected:
 
   std::string ReadFile() {
     std::ifstream file(test_file_);
-    return std::string((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    return std::string((std::istreambuf_iterator<char>(file)),
+                       std::istreambuf_iterator<char>());
   }
 };
 
 TEST_F(FileIoTest, CanReadConfigFromFile) {
-  WriteFile(R"({"schema_version": 1, "bootstrap": {"server": {"port": 9000}}})");
+  WriteFile(
+      R"({"schema_version": 1, "bootstrap": {"server": {"port": 9000}}})");
 
   std::string json = ReadFile();
   uri_shortener::Config config;
@@ -223,7 +226,9 @@ TEST_F(FileIoTest, RoundTripThroughFile) {
   uri_shortener::Config original;
   original.set_schema_version(1);
   original.mutable_bootstrap()->mutable_server()->set_port(8080);
-  original.mutable_runtime()->mutable_load_shedder()->set_max_concurrent_requests(10000);
+  original.mutable_runtime()
+      ->mutable_load_shedder()
+      ->set_max_concurrent_requests(10000);
 
   // Write to file
   std::string json;
@@ -235,7 +240,8 @@ TEST_F(FileIoTest, RoundTripThroughFile) {
   uri_shortener::Config parsed;
   google::protobuf::util::JsonStringToMessage(read_json, &parsed);
 
-  EXPECT_TRUE(google::protobuf::util::MessageDifferencer::Equals(original, parsed));
+  EXPECT_TRUE(
+      google::protobuf::util::MessageDifferencer::Equals(original, parsed));
 }
 
 TEST_F(FileIoTest, HandlesEmptyFile) {
@@ -294,13 +300,15 @@ TEST(ClearResetTest, ClearConfig) {
 
 TEST(DifferencerEdgeCasesTest, BothEmpty) {
   uri_shortener::Config config1, config2;
-  EXPECT_TRUE(google::protobuf::util::MessageDifferencer::Equals(config1, config2));
+  EXPECT_TRUE(
+      google::protobuf::util::MessageDifferencer::Equals(config1, config2));
 }
 
 TEST(DifferencerEdgeCasesTest, OneEmptyOneNot) {
   uri_shortener::Config config1, config2;
   config2.set_schema_version(1);
-  EXPECT_FALSE(google::protobuf::util::MessageDifferencer::Equals(config1, config2));
+  EXPECT_FALSE(
+      google::protobuf::util::MessageDifferencer::Equals(config1, config2));
 }
 
 // =============================================================================
@@ -350,7 +358,7 @@ TEST(ConcurrencyTest, ConcurrentReads) {
     });
   }
 
-  for (auto& t : threads) {
+  for (auto &t : threads) {
     t.join();
   }
   EXPECT_EQ(read_count, 1000);
@@ -362,9 +370,11 @@ TEST(ConcurrencyTest, ConcurrentReads) {
 
 TEST(NestedMessageTest, DeepNesting) {
   uri_shortener::Config config;
-  config.mutable_bootstrap()->mutable_observability()->set_otlp_endpoint("http://otel:4317");
+  config.mutable_bootstrap()->mutable_observability()->set_otlp_endpoint(
+      "http://otel:4317");
 
-  EXPECT_EQ(config.bootstrap().observability().otlp_endpoint(), "http://otel:4317");
+  EXPECT_EQ(config.bootstrap().observability().otlp_endpoint(),
+            "http://otel:4317");
 }
 
 TEST(NestedMessageTest, DataserviceResilience) {
@@ -375,7 +385,8 @@ TEST(NestedMessageTest, DataserviceResilience) {
       ->mutable_retry()
       ->set_max_attempts(3);
 
-  EXPECT_EQ(config.bootstrap().dataservice().resilience().retry().max_attempts(), 3);
+  EXPECT_EQ(
+      config.bootstrap().dataservice().resilience().retry().max_attempts(), 3);
 }
 
 } // namespace uri_shortener::test

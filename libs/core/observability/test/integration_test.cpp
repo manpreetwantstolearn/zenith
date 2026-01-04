@@ -1,14 +1,12 @@
-#include <gtest/gtest.h>
-
-#include <chrono>
-#include <thread>
-
 #include <Log.h>
 #include <Metrics.h>
 #include <MetricsRegistry.h>
 #include <Provider.h>
 #include <Span.h>
 #include <Tracer.h>
+#include <chrono>
+#include <gtest/gtest.h>
+#include <thread>
 
 class IntegrationTest : public ::testing::Test {
 protected:
@@ -35,10 +33,8 @@ TEST_F(IntegrationTest, FullObservabilityStack) {
   auto latency_hist = obs::register_duration_histogram("test.latency");
 
   {
-    obs::ScopedLogAttributes scoped({
-        {"request.id", "req-12345"  },
-        {"client.ip",  "192.168.1.1"}
-    });
+    obs::ScopedLogAttributes scoped(
+        {{"request.id", "req-12345"}, {"client.ip", "192.168.1.1"}});
 
     auto span = tracer->start_span("handle_request");
     span->kind(obs::SpanKind::Server);
@@ -74,12 +70,12 @@ TEST_F(IntegrationTest, FullObservabilityStack) {
 
     span->set_status(obs::StatusCode::Ok);
     span->end();
-    obs::info("Request completed",
-              {
-                  {"duration_ms",
-                   std::to_string(
-                       std::chrono::duration_cast<std::chrono::milliseconds>(duration).count())}
-    });
+    obs::info(
+        "Request completed",
+        {{"duration_ms",
+          std::to_string(
+              std::chrono::duration_cast<std::chrono::milliseconds>(duration)
+                  .count())}});
   }
 
   // All spans auto-ended, metrics recorded, logs emitted
@@ -94,14 +90,11 @@ TEST_F(IntegrationTest, ErrorHandling) {
     try {
       obs::warn("About to fail");
       throw std::runtime_error("Simulated error");
-    } catch (const std::exception& e) {
+    } catch (const std::exception &e) {
       error_counter.inc();
       span->set_status(obs::StatusCode::Error, e.what());
-      obs::error("Operation failed",
-                 {
-                     {"error.type",    "runtime_error"},
-                     {"error.message", e.what()       }
-      });
+      obs::error("Operation failed", {{"error.type", "runtime_error"},
+                                      {"error.message", e.what()}});
     }
     span->end();
   }
@@ -116,9 +109,7 @@ TEST_F(IntegrationTest, MetricsRegistryWithSpansAndLogs) {
 
   {
     auto span = tracer->start_span("operation");
-    obs::ScopedLogAttributes scoped({
-        {"operation", "test"}
-    });
+    obs::ScopedLogAttributes scoped({{"operation", "test"}});
 
     metrics.counter("requests").inc();
     metrics.gauge("active").add(1);
@@ -158,7 +149,8 @@ TEST_F(IntegrationTest, NestedSpansWithMetricsAndLogs) {
       obs::debug("Child operation started");
 
       {
-        auto grandchild_span = tracer->start_span("grandchild", child_span->context());
+        auto grandchild_span =
+            tracer->start_span("grandchild", child_span->context());
         grandchild_span->attr("level", "grandchild");
 
         obs::trace("Grandchild operation");
@@ -185,10 +177,8 @@ TEST_F(IntegrationTest, MultipleAttributeTypes) {
   span->attr("double_attr", 3.14);
   span->attr("bool_attr", true);
 
-  obs::info("Multiple attribute types", {
-                                            {"attr1", "string"},
-                                            {"attr2", "value2"}
-  });
+  obs::info("Multiple attribute types",
+            {{"attr1", "string"}, {"attr2", "value2"}});
 
   span->set_status(obs::StatusCode::Ok);
   span->end();

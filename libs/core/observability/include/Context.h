@@ -4,7 +4,7 @@
 #include <map>
 #include <string>
 
-namespace zenith::observability {
+namespace astra::observability {
 
 namespace TraceFlags {
 constexpr uint8_t NONE = 0x00;
@@ -58,13 +58,13 @@ struct Context {
   [[nodiscard]] Context child(SpanId new_span) const;
 
   [[nodiscard]] std::string to_traceparent() const;
-  [[nodiscard]] static Context from_traceparent(const std::string& header);
+  [[nodiscard]] static Context from_traceparent(const std::string &header);
 
   [[nodiscard]] std::string to_baggage_header() const;
-  static void parse_baggage(Context& ctx, const std::string& header);
+  static void parse_baggage(Context &ctx, const std::string &header);
 };
 
-} // namespace zenith::observability
+} // namespace astra::observability
 
 // Backward compatibility alias
-namespace obs = zenith::observability;
+namespace obs = astra::observability;

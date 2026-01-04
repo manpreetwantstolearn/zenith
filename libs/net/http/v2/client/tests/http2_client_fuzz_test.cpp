@@ -1,25 +1,25 @@
 #include "Http2Client.h"
 #include "Http2ClientError.h"
 #include "Http2ClientResponse.h"
-
 #include "fuzztest/fuzztest.h"
-#include "gtest/gtest.h"
 
+#include "gtest/gtest.h"
 #include <atomic>
 #include <chrono>
 #include <map>
 #include <string>
 #include <thread>
 
-using namespace zenith::http2;
+using namespace astra::http2;
 
 // =============================================================================
 // Fuzz Targets
 // =============================================================================
 
 // Core fuzz target: submit() should never crash on any input
-void SubmitNeverCrashes(const std::string& host, uint16_t port, const std::string& method,
-                        const std::string& path, const std::string& body) {
+void SubmitNeverCrashes(const std::string &host, uint16_t port,
+                        const std::string &method, const std::string &path,
+                        const std::string &body) {
   // Skip empty host or invalid ports that would cause issues
   if (host.empty() || port == 0) {
     return;
@@ -40,14 +40,15 @@ void SubmitNeverCrashes(const std::string& host, uint16_t port, const std::strin
     for (int i = 0; i < 10 && !done; ++i) {
       std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
-  } catch (const std::exception&) {
+  } catch (const std::exception &) {
     // Expected for some inputs - just don't crash
   }
 }
 FUZZ_TEST(Http2ClientFuzzTest, SubmitNeverCrashes);
 
 // Fuzz with headers
-void SubmitWithHeadersNeverCrashes(const std::string& headerKey, const std::string& headerValue) {
+void SubmitWithHeadersNeverCrashes(const std::string &headerKey,
+                                   const std::string &headerValue) {
   // Skip problematic header keys
   if (headerKey.empty()) {
     return;
@@ -63,23 +64,24 @@ void SubmitWithHeadersNeverCrashes(const std::string& headerKey, const std::stri
     std::map<std::string, std::string> headers;
     headers[headerKey] = headerValue;
 
-    client.submit("127.0.0.1", 19999, "GET", "/test", "", headers, [&done](auto) {
-      done = true;
-    });
+    client.submit("127.0.0.1", 19999, "GET", "/test", "", headers,
+                  [&done](auto) {
+                    done = true;
+                  });
 
     for (int i = 0; i < 10 && !done; ++i) {
       std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
-  } catch (const std::exception&) {
+  } catch (const std::exception &) {
     // Allowed
   }
 }
 FUZZ_TEST(Http2ClientFuzzTest, SubmitWithHeadersNeverCrashes);
 
 // Fuzz response construction
-void ResponseConstructionNeverCrashes(int status_code, const std::string& body,
-                                      const std::string& headerKey,
-                                      const std::string& headerValue) {
+void ResponseConstructionNeverCrashes(int status_code, const std::string &body,
+                                      const std::string &headerKey,
+                                      const std::string &headerValue) {
   try {
     std::map<std::string, std::string> headers;
     if (!headerKey.empty()) {
@@ -94,14 +96,14 @@ void ResponseConstructionNeverCrashes(int status_code, const std::string& body,
     (void)response.headers();
     (void)response.header(headerKey);
     (void)response.header("nonexistent");
-  } catch (const std::exception&) {
+  } catch (const std::exception &) {
     // Allowed
   }
 }
 FUZZ_TEST(Http2ClientFuzzTest, ResponseConstructionNeverCrashes);
 
 // Fuzz header lookup
-void HeaderLookupNeverCrashes(const std::string& lookupKey) {
+void HeaderLookupNeverCrashes(const std::string &lookupKey) {
   std::map<std::string, std::string> headers;
   headers["content-type"] = "application/json";
   headers["x-request-id"] = "12345";
@@ -115,7 +117,7 @@ void HeaderLookupNeverCrashes(const std::string& lookupKey) {
 FUZZ_TEST(Http2ClientFuzzTest, HeaderLookupNeverCrashes);
 
 // Fuzz HTTP methods
-void AllMethodsNeverCrash(const std::string& method) {
+void AllMethodsNeverCrash(const std::string &method) {
   ClientConfig config;
   config.set_request_timeout_ms(50);
 
@@ -130,14 +132,14 @@ void AllMethodsNeverCrash(const std::string& method) {
     for (int i = 0; i < 10 && !done; ++i) {
       std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
-  } catch (const std::exception&) {
+  } catch (const std::exception &) {
     // Allowed
   }
 }
 FUZZ_TEST(Http2ClientFuzzTest, AllMethodsNeverCrash);
 
 // Fuzz paths with special characters
-void PathWithSpecialCharsNeverCrashes(const std::string& path) {
+void PathWithSpecialCharsNeverCrashes(const std::string &path) {
   ClientConfig config;
   config.set_request_timeout_ms(50);
 
@@ -152,7 +154,7 @@ void PathWithSpecialCharsNeverCrashes(const std::string& path) {
     for (int i = 0; i < 10 && !done; ++i) {
       std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
-  } catch (const std::exception&) {
+  } catch (const std::exception &) {
     // Allowed
   }
 }

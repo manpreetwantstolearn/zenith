@@ -1,6 +1,6 @@
 #include "MessageQueue.h"
 
-namespace zenith::execution {
+namespace astra::execution {
 
 void MessageQueue::push(Message msg) {
   {
@@ -36,4 +36,4 @@ void MessageQueue::close() {
   m_cv.notify_all();
 }
 
-} // namespace zenith::execution
+} // namespace astra::execution

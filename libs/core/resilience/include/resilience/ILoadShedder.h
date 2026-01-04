@@ -5,7 +5,7 @@
 #include <cstddef>
 #include <optional>
 
-namespace zenith::resilience {
+namespace astra::resilience {
 
 class LoadShedderPolicy;
 
@@ -14,9 +14,9 @@ public:
   virtual ~ILoadShedder() = default;
 
   [[nodiscard]] virtual std::optional<LoadShedderGuard> try_acquire() = 0;
-  virtual void update_policy(const LoadShedderPolicy& policy) = 0;
+  virtual void update_policy(const LoadShedderPolicy &policy) = 0;
   [[nodiscard]] virtual size_t current_count() const = 0;
   [[nodiscard]] virtual size_t max_concurrent() const = 0;
 };
 
-} // namespace zenith::resilience
+} // namespace astra::resilience

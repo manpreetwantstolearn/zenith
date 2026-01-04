@@ -6,9 +6,8 @@
 #include "ShortCode.h"
 #include "ShortLink.h"
 
-#include <gtest/gtest.h>
-
 #include <chrono>
+#include <gtest/gtest.h>
 
 namespace uri_shortener::domain::test {
 

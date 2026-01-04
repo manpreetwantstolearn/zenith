@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-using namespace zenith::resilience;
+using namespace astra::resilience;
 
 class LoadShedderGuardTest : public ::testing::Test {
 protected:
@@ -47,7 +47,9 @@ TEST_F(LoadShedderGuardTest, MoveAssignmentReleasesOldGuard) {
 TEST_F(LoadShedderGuardTest, MovedFromGuardDoesNotReleaseOnDestruction) {
   {
     auto guard1 = LoadShedderGuard::create(make_release_fn());
-    { auto guard2 = std::move(guard1); } // guard2 destroyed, releases
+    {
+      auto guard2 = std::move(guard1);
+    } // guard2 destroyed, releases
     EXPECT_EQ(release_count, 1);
   } // guard1 destroyed (moved-from), should not release again
   EXPECT_EQ(release_count, 1);

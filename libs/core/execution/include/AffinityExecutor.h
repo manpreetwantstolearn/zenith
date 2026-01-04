@@ -9,15 +9,15 @@
 #include <thread>
 #include <vector>
 
-namespace zenith::execution {
+namespace astra::execution {
 
 class AffinityExecutor : public IExecutor {
 public:
-  AffinityExecutor(size_t num_lanes, IMessageHandler& handler);
+  AffinityExecutor(size_t num_lanes, IMessageHandler &handler);
   ~AffinityExecutor() override;
 
-  AffinityExecutor(const AffinityExecutor&) = delete;
-  AffinityExecutor& operator=(const AffinityExecutor&) = delete;
+  AffinityExecutor(const AffinityExecutor &) = delete;
+  AffinityExecutor &operator=(const AffinityExecutor &) = delete;
 
   void start();
   void stop();
@@ -35,8 +35,8 @@ private:
   };
 
   std::vector<std::unique_ptr<Lane>> m_lanes;
-  IMessageHandler& m_handler;
+  IMessageHandler &m_handler;
   std::atomic<bool> m_running{false};
 };
 
-} // namespace zenith::execution
+} // namespace astra::execution

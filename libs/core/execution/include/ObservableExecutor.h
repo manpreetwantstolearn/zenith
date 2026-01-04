@@ -4,18 +4,18 @@
 
 #include <MetricsRegistry.h>
 
-namespace zenith::execution {
+namespace astra::execution {
 
 class ObservableExecutor : public IExecutor {
 public:
-  explicit ObservableExecutor(IExecutor& inner);
+  explicit ObservableExecutor(IExecutor &inner);
   ~ObservableExecutor() override = default;
 
   void submit(Message msg) override;
 
 private:
-  IExecutor& m_inner;
+  IExecutor &m_inner;
   obs::MetricsRegistry m_metrics;
 };
 
-} // namespace zenith::execution
+} // namespace astra::execution

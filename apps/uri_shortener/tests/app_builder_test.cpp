@@ -9,14 +9,22 @@ uri_shortener::Config makeBuilderTestConfig() {
   config.set_schema_version(1);
   config.mutable_bootstrap()->mutable_server()->set_address("127.0.0.1");
   config.mutable_bootstrap()->mutable_server()->set_port(8080);
-  config.mutable_bootstrap()->mutable_execution()->mutable_pool_executor()->set_num_workers(2);
+  config.mutable_bootstrap()
+      ->mutable_execution()
+      ->mutable_pool_executor()
+      ->set_num_workers(2);
   return config;
 }
 
 TEST(UriShortenerBuilderTest, Build_WithAllMethods_Succeeds) {
   auto config = makeBuilderTestConfig();
 
-  auto result = UriShortenerBuilder(config).domain().backend().messaging().resilience().build();
+  auto result = UriShortenerBuilder(config)
+                    .domain()
+                    .backend()
+                    .messaging()
+                    .resilience()
+                    .build();
 
   EXPECT_TRUE(result.is_ok());
 }
@@ -25,7 +33,12 @@ TEST(UriShortenerBuilderTest, Build_WithEmptyAddress_Fails) {
   auto config = makeBuilderTestConfig();
   config.mutable_bootstrap()->mutable_server()->set_address("");
 
-  auto result = UriShortenerBuilder(config).domain().backend().messaging().resilience().build();
+  auto result = UriShortenerBuilder(config)
+                    .domain()
+                    .backend()
+                    .messaging()
+                    .resilience()
+                    .build();
 
   EXPECT_TRUE(result.is_err());
 }
@@ -34,7 +47,7 @@ TEST(UriShortenerBuilderTest, DomainMethodChainsCorrectly) {
   auto config = makeBuilderTestConfig();
 
   UriShortenerBuilder builder(config);
-  auto& returned = builder.domain();
+  auto &returned = builder.domain();
 
   EXPECT_EQ(&returned, &builder);
 }
@@ -44,7 +57,7 @@ TEST(UriShortenerBuilderTest, BackendMethodChainsCorrectly) {
 
   UriShortenerBuilder builder(config);
   builder.domain();
-  auto& returned = builder.backend();
+  auto &returned = builder.backend();
 
   EXPECT_EQ(&returned, &builder);
 }
@@ -54,7 +67,7 @@ TEST(UriShortenerBuilderTest, MessagingMethodChainsCorrectly) {
 
   UriShortenerBuilder builder(config);
   builder.domain().backend();
-  auto& returned = builder.messaging();
+  auto &returned = builder.messaging();
 
   EXPECT_EQ(&returned, &builder);
 }
@@ -64,7 +77,7 @@ TEST(UriShortenerBuilderTest, ResilienceMethodChainsCorrectly) {
 
   UriShortenerBuilder builder(config);
   builder.domain().backend().messaging();
-  auto& returned = builder.resilience();
+  auto &returned = builder.resilience();
 
   EXPECT_EQ(&returned, &builder);
 }

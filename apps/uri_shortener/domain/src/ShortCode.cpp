@@ -8,7 +8,7 @@
 
 namespace uri_shortener::domain {
 
-ShortCode::CreateResult ShortCode::create(const std::string& raw) {
+ShortCode::CreateResult ShortCode::create(const std::string &raw) {
   // Validate length
   if (raw.length() < kMinCodeLength || raw.length() > kMaxCodeLength) {
     return CreateResult::Err(DomainError::InvalidShortCode);

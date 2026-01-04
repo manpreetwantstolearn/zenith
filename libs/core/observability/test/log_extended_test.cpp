@@ -1,12 +1,10 @@
-#include <gtest/gtest.h>
-
-#include <thread>
-#include <vector>
-
 #include <Log.h>
 #include <Provider.h>
 #include <Span.h>
 #include <Tracer.h>
+#include <gtest/gtest.h>
+#include <thread>
+#include <vector>
 
 class LogExtendedTest : public ::testing::Test {
 protected:
@@ -27,24 +25,12 @@ protected:
 
 // All 6 levels with attributes
 TEST_F(LogExtendedTest, AllLevelsWithAttributes) {
-  obs::trace("trace msg", {
-                              {"key", "val"}
-  });
-  obs::debug("debug msg", {
-                              {"key", "val"}
-  });
-  obs::info("info msg", {
-                            {"key", "val"}
-  });
-  obs::warn("warn msg", {
-                            {"key", "val"}
-  });
-  obs::error("error msg", {
-                              {"key", "val"}
-  });
-  obs::fatal("fatal msg", {
-                              {"key", "val"}
-  });
+  obs::trace("trace msg", {{"key", "val"}});
+  obs::debug("debug msg", {{"key", "val"}});
+  obs::info("info msg", {{"key", "val"}});
+  obs::warn("warn msg", {{"key", "val"}});
+  obs::error("error msg", {{"key", "val"}});
+  obs::fatal("fatal msg", {{"key", "val"}});
 
   SUCCEED();
 }
@@ -55,13 +41,11 @@ TEST_F(LogExtendedTest, ConcurrentLogging1000Threads) {
 
   for (int i = 0; i < 1000; ++i) {
     threads.emplace_back([i]() {
-      obs::info("Thread log", {
-                                  {"thread_id", std::to_string(i)}
-      });
+      obs::info("Thread log", {{"thread_id", std::to_string(i)}});
     });
   }
 
-  for (auto& t : threads) {
+  for (auto &t : threads) {
     t.join();
   }
 
@@ -90,18 +74,16 @@ TEST_F(LogExtendedTest, UnicodeInLogMessages) {
 
 // 100+ log attributes - use 10 due to initializer_list limitations
 TEST_F(LogExtendedTest, LogManyAttributes) {
-  EXPECT_NO_THROW(obs::info("Many attrs", {
-                                              {"k1",  "v1" },
-                                              {"k2",  "v2" },
-                                              {"k3",  "v3" },
-                                              {"k4",  "v4" },
-                                              {"k5",  "v5" },
-                                              {"k6",  "v6" },
-                                              {"k7",  "v7" },
-                                              {"k8",  "v8" },
-                                              {"k9",  "v9" },
-                                              {"k10", "v10"}
-  }));
+  EXPECT_NO_THROW(obs::info("Many attrs", {{"k1", "v1"},
+                                           {"k2", "v2"},
+                                           {"k3", "v3"},
+                                           {"k4", "v4"},
+                                           {"k5", "v5"},
+                                           {"k6", "v6"},
+                                           {"k7", "v7"},
+                                           {"k8", "v8"},
+                                           {"k9", "v9"},
+                                           {"k10", "v10"}}));
 }
 
 // Empty attribute maps
@@ -111,22 +93,16 @@ TEST_F(LogExtendedTest, EmptyAttributeMap) {
 
 // Duplicate attribute keys
 TEST_F(LogExtendedTest, DuplicateAttributeKeys) {
-  EXPECT_NO_THROW(obs::info("Dup keys", {
-                                            {"key", "val1"},
-                                            {"key", "val2"},
-                                            {"key", "val3"}
-  }));
+  EXPECT_NO_THROW(obs::info(
+      "Dup keys", {{"key", "val1"}, {"key", "val2"}, {"key", "val3"}}));
 }
 
 // All attribute types
 TEST_F(LogExtendedTest, AllAttributeTypes) {
-  obs::info("All types",
-            {
-                {"string",  "value" },
-                {"number",  "42"    },
-                {"bool",    "true"  },
-                {"unicode", "中文"}
-  });
+  obs::info("All types", {{"string", "value"},
+                          {"number", "42"},
+                          {"bool", "true"},
+                          {"unicode", "中文"}});
 
   SUCCEED();
 }
@@ -134,45 +110,25 @@ TEST_F(LogExtendedTest, AllAttributeTypes) {
 // Nested scopes (10 levels)
 TEST_F(LogExtendedTest, NestedScopes10Levels) {
   {
-    obs::ScopedLogAttributes s1({
-        {"level", "1"}
-    });
+    obs::ScopedLogAttributes s1({{"level", "1"}});
     {
-      obs::ScopedLogAttributes s2({
-          {"level", "2"}
-      });
+      obs::ScopedLogAttributes s2({{"level", "2"}});
       {
-        obs::ScopedLogAttributes s3({
-            {"level", "3"}
-        });
+        obs::ScopedLogAttributes s3({{"level", "3"}});
         {
-          obs::ScopedLogAttributes s4({
-              {"level", "4"}
-          });
+          obs::ScopedLogAttributes s4({{"level", "4"}});
           {
-            obs::ScopedLogAttributes s5({
-                {"level", "5"}
-            });
+            obs::ScopedLogAttributes s5({{"level", "5"}});
             {
-              obs::ScopedLogAttributes s6({
-                  {"level", "6"}
-              });
+              obs::ScopedLogAttributes s6({{"level", "6"}});
               {
-                obs::ScopedLogAttributes s7({
-                    {"level", "7"}
-                });
+                obs::ScopedLogAttributes s7({{"level", "7"}});
                 {
-                  obs::ScopedLogAttributes s8({
-                      {"level", "8"}
-                  });
+                  obs::ScopedLogAttributes s8({{"level", "8"}});
                   {
-                    obs::ScopedLogAttributes s9({
-                        {"level", "9"}
-                    });
+                    obs::ScopedLogAttributes s9({{"level", "9"}});
                     {
-                      obs::ScopedLogAttributes s10({
-                          {"level", "10"}
-                      });
+                      obs::ScopedLogAttributes s10({{"level", "10"}});
                       obs::info("10 levels deep");
                     }
                   }
@@ -191,23 +147,17 @@ TEST_F(LogExtendedTest, NestedScopes10Levels) {
 // Multiple scopes same thread
 TEST_F(LogExtendedTest, MultipleScopesSameThread) {
   {
-    obs::ScopedLogAttributes s1({
-        {"scope", "1"}
-    });
+    obs::ScopedLogAttributes s1({{"scope", "1"}});
     obs::info("Scope 1");
   }
 
   {
-    obs::ScopedLogAttributes s2({
-        {"scope", "2"}
-    });
+    obs::ScopedLogAttributes s2({{"scope", "2"}});
     obs::info("Scope 2");
   }
 
   {
-    obs::ScopedLogAttributes s3({
-        {"scope", "3"}
-    });
+    obs::ScopedLogAttributes s3({{"scope", "3"}});
     obs::info("Scope 3");
   }
 
@@ -220,14 +170,12 @@ TEST_F(LogExtendedTest, ConcurrentScopesDifferentThreads) {
 
   for (int i = 0; i < 50; ++i) {
     threads.emplace_back([i]() {
-      obs::ScopedLogAttributes scope({
-          {"thread", std::to_string(i)}
-      });
+      obs::ScopedLogAttributes scope({{"thread", std::to_string(i)}});
       obs::info("Thread scoped log");
     });
   }
 
-  for (auto& t : threads) {
+  for (auto &t : threads) {
     t.join();
   }
 
@@ -236,18 +184,16 @@ TEST_F(LogExtendedTest, ConcurrentScopesDifferentThreads) {
 
 // Scope with multiple attributes - use 10 due to initializer_list limitations
 TEST_F(LogExtendedTest, ScopeWithManyAttributes) {
-  obs::ScopedLogAttributes scope({
-      {"k1",  "v1" },
-      {"k2",  "v2" },
-      {"k3",  "v3" },
-      {"k4",  "v4" },
-      {"k5",  "v5" },
-      {"k6",  "v6" },
-      {"k7",  "v7" },
-      {"k8",  "v8" },
-      {"k9",  "v9" },
-      {"k10", "v10"}
-  });
+  obs::ScopedLogAttributes scope({{"k1", "v1"},
+                                  {"k2", "v2"},
+                                  {"k3", "v3"},
+                                  {"k4", "v4"},
+                                  {"k5", "v5"},
+                                  {"k6", "v6"},
+                                  {"k7", "v7"},
+                                  {"k8", "v8"},
+                                  {"k9", "v9"},
+                                  {"k10", "v10"}});
   obs::info("Scoped with many attrs");
 
   SUCCEED();
@@ -338,7 +284,7 @@ TEST_F(LogExtendedTest, MixedLogLevelsConcurrent) {
     }
   });
 
-  for (auto& t : threads) {
+  for (auto &t : threads) {
     t.join();
   }
 
@@ -348,9 +294,7 @@ TEST_F(LogExtendedTest, MixedLogLevelsConcurrent) {
 // Rapid scope creation/destruction
 TEST_F(LogExtendedTest, RapidScopeCreationDestruction) {
   for (int i = 0; i < 1000; ++i) {
-    obs::ScopedLogAttributes scope({
-        {"iteration", std::to_string(i)}
-    });
+    obs::ScopedLogAttributes scope({{"iteration", std::to_string(i)}});
     obs::debug("Rapid scope");
   }
 
@@ -360,15 +304,11 @@ TEST_F(LogExtendedTest, RapidScopeCreationDestruction) {
 // Scoped attributes isolation
 TEST_F(LogExtendedTest, ScopedAttributesIsolation) {
   {
-    obs::ScopedLogAttributes s1({
-        {"scope", "outer"}
-    });
+    obs::ScopedLogAttributes s1({{"scope", "outer"}});
     obs::info("Outer scope");
 
     {
-      obs::ScopedLogAttributes s2({
-          {"scope", "inner"}
-      });
+      obs::ScopedLogAttributes s2({{"scope", "inner"}});
       obs::info("Inner scope");
     }
 

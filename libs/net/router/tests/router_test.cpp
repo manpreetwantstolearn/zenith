@@ -2,12 +2,11 @@
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-
 #include <thread>
 #include <vector>
 
 using namespace testing;
-using namespace zenith::router;
+using namespace astra::router;
 
 class RouterTest : public Test {
 protected:
@@ -17,26 +16,26 @@ protected:
 // Mock classes for dispatch testing
 class MockRequest : public IRequest {
 public:
-  MockRequest(std::string path, std::string method) :
-      m_path(std::move(path)), m_method(std::move(method)) {
+  MockRequest(std::string path, std::string method)
+      : m_path(std::move(path)), m_method(std::move(method)) {
   }
 
-  const std::string& path() const override {
+  const std::string &path() const override {
     return m_path;
   }
-  const std::string& method() const override {
+  const std::string &method() const override {
     return m_method;
   }
-  const std::string& body() const override {
+  const std::string &body() const override {
     return m_empty;
   }
-  std::string header(const std::string&) const override {
+  std::string header(const std::string &) const override {
     return "";
   }
-  std::string path_param(const std::string&) const override {
+  std::string path_param(const std::string &) const override {
     return "";
   }
-  std::string query_param(const std::string&) const override {
+  std::string query_param(const std::string &) const override {
     return "";
   }
   void set_path_params(std::unordered_map<std::string, std::string>) override {
@@ -52,9 +51,9 @@ class MockResponse : public IResponse {
 public:
   void set_status(int) noexcept override {
   }
-  void set_header(const std::string&, const std::string&) override {
+  void set_header(const std::string &, const std::string &) override {
   }
-  void write(const std::string&) override {
+  void write(const std::string &) override {
   }
   void close() override {
   }
@@ -69,9 +68,10 @@ public:
 
 TEST_F(RouterTest, ExactMatch) {
   bool called = false;
-  m_router.get("/users", [&](std::shared_ptr<IRequest>, std::shared_ptr<IResponse>) {
-    called = true;
-  });
+  m_router.get("/users",
+               [&](std::shared_ptr<IRequest>, std::shared_ptr<IResponse>) {
+                 called = true;
+               });
 
   auto result = m_router.match("GET", "/users");
   EXPECT_TRUE(result);
@@ -79,7 +79,8 @@ TEST_F(RouterTest, ExactMatch) {
 }
 
 TEST_F(RouterTest, ParamMatch) {
-  m_router.get("/users/:id", [&](std::shared_ptr<IRequest>, std::shared_ptr<IResponse>) {});
+  m_router.get("/users/:id",
+               [&](std::shared_ptr<IRequest>, std::shared_ptr<IResponse>) {});
 
   auto result = m_router.match("GET", "/users/123");
   EXPECT_TRUE(result);
@@ -102,12 +103,14 @@ TEST_F(RouterTest, CollisionPriority) {
   bool static_called = false;
   bool dynamic_called = false;
 
-  m_router.get("/users/profile", [&](std::shared_ptr<IRequest>, std::shared_ptr<IResponse>) {
-    static_called = true;
-  });
-  m_router.get("/users/:id", [&](std::shared_ptr<IRequest>, std::shared_ptr<IResponse>) {
-    dynamic_called = true;
-  });
+  m_router.get("/users/profile",
+               [&](std::shared_ptr<IRequest>, std::shared_ptr<IResponse>) {
+                 static_called = true;
+               });
+  m_router.get("/users/:id",
+               [&](std::shared_ptr<IRequest>, std::shared_ptr<IResponse>) {
+                 dynamic_called = true;
+               });
 
   auto result_static = m_router.match("GET", "/users/profile");
   EXPECT_TRUE(result_static);
@@ -119,7 +122,8 @@ TEST_F(RouterTest, CollisionPriority) {
 }
 
 TEST_F(RouterTest, NoMatch) {
-  m_router.get("/users", [&](std::shared_ptr<IRequest>, std::shared_ptr<IResponse>) {});
+  m_router.get("/users",
+               [&](std::shared_ptr<IRequest>, std::shared_ptr<IResponse>) {});
 
   auto result = m_router.match("GET", "/unknown");
   EXPECT_FALSE(result);
@@ -322,7 +326,7 @@ TEST_F(RouterTest, ConcurrentMatching) {
     });
   }
 
-  for (auto& t : threads) {
+  for (auto &t : threads) {
     t.join();
   }
 

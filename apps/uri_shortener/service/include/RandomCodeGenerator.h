@@ -15,8 +15,9 @@ namespace uri_shortener::infrastructure {
  */
 class RandomCodeGenerator : public domain::ICodeGenerator {
 public:
-  explicit RandomCodeGenerator(size_t length = 6) :
-      m_length(length), m_gen(std::random_device{}()), m_dist(0, m_chars.size() - 1) {
+  explicit RandomCodeGenerator(size_t length = 6)
+      : m_length(length), m_gen(std::random_device{}()),
+        m_dist(0, m_chars.size() - 1) {
   }
 
   domain::ShortCode generate() override {

@@ -1,7 +1,6 @@
-#include <gtest/gtest.h>
-
 #include <MetricsRegistry.h>
 #include <Provider.h>
+#include <gtest/gtest.h>
 
 class MetricsRegistryTest : public ::testing::Test {
 protected:
@@ -27,7 +26,7 @@ TEST_F(MetricsRegistryTest, FluentCounterRegistration) {
   obs::MetricsRegistry metrics;
 
   // Fluent API should return *this for chaining
-  auto& result = metrics.counter("requests", "http.requests.total");
+  auto &result = metrics.counter("requests", "http.requests.total");
   EXPECT_EQ(&result, &metrics); // Returns reference to same object
 }
 

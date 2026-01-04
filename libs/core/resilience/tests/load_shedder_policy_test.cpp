@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-using namespace zenith::resilience;
+using namespace astra::resilience;
 
 TEST(LoadShedderPolicyTest, CreateWithValidValues) {
   auto policy = LoadShedderPolicy::create(100, "test_shedder");

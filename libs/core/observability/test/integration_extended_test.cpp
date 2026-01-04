@@ -1,15 +1,13 @@
-#include <gtest/gtest.h>
-
-#include <chrono>
-#include <thread>
-#include <vector>
-
 #include <Log.h>
 #include <Metrics.h>
 #include <MetricsRegistry.h>
 #include <Provider.h>
 #include <Span.h>
 #include <Tracer.h>
+#include <chrono>
+#include <gtest/gtest.h>
+#include <thread>
+#include <vector>
 
 class IntegrationExtendedTest : public ::testing::Test {
 protected:
@@ -32,14 +30,15 @@ protected:
 // HTTP request full flow
 TEST_F(IntegrationExtendedTest, HTTPRequestFullFlow) {
   obs::MetricsRegistry metrics;
-  metrics.counter("requests", "http.requests").duration_histogram("latency", "http.latency");
+  metrics.counter("requests", "http.requests")
+      .duration_histogram("latency", "http.latency");
 
   auto span = tracer->start_span("http.request");
-  span->kind(obs::SpanKind::Server).attr("method", "GET").attr("path", "/api/users");
+  span->kind(obs::SpanKind::Server)
+      .attr("method", "GET")
+      .attr("path", "/api/users");
 
-  obs::info("Request started", {
-                                   {"method", "GET"}
-  });
+  obs::info("Request started", {{"method", "GET"}});
 
   auto start = std::chrono::steady_clock::now();
 
@@ -47,13 +46,12 @@ TEST_F(IntegrationExtendedTest, HTTPRequestFullFlow) {
   std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
   metrics.counter("requests").inc();
-  metrics.duration_histogram("latency").record(std::chrono::steady_clock::now() - start);
+  metrics.duration_histogram("latency").record(
+      std::chrono::steady_clock::now() - start);
 
   span->set_status(obs::StatusCode::Ok);
   span->end();
-  obs::info("Request completed", {
-                                     {"status", "200"}
-  });
+  obs::info("Request completed", {{"status", "200"}});
 
   SUCCEED();
 }
@@ -69,9 +67,7 @@ TEST_F(IntegrationExtendedTest, DatabaseQueryFlow) {
         .attr("db.system", "postgresql")
         .attr("db.operation", "SELECT");
 
-    obs::debug("Executing query", {
-                                      {"table", "users"}
-    });
+    obs::debug("Executing query", {{"table", "users"}});
 
     // Simulate query
     std::this_thread::sleep_for(std::chrono::milliseconds(5));
@@ -95,11 +91,9 @@ TEST_F(IntegrationExtendedTest, ErrorHandlingFlow) {
 
   try {
     throw std::runtime_error("Simulated error");
-  } catch (const std::exception& e) {
+  } catch (const std::exception &e) {
     span->set_status(obs::StatusCode::Error, e.what());
-    obs::error("Operation failed", {
-                                       {"error", e.what()}
-    });
+    obs::error("Operation failed", {{"error", e.what()}});
     metrics.counter("errors").inc();
   }
   span->end();
@@ -115,13 +109,9 @@ TEST_F(IntegrationExtendedTest, RetryLogicWithObservability) {
   auto span = tracer->start_span("operation.with.retries");
 
   for (int attempt = 1; attempt <= 3; ++attempt) {
-    span->add_event("retry.attempt", {
-                                         {"attempt", std::to_string(attempt)}
-    });
+    span->add_event("retry.attempt", {{"attempt", std::to_string(attempt)}});
 
-    obs::warn("Retry attempt", {
-                                   {"attempt", std::to_string(attempt)}
-    });
+    obs::warn("Retry attempt", {{"attempt", std::to_string(attempt)}});
 
     if (attempt < 3) {
       metrics.counter("retries").inc();
@@ -144,12 +134,11 @@ TEST_F(IntegrationExtendedTest, FanOutFanInPattern) {
 
   for (int i = 0; i < 5; ++i) {
     workers.emplace_back([local_tracer, parent_ctx, i]() {
-      auto worker_span = local_tracer->start_span("worker." + std::to_string(i), parent_ctx);
+      auto worker_span =
+          local_tracer->start_span("worker." + std::to_string(i), parent_ctx);
       worker_span->attr("worker_id", static_cast<int64_t>(i));
 
-      obs::debug("Worker processing", {
-                                          {"id", std::to_string(i)}
-      });
+      obs::debug("Worker processing", {{"id", std::to_string(i)}});
 
       std::this_thread::sleep_for(std::chrono::milliseconds(5));
 
@@ -158,7 +147,7 @@ TEST_F(IntegrationExtendedTest, FanOutFanInPattern) {
     });
   }
 
-  for (auto& worker : workers) {
+  for (auto &worker : workers) {
     worker.join();
   }
 
@@ -171,7 +160,8 @@ TEST_F(IntegrationExtendedTest, FanOutFanInPattern) {
 // Batch processing
 TEST_F(IntegrationExtendedTest, BatchProcessing) {
   obs::MetricsRegistry metrics;
-  metrics.counter("processed", "batch.items.processed").histogram("batchsize", "batch.size");
+  metrics.counter("processed", "batch.items.processed")
+      .histogram("batchsize", "batch.size");
 
   auto batch_span = tracer->start_span("batch.process");
 
@@ -198,14 +188,12 @@ TEST_F(IntegrationExtendedTest, LongRunningOperation) {
   auto span = tracer->start_span("long.running.operation");
 
   for (int checkpoint = 1; checkpoint <= 5; ++checkpoint) {
-    span->add_event("checkpoint", {
-                                      {"number",   std::to_string(checkpoint)           },
-                                      {"progress", std::to_string(checkpoint * 20) + "%"}
-    });
+    span->add_event("checkpoint",
+                    {{"number", std::to_string(checkpoint)},
+                     {"progress", std::to_string(checkpoint * 20) + "%"}});
 
-    obs::info("Checkpoint reached", {
-                                        {"checkpoint", std::to_string(checkpoint)}
-    });
+    obs::info("Checkpoint reached",
+              {{"checkpoint", std::to_string(checkpoint)}});
 
     std::this_thread::sleep_for(std::chrono::milliseconds(5));
   }
@@ -267,9 +255,7 @@ TEST_F(IntegrationExtendedTest, HighThroughputSimulation) {
   auto duration = std::chrono::steady_clock::now() - start;
   auto ops_per_sec = 1000.0 / std::chrono::duration<double>(duration).count();
 
-  obs::info("Throughput test", {
-                                   {"ops_per_sec", std::to_string(ops_per_sec)}
-  });
+  obs::info("Throughput test", {{"ops_per_sec", std::to_string(ops_per_sec)}});
 
   SUCCEED();
 }
@@ -277,7 +263,9 @@ TEST_F(IntegrationExtendedTest, HighThroughputSimulation) {
 // Mixed observability workload
 TEST_F(IntegrationExtendedTest, MixedObservabilityWorkload) {
   obs::MetricsRegistry metrics;
-  metrics.counter("requests", "requests").histogram("latency", "latency").gauge("active", "active");
+  metrics.counter("requests", "requests")
+      .histogram("latency", "latency")
+      .gauge("active", "active");
 
   for (int i = 0; i < 100; ++i) {
     auto span = tracer->start_span("mixed.op");
@@ -285,9 +273,7 @@ TEST_F(IntegrationExtendedTest, MixedObservabilityWorkload) {
     metrics.counter("requests").inc();
     metrics.gauge("active").add(1);
 
-    obs::debug("Processing", {
-                                 {"iteration", std::to_string(i)}
-    });
+    obs::debug("Processing", {{"iteration", std::to_string(i)}});
 
     auto latency = static_cast<double>(i % 50);
     metrics.histogram("latency").record(latency);
@@ -344,8 +330,9 @@ TEST_F(IntegrationExtendedTest, NestedServiceCalls) {
 }
 
 // Observability overhead measurement (benchmark/sanity check)
-// This measures overhead and reports it. The threshold is intentionally conservative
-// to allow for sanitizer/debug builds - true performance testing should use dedicated benchmarks.
+// This measures overhead and reports it. The threshold is intentionally
+// conservative to allow for sanitizer/debug builds - true performance testing
+// should use dedicated benchmarks.
 TEST_F(IntegrationExtendedTest, ObservabilityOverheadMeasurement) {
   constexpr int iterations = 1000;
 
@@ -360,25 +347,25 @@ TEST_F(IntegrationExtendedTest, ObservabilityOverheadMeasurement) {
   }
   auto duration = std::chrono::steady_clock::now() - start;
 
-  auto total_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count();
+  auto total_ns =
+      std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count();
   auto overhead_per_op = total_ns / static_cast<double>(iterations);
   auto overhead_us = overhead_per_op / 1000.0;
 
   // Report the measurement (always useful for tracking)
-  std::cout << "[BENCHMARK] Observability overhead: " << overhead_us << " μs/op " << "("
-            << total_ns / 1000000.0 << " ms for " << iterations << " ops)" << std::endl;
+  std::cout << "[BENCHMARK] Observability overhead: " << overhead_us
+            << " μs/op " << "(" << total_ns / 1000000.0 << " ms for "
+            << iterations << " ops)" << std::endl;
 
-  obs::info("Overhead per operation", {
-                                          {"us", std::to_string(overhead_us)}
-  });
+  obs::info("Overhead per operation", {{"us", std::to_string(overhead_us)}});
 
   // Conservative threshold: 500 μs/op catches extreme regressions only
   // Normal release builds: ~15-30 μs
   // Debug builds: ~50-80 μs
   // Sanitizer builds: ~100-200 μs
   // Anything > 500 μs indicates a serious problem
-  EXPECT_LT(overhead_per_op, 500000)
-      << "Observability overhead exceeds 500 μs/op - possible severe regression";
+  EXPECT_LT(overhead_per_op, 500000) << "Observability overhead exceeds 500 "
+                                        "μs/op - possible severe regression";
 }
 
 // Real-world API endpoint simulation
@@ -400,12 +387,9 @@ TEST_F(IntegrationExtendedTest, RealWorldAPIEndpoint) {
 
   auto start = std::chrono::steady_clock::now();
 
-  obs::info("Request received",
-            {
-                {"method",     "POST"          },
-                {"path",       "/api/users"    },
-                {"user_agent", "TestClient/1.0"}
-  });
+  obs::info("Request received", {{"method", "POST"},
+                                 {"path", "/api/users"},
+                                 {"user_agent", "TestClient/1.0"}});
 
   // Validation
   {
@@ -426,7 +410,9 @@ TEST_F(IntegrationExtendedTest, RealWorldAPIEndpoint) {
   // Database
   {
     auto db = tracer->start_span("db.insert", span->context());
-    db->kind(obs::SpanKind::Client).attr("db.system", "postgresql").attr("db.operation", "INSERT");
+    db->kind(obs::SpanKind::Client)
+        .attr("db.system", "postgresql")
+        .attr("db.operation", "INSERT");
 
     std::this_thread::sleep_for(std::chrono::milliseconds(5));
     db->set_status(obs::StatusCode::Ok);
@@ -440,9 +426,7 @@ TEST_F(IntegrationExtendedTest, RealWorldAPIEndpoint) {
   span->set_status(obs::StatusCode::Ok);
   span->end();
 
-  obs::info("Request completed", {
-                                     {"status", "201"}
-  });
+  obs::info("Request completed", {{"status", "201"}});
 
   metrics.gauge("concurrent").add(-1);
 

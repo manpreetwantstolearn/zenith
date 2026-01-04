@@ -1,11 +1,10 @@
 #pragma once
 
+#include <Context.h>
 #include <memory>
 #include <string>
 
-#include <Context.h>
-
-namespace zenith::observability {
+namespace astra::observability {
 
 class Span;
 
@@ -25,14 +24,15 @@ public:
   virtual ~Tracer() = default;
 
   // Create a new span (uses current active context as parent)
-  [[nodiscard]] virtual std::shared_ptr<Span> start_span(const std::string& name) = 0;
+  [[nodiscard]] virtual std::shared_ptr<Span>
+  start_span(const std::string &name) = 0;
 
   // Create a new span with explicit parent context
-  [[nodiscard]] virtual std::shared_ptr<Span> start_span(const std::string& name,
-                                                         const Context& parent) = 0;
+  [[nodiscard]] virtual std::shared_ptr<Span>
+  start_span(const std::string &name, const Context &parent) = 0;
 
   // Get tracer name/service
-  [[nodiscard]] virtual const std::string& name() const = 0;
+  [[nodiscard]] virtual const std::string &name() const = 0;
 };
 
-} // namespace zenith::observability
+} // namespace astra::observability

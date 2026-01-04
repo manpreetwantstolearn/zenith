@@ -1,33 +1,35 @@
 #include "Router.h"
+
 #include "StringUtils.h"
 
-namespace zenith::router {
+namespace astra::router {
 
-void Router::get(const std::string& path, Handler handler) {
+void Router::get(const std::string &path, Handler handler) {
   add_route("GET", path, std::move(handler));
 }
 
-void Router::post(const std::string& path, Handler handler) {
+void Router::post(const std::string &path, Handler handler) {
   add_route("POST", path, std::move(handler));
 }
 
-void Router::put(const std::string& path, Handler handler) {
+void Router::put(const std::string &path, Handler handler) {
   add_route("PUT", path, std::move(handler));
 }
 
-void Router::del(const std::string& path, Handler handler) {
+void Router::del(const std::string &path, Handler handler) {
   add_route("DELETE", path, std::move(handler));
 }
 
-void Router::add_route(const std::string& method, const std::string& path, Handler handler) {
+void Router::add_route(const std::string &method, const std::string &path,
+                       Handler handler) {
   if (m_roots.find(method) == m_roots.end()) {
     m_roots[method] = std::make_unique<Node>();
   }
 
-  Node* current = m_roots[method].get();
+  Node *current = m_roots[method].get();
   auto segments = utils::split(path, '/');
 
-  for (const auto& segment : segments) {
+  for (const auto &segment : segments) {
     if (segment.empty()) {
       continue;
     }
@@ -49,18 +51,18 @@ void Router::add_route(const std::string& method, const std::string& path, Handl
   current->handler = std::move(handler);
 }
 
-std::optional<Router::MatchResult> Router::match(const std::string& method,
-                                                 const std::string& path) const {
+std::optional<Router::MatchResult>
+Router::match(const std::string &method, const std::string &path) const {
   auto it = m_roots.find(method);
   if (it == m_roots.end()) {
     return std::nullopt;
   }
 
-  Node* current = it->second.get();
+  Node *current = it->second.get();
   std::unordered_map<std::string, std::string> params;
   auto segments = utils::split(path, '/');
 
-  for (const auto& segment : segments) {
+  for (const auto &segment : segments) {
     if (segment.empty()) {
       continue;
     }
@@ -83,7 +85,8 @@ std::optional<Router::MatchResult> Router::match(const std::string& method,
   return MatchResult{current->handler, std::move(params)};
 }
 
-void Router::dispatch(std::shared_ptr<IRequest> req, std::shared_ptr<IResponse> res) {
+void Router::dispatch(std::shared_ptr<IRequest> req,
+                      std::shared_ptr<IResponse> res) {
   auto result = match(req->method(), req->path());
 
   if (result) {
@@ -96,4 +99,4 @@ void Router::dispatch(std::shared_ptr<IRequest> req, std::shared_ptr<IResponse> 
   }
 }
 
-} // namespace zenith::router
+} // namespace astra::router

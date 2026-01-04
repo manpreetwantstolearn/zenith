@@ -1,14 +1,12 @@
-#include <gtest/gtest.h>
-
-#include <atomic>
-#include <thread>
-#include <vector>
-
 #include <Log.h>
 #include <Metrics.h>
 #include <Provider.h>
 #include <Span.h>
 #include <Tracer.h>
+#include <atomic>
+#include <gtest/gtest.h>
+#include <thread>
+#include <vector>
 
 class ProviderExtendedTest : public ::testing::Test {
 protected:
@@ -42,7 +40,7 @@ TEST_F(ProviderExtendedTest, ConcurrentInit) {
     });
   }
 
-  for (auto& t : threads) {
+  for (auto &t : threads) {
     t.join();
   }
 
@@ -119,7 +117,7 @@ TEST_F(ProviderExtendedTest, ConcurrentShutdown) {
     });
   }
 
-  for (auto& t : threads) {
+  for (auto &t : threads) {
     t.join();
   }
 
@@ -153,7 +151,7 @@ TEST_F(ProviderExtendedTest, InitDuringShutdownRace) {
 // Provider singleton thread safety
 TEST_F(ProviderExtendedTest, SingletonThreadSafety) {
   std::vector<std::thread> threads;
-  std::vector<obs::Provider*> instances(100);
+  std::vector<obs::Provider *> instances(100);
 
   for (int i = 0; i < 100; ++i) {
     threads.emplace_back([i, &instances]() {
@@ -161,7 +159,7 @@ TEST_F(ProviderExtendedTest, SingletonThreadSafety) {
     });
   }
 
-  for (auto& t : threads) {
+  for (auto &t : threads) {
     t.join();
   }
 

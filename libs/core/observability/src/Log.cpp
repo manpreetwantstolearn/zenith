@@ -1,25 +1,24 @@
 #include "ProviderImpl.h"
 
-#include <opentelemetry/logs/logger.h>
-#include <opentelemetry/logs/provider.h>
-
-#include <vector>
-
 #include <Log.h>
 #include <Provider.h>
+#include <opentelemetry/logs/logger.h>
+#include <opentelemetry/logs/provider.h>
+#include <vector>
 
-namespace zenith::observability {
+namespace astra::observability {
 
 namespace logs_api = opentelemetry::logs;
 namespace nostd = opentelemetry::nostd;
 
 // Thread-local scoped attributes stack
-thread_local std::vector<std::map<std::string, std::string>> scoped_attributes_stack;
+thread_local std::vector<std::map<std::string, std::string>>
+    scoped_attributes_stack;
 
 // Core logging function
-void log(Level level, const std::string& message, Attributes attrs) {
-  auto& provider = Provider::instance();
-  auto& impl = provider.impl();
+void log(Level level, const std::string &message, Attributes attrs) {
+  auto &provider = Provider::instance();
+  auto &impl = provider.impl();
 
   auto logger = impl.get_logger();
   if (!logger) {
@@ -29,7 +28,7 @@ void log(Level level, const std::string& message, Attributes attrs) {
   // Build attribute vectors
   std::vector<std::pair<std::string, std::string>> stored_attrs;
   stored_attrs.reserve(attrs.size());
-  for (const auto& attr : attrs) {
+  for (const auto &attr : attrs) {
     stored_attrs.emplace_back(attr.first, attr.second);
   }
 
@@ -46,13 +45,13 @@ void log(Level level, const std::string& message, Attributes attrs) {
   std::vector<std::pair<std::string, std::string>> final_attrs;
 
   // 1. Add user-provided attributes
-  for (const auto& attr : stored_attrs) {
+  for (const auto &attr : stored_attrs) {
     final_attrs.push_back(attr);
   }
 
   // 2. Add scoped attributes
-  for (const auto& scope_attrs : scoped_attributes_stack) {
-    for (const auto& attr : scope_attrs) {
+  for (const auto &scope_attrs : scoped_attributes_stack) {
+    for (const auto &attr : scope_attrs) {
       final_attrs.push_back(attr);
     }
   }
@@ -61,7 +60,8 @@ void log(Level level, const std::string& message, Attributes attrs) {
   if (active_ctx.is_valid()) {
     final_attrs.emplace_back("trace_id", trace_id_hex);
     final_attrs.emplace_back("span_id", span_id_hex);
-    final_attrs.emplace_back("trace_flags", std::to_string(active_ctx.trace_flags));
+    final_attrs.emplace_back("trace_flags",
+                             std::to_string(active_ctx.trace_flags));
   }
 
   // Convert level to OTel severity
@@ -90,13 +90,14 @@ void log(Level level, const std::string& message, Attributes attrs) {
   }
 
   // Emit log with all attributes stored in final_attrs
-  logger->EmitLogRecord(otel_severity, message, opentelemetry::common::MakeAttributes(final_attrs));
+  logger->EmitLogRecord(otel_severity, message,
+                        opentelemetry::common::MakeAttributes(final_attrs));
 }
 
 // ScopedLogAttributes implementation
 ScopedLogAttributes::ScopedLogAttributes(Attributes attrs) {
   std::map<std::string, std::string> attrs_map;
-  for (const auto& attr : attrs) {
+  for (const auto &attr : attrs) {
     attrs_map[attr.first] = attr.second;
   }
 
@@ -110,4 +111,4 @@ ScopedLogAttributes::~ScopedLogAttributes() {
   }
 }
 
-} // namespace zenith::observability
+} // namespace astra::observability

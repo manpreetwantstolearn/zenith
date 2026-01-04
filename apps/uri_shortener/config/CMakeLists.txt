@@ -36,7 +36,7 @@ target_link_libraries(uri_shortener_config
     PUBLIC 
         protobuf::libprotobuf
         observability
-        zenith_execution
+        astra_execution
         http2server
         http2client
 )

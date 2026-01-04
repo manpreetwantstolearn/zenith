@@ -2,7 +2,7 @@
 
 #include "Message.h"
 
-namespace zenith::execution {
+namespace astra::execution {
 
 class IExecutor {
 public:
@@ -11,4 +11,4 @@ public:
   virtual void submit(Message msg) = 0;
 };
 
-} // namespace zenith::execution
+} // namespace astra::execution

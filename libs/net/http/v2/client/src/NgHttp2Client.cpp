@@ -1,10 +1,11 @@
-#include "Http2ClientResponse.h"
 #include "NgHttp2Client.h"
+
+#include "Http2ClientResponse.h"
 
 #include <boost/asio/deadline_timer.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
-namespace zenith::http2 {
+namespace astra::http2 {
 
 namespace {
 
@@ -17,10 +18,11 @@ struct ResponseStream {
 
 } // namespace
 
-NgHttp2Client::NgHttp2Client(const std::string& host, uint16_t port, const ClientConfig& config,
-                             OnCloseCallback on_close, OnErrorCallback on_error) :
-    m_host(host), m_port(port), m_config(config), m_on_close(std::move(on_close)),
-    m_on_error(std::move(on_error)) {
+NgHttp2Client::NgHttp2Client(const std::string &host, uint16_t port,
+                             const ClientConfig &config,
+                             OnCloseCallback on_close, OnErrorCallback on_error)
+    : m_host(host), m_port(port), m_config(config),
+      m_on_close(std::move(on_close)), m_on_error(std::move(on_error)) {
   start_io_thread();
 }
 
@@ -29,23 +31,25 @@ NgHttp2Client::~NgHttp2Client() {
 }
 
 void NgHttp2Client::start_io_thread() {
-  m_work =
-      std::make_unique<boost::asio::executor_work_guard<boost::asio::io_context::executor_type>>(
-          boost::asio::make_work_guard(m_io_context));
+  m_work = std::make_unique<
+      boost::asio::executor_work_guard<boost::asio::io_context::executor_type>>(
+      boost::asio::make_work_guard(m_io_context));
   m_io_thread = std::thread([this]() {
     try {
       m_io_context.run();
-    } catch (const std::exception& e) {
+    } catch (const std::exception &e) {
       obs::error(std::string("IO Service error: ") + e.what());
     }
   });
 }
 
 void NgHttp2Client::stop_io_thread() {
-  // Post shutdown to io_context so all m_session access happens on the io_thread.
-  // This prevents TSAN race between main thread reading m_session and io_thread writing it.
+  // Post shutdown to io_context so all m_session access happens on the
+  // io_thread. This prevents TSAN race between main thread reading m_session
+  // and io_thread writing it.
   boost::asio::post(m_io_context, [this]() {
-    if (m_session && m_state.load(std::memory_order_acquire) == ConnectionState::CONNECTED) {
+    if (m_session &&
+        m_state.load(std::memory_order_acquire) == ConnectionState::CONNECTED) {
       m_session->shutdown();
     }
   });
@@ -55,12 +59,14 @@ void NgHttp2Client::stop_io_thread() {
   m_io_context.stop();
 
   // Wait for the io_thread to finish BEFORE destroying the session.
-  // This prevents TSAN race between session destructor and callbacks still running.
+  // This prevents TSAN race between session destructor and callbacks still
+  // running.
   if (m_io_thread.joinable()) {
     m_io_thread.join();
   }
 
-  // Now safe to destroy the session - io_thread has exited, no callbacks running
+  // Now safe to destroy the session - io_thread has exited, no callbacks
+  // running
   m_session.reset();
 }
 
@@ -72,7 +78,8 @@ void NgHttp2Client::ensure_connected() {
   std::lock_guard<std::mutex> lock(m_connect_mutex);
 
   ConnectionState current = m_state.load(std::memory_order_acquire);
-  if (current == ConnectionState::CONNECTED || current == ConnectionState::CONNECTING) {
+  if (current == ConnectionState::CONNECTED ||
+      current == ConnectionState::CONNECTING) {
     return;
   }
 
@@ -89,17 +96,22 @@ void NgHttp2Client::connect() {
       boost::system::error_code ec;
       std::string port_str = std::to_string(m_port);
 
-      m_session =
-          std::make_unique<nghttp2::asio_http2::client::session>(m_io_context, m_host, port_str);
+      m_session = std::make_unique<nghttp2::asio_http2::client::session>(
+          m_io_context, m_host, port_str);
 
       // Create connect timeout timer
-      uint32_t timeout_ms = m_config.connect_timeout_ms() > 0 ? m_config.connect_timeout_ms() : 200;
-      auto connect_timer = std::make_shared<boost::asio::deadline_timer>(m_io_context);
-      connect_timer->expires_from_now(boost::posix_time::milliseconds(timeout_ms));
+      uint32_t timeout_ms = m_config.connect_timeout_ms() > 0
+                                ? m_config.connect_timeout_ms()
+                                : 200;
+      auto connect_timer =
+          std::make_shared<boost::asio::deadline_timer>(m_io_context);
+      connect_timer->expires_from_now(
+          boost::posix_time::milliseconds(timeout_ms));
 
       auto connect_completed = std::make_shared<std::atomic<bool>>(false);
 
-      connect_timer->async_wait([this, connect_completed](const boost::system::error_code& ec) {
+      connect_timer->async_wait([this, connect_completed](
+                                    const boost::system::error_code &ec) {
         if (ec) {
           return; // Timer was cancelled
         }
@@ -111,15 +123,17 @@ void NgHttp2Client::connect() {
         }
 
         // Timeout fired before connection completed
-        obs::error("Connection timeout to " + m_host + ":" + std::to_string(m_port));
+        obs::error("Connection timeout to " + m_host + ":" +
+                   std::to_string(m_port));
         m_state.store(ConnectionState::FAILED, std::memory_order_release);
 
         // Fail all pending requests
         std::lock_guard<std::mutex> lock(m_connect_mutex);
         while (!m_pending_requests.empty()) {
-          auto& req = m_pending_requests.front();
-          req.handler(zenith::outcome::Result<Http2ClientResponse, Http2ClientError>::Err(
-              Http2ClientError::ConnectionFailed));
+          auto &req = m_pending_requests.front();
+          req.handler(
+              astra::outcome::Result<Http2ClientResponse, Http2ClientError>::
+                  Err(Http2ClientError::ConnectionFailed));
           m_pending_requests.pop();
         }
 
@@ -129,8 +143,9 @@ void NgHttp2Client::connect() {
       });
 
       m_session->on_connect(
-          [this, connect_timer,
-           connect_completed](boost::asio::ip::tcp::resolver::results_type::iterator endpoint_it) {
+          [this, connect_timer, connect_completed](
+              boost::asio::ip::tcp::resolver::results_type::iterator
+                  endpoint_it) {
             // Atomic CAS: only proceed if we're the first to claim completion
             bool expected = false;
             if (!connect_completed->compare_exchange_strong(expected, true)) {
@@ -138,41 +153,43 @@ void NgHttp2Client::connect() {
             }
 
             connect_timer->cancel();
-            m_state.store(ConnectionState::CONNECTED, std::memory_order_release);
+            m_state.store(ConnectionState::CONNECTED,
+                          std::memory_order_release);
             obs::info("Connected to " + m_host + ":" + std::to_string(m_port));
             flush_pending_requests();
           });
 
-      m_session->on_error(
-          [this, connect_timer, connect_completed](const boost::system::error_code& ec) {
-            // Atomic CAS: only proceed if we're the first to claim completion
-            bool expected = false;
-            if (!connect_completed->compare_exchange_strong(expected, true)) {
-              return; // Already handled by on_connect or timeout
-            }
+      m_session->on_error([this, connect_timer, connect_completed](
+                              const boost::system::error_code &ec) {
+        // Atomic CAS: only proceed if we're the first to claim completion
+        bool expected = false;
+        if (!connect_completed->compare_exchange_strong(expected, true)) {
+          return; // Already handled by on_connect or timeout
+        }
 
-            connect_timer->cancel();
+        connect_timer->cancel();
 
-            ConnectionState prev_state = m_state.load(std::memory_order_acquire);
-            m_state.store(ConnectionState::FAILED, std::memory_order_release);
-            obs::error("Connection error: " + ec.message());
+        ConnectionState prev_state = m_state.load(std::memory_order_acquire);
+        m_state.store(ConnectionState::FAILED, std::memory_order_release);
+        obs::error("Connection error: " + ec.message());
 
-            std::lock_guard<std::mutex> lock(m_connect_mutex);
-            while (!m_pending_requests.empty()) {
-              auto& req = m_pending_requests.front();
-              req.handler(zenith::outcome::Result<Http2ClientResponse, Http2ClientError>::Err(
-                  Http2ClientError::ConnectionFailed));
-              m_pending_requests.pop();
-            }
+        std::lock_guard<std::mutex> lock(m_connect_mutex);
+        while (!m_pending_requests.empty()) {
+          auto &req = m_pending_requests.front();
+          req.handler(
+              astra::outcome::Result<Http2ClientResponse, Http2ClientError>::
+                  Err(Http2ClientError::ConnectionFailed));
+          m_pending_requests.pop();
+        }
 
-            if (prev_state == ConnectionState::CONNECTING && m_on_error) {
-              m_on_error(Http2ClientError::ConnectionFailed);
-            } else if (prev_state == ConnectionState::CONNECTED && m_on_close) {
-              m_on_close();
-            }
-          });
+        if (prev_state == ConnectionState::CONNECTING && m_on_error) {
+          m_on_error(Http2ClientError::ConnectionFailed);
+        } else if (prev_state == ConnectionState::CONNECTED && m_on_close) {
+          m_on_close();
+        }
+      });
 
-    } catch (const std::exception& e) {
+    } catch (const std::exception &e) {
       m_state.store(ConnectionState::FAILED, std::memory_order_release);
       obs::error("Failed to create session: " + std::string(e.what()));
       if (m_on_error) {
@@ -190,15 +207,15 @@ ConnectionState NgHttp2Client::state() const {
   return m_state.load(std::memory_order_acquire);
 }
 
-void NgHttp2Client::submit(const std::string& method, const std::string& path,
-                           const std::string& body,
-                           const std::map<std::string, std::string>& headers,
+void NgHttp2Client::submit(const std::string &method, const std::string &path,
+                           const std::string &body,
+                           const std::map<std::string, std::string> &headers,
                            ResponseHandler handler) {
   ConnectionState current = m_state.load(std::memory_order_acquire);
 
   if (current == ConnectionState::FAILED) {
     obs::debug("submit: returning error - state is FAILED");
-    handler(zenith::outcome::Result<Http2ClientResponse, Http2ClientError>::Err(
+    handler(astra::outcome::Result<Http2ClientResponse, Http2ClientError>::Err(
         Http2ClientError::ConnectionFailed));
     return;
   }
@@ -225,31 +242,35 @@ void NgHttp2Client::flush_pending_requests() {
   }
 }
 
-void NgHttp2Client::do_submit(const std::string& method, const std::string& path,
-                              const std::string& body,
-                              const std::map<std::string, std::string>& headers,
+void NgHttp2Client::do_submit(const std::string &method,
+                              const std::string &path, const std::string &body,
+                              const std::map<std::string, std::string> &headers,
                               ResponseHandler handler) {
-  boost::asio::post(m_io_context, [this, method, path, body, headers, handler]() {
+  boost::asio::post(m_io_context, [this, method, path, body, headers,
+                                   handler]() {
     if (m_state.load(std::memory_order_acquire) != ConnectionState::CONNECTED) {
       obs::debug("do_submit: returning error - not connected");
-      handler(zenith::outcome::Result<Http2ClientResponse, Http2ClientError>::Err(
-          Http2ClientError::NotConnected));
+      handler(
+          astra::outcome::Result<Http2ClientResponse, Http2ClientError>::Err(
+              Http2ClientError::NotConnected));
       return;
     }
 
     boost::system::error_code ec;
 
     nghttp2::asio_http2::header_map ng_headers;
-    for (const auto& kv : headers) {
-      ng_headers.emplace(kv.first, nghttp2::asio_http2::header_value{kv.second, false});
+    for (const auto &kv : headers) {
+      ng_headers.emplace(kv.first,
+                         nghttp2::asio_http2::header_value{kv.second, false});
     }
 
     std::string uri = "http://" + m_host + ":" + std::to_string(m_port) + path;
 
     if (!m_session) {
       obs::debug("do_submit: m_session is nullptr!");
-      handler(zenith::outcome::Result<Http2ClientResponse, Http2ClientError>::Err(
-          Http2ClientError::NotConnected));
+      handler(
+          astra::outcome::Result<Http2ClientResponse, Http2ClientError>::Err(
+              Http2ClientError::NotConnected));
       return;
     }
 
@@ -268,46 +289,53 @@ void NgHttp2Client::do_submit(const std::string& method, const std::string& path
         }
       }
 
-      handler(zenith::outcome::Result<Http2ClientResponse, Http2ClientError>::Err(
-          Http2ClientError::SubmitFailed));
+      handler(
+          astra::outcome::Result<Http2ClientResponse, Http2ClientError>::Err(
+              Http2ClientError::SubmitFailed));
       return;
     }
 
     if (!req) {
       obs::debug("do_submit: submit returned nullptr but no error code!");
-      handler(zenith::outcome::Result<Http2ClientResponse, Http2ClientError>::Err(
-          Http2ClientError::SubmitFailed));
+      handler(
+          astra::outcome::Result<Http2ClientResponse, Http2ClientError>::Err(
+              Http2ClientError::SubmitFailed));
       return;
     }
 
-    uint32_t timeout_ms = m_config.request_timeout_ms() > 0 ? m_config.request_timeout_ms() : 10000;
+    uint32_t timeout_ms = m_config.request_timeout_ms() > 0
+                              ? m_config.request_timeout_ms()
+                              : 10000;
     auto timer = std::make_shared<boost::asio::deadline_timer>(m_io_context);
     timer->expires_from_now(boost::posix_time::milliseconds(timeout_ms));
 
     auto stream = std::make_shared<ResponseStream>();
 
-    timer->async_wait([req, stream, handler](const boost::system::error_code& ec) {
+    timer->async_wait([req, stream,
+                       handler](const boost::system::error_code &ec) {
       if (!ec && !stream->completed) {
         stream->completed = true;
         req->cancel(NGHTTP2_CANCEL);
-        handler(zenith::outcome::Result<Http2ClientResponse, Http2ClientError>::Err(
-            Http2ClientError::RequestTimeout));
+        handler(
+            astra::outcome::Result<Http2ClientResponse, Http2ClientError>::Err(
+                Http2ClientError::RequestTimeout));
       }
     });
 
-    req->on_response([stream](const nghttp2::asio_http2::client::response& res) {
-      stream->status_code = res.status_code();
+    req->on_response(
+        [stream](const nghttp2::asio_http2::client::response &res) {
+          stream->status_code = res.status_code();
 
-      for (const auto& kv : res.header()) {
-        stream->headers[kv.first] = kv.second.value;
-      }
+          for (const auto &kv : res.header()) {
+            stream->headers[kv.first] = kv.second.value;
+          }
 
-      res.on_data([stream](const uint8_t* data, std::size_t len) {
-        if (len > 0) {
-          stream->body.append(reinterpret_cast<const char*>(data), len);
-        }
-      });
-    });
+          res.on_data([stream](const uint8_t *data, std::size_t len) {
+            if (len > 0) {
+              stream->body.append(reinterpret_cast<const char *>(data), len);
+            }
+          });
+        });
 
     req->on_close([stream, timer, handler](uint32_t error_code) {
       if (stream->completed) {
@@ -318,16 +346,20 @@ void NgHttp2Client::do_submit(const std::string& method, const std::string& path
       stream->completed = true;
 
       if (error_code != 0) {
-        obs::debug("on_close: Stream closed with error code " + std::to_string(error_code));
-        handler(zenith::outcome::Result<Http2ClientResponse, Http2ClientError>::Err(
-            Http2ClientError::StreamClosed));
+        obs::debug("on_close: Stream closed with error code " +
+                   std::to_string(error_code));
+        handler(
+            astra::outcome::Result<Http2ClientResponse, Http2ClientError>::Err(
+                Http2ClientError::StreamClosed));
       } else {
         handler(
-            zenith::outcome::Result<Http2ClientResponse, Http2ClientError>::Ok(Http2ClientResponse(
-                stream->status_code, std::move(stream->body), std::move(stream->headers))));
+            astra::outcome::Result<Http2ClientResponse, Http2ClientError>::Ok(
+                Http2ClientResponse(stream->status_code,
+                                    std::move(stream->body),
+                                    std::move(stream->headers))));
       }
     });
   });
 }
 
-} // namespace zenith::http2
+} // namespace astra::http2

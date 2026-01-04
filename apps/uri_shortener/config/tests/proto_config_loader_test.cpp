@@ -3,10 +3,9 @@
 
 #include "ProtoConfigLoader.h"
 
-#include <gtest/gtest.h>
-
 #include <cstdio>
 #include <fstream>
+#include <gtest/gtest.h>
 
 namespace uri_shortener::test {
 
@@ -19,7 +18,7 @@ public:
   }
 };
 
-[[maybe_unused]] static ::testing::Environment* const protobuf_env =
+[[maybe_unused]] static ::testing::Environment *const protobuf_env =
     ::testing::AddGlobalTestEnvironment(new ProtobufEnvironment);
 
 // =============================================================================
@@ -27,7 +26,7 @@ public:
 // =============================================================================
 
 TEST(ProtoConfigLoaderTest, LoadsValidJsonString) {
-  const char* json = R"({
+  const char *json = R"({
         "schema_version": 1,
         "bootstrap": {
             "server": {"address": "0.0.0.0", "port": 8080, "thread_count": 2},
@@ -62,7 +61,7 @@ TEST(ProtoConfigLoaderTest, AcceptsEmptyObject) {
 }
 
 TEST(ProtoConfigLoaderTest, IgnoresUnknownFields) {
-  const char* json = R"({
+  const char *json = R"({
         "schema_version": 1,
         "future_field": "ignored",
         "bootstrap": {
@@ -81,7 +80,7 @@ TEST(ProtoConfigLoaderTest, IgnoresUnknownFields) {
 // =============================================================================
 
 TEST(ProtoConfigLoaderTest, ValidatesPortRange) {
-  const char* json = R"({
+  const char *json = R"({
         "schema_version": 1,
         "bootstrap": {"server": {"port": 70000}}
     })";
@@ -93,7 +92,7 @@ TEST(ProtoConfigLoaderTest, ValidatesPortRange) {
 }
 
 TEST(ProtoConfigLoaderTest, ValidatesPortZero) {
-  const char* json = R"({
+  const char *json = R"({
         "schema_version": 1,
         "bootstrap": {"server": {"port": 0}}
     })";
@@ -104,7 +103,7 @@ TEST(ProtoConfigLoaderTest, ValidatesPortZero) {
 }
 
 TEST(ProtoConfigLoaderTest, ValidatesPoolExecutorWorkers) {
-  const char* json = R"({
+  const char *json = R"({
         "schema_version": 1,
         "bootstrap": {"execution": {"pool_executor": {"num_workers": 0}}}
     })";
@@ -116,7 +115,7 @@ TEST(ProtoConfigLoaderTest, ValidatesPoolExecutorWorkers) {
 }
 
 TEST(ProtoConfigLoaderTest, ValidatesTraceSampleRate) {
-  const char* json = R"({
+  const char *json = R"({
         "schema_version": 1,
         "bootstrap": {
             "observability": {"trace_sample_rate": 1.5}
@@ -130,7 +129,7 @@ TEST(ProtoConfigLoaderTest, ValidatesTraceSampleRate) {
 }
 
 TEST(ProtoConfigLoaderTest, AllowsValidTraceSampleRate) {
-  const char* json = R"({
+  const char *json = R"({
         "schema_version": 1,
         "bootstrap": {
             "observability": {"trace_sample_rate": 0.1}
@@ -151,14 +150,15 @@ protected:
   std::string test_file_;
 
   void SetUp() override {
-    test_file_ = "/tmp/config_loader_test_" + std::to_string(std::rand()) + ".json";
+    test_file_ =
+        "/tmp/config_loader_test_" + std::to_string(std::rand()) + ".json";
   }
 
   void TearDown() override {
     std::remove(test_file_.c_str());
   }
 
-  void writeFile(const std::string& content) {
+  void writeFile(const std::string &content) {
     std::ofstream file(test_file_);
     file << content;
     file.close();
@@ -181,7 +181,8 @@ TEST_F(FileLoadingTest, LoadsValidFile) {
 }
 
 TEST_F(FileLoadingTest, FailsOnNonExistentFile) {
-  auto result = ProtoConfigLoader::loadFromFile("/nonexistent/path/config.json");
+  auto result =
+      ProtoConfigLoader::loadFromFile("/nonexistent/path/config.json");
 
   EXPECT_TRUE(result.is_err());
   EXPECT_NE(result.error().find("Failed to open"), std::string::npos);
@@ -208,7 +209,7 @@ TEST_F(FileLoadingTest, FailsOnMalformedFile) {
 // =============================================================================
 
 TEST(FullConfigTest, LoadsCompleteConfig) {
-  const char* json = R"({
+  const char *json = R"({
         "schema_version": 1,
         "bootstrap": {
             "server": {"address": "0.0.0.0", "port": 8080, "thread_count": 2},
@@ -228,7 +229,8 @@ TEST(FullConfigTest, LoadsCompleteConfig) {
   EXPECT_EQ(result.value().schema_version(), 1);
   EXPECT_EQ(result.value().bootstrap().server().port(), 8080);
   EXPECT_EQ(result.value().bootstrap().service().name(), "uri-shortener");
-  EXPECT_EQ(result.value().runtime().load_shedder().max_concurrent_requests(), 10000);
+  EXPECT_EQ(result.value().runtime().load_shedder().max_concurrent_requests(),
+            10000);
 }
 
 } // namespace uri_shortener::test

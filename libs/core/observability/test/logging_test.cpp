@@ -1,9 +1,8 @@
-#include <gtest/gtest.h>
-
 #include <Log.h>
 #include <Provider.h>
 #include <Span.h>
 #include <Tracer.h>
+#include <gtest/gtest.h>
 
 class LoggingTest : public ::testing::Test {
 protected:
@@ -31,9 +30,7 @@ TEST_F(LoggingTest, BasicLog) {
 
 TEST_F(LoggingTest, StructuredAttributes) {
   // Logging with attributes
-  obs::info("User login", {
-                              {"user_id", "123"}
-  });
+  obs::info("User login", {{"user_id", "123"}});
   SUCCEED();
 }
 

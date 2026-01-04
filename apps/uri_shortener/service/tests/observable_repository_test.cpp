@@ -5,9 +5,8 @@
 #include "ObservableLinkRepository.h"
 #include "ShortLink.h"
 
-#include <gtest/gtest.h>
-
 #include <Provider.h>
+#include <gtest/gtest.h>
 
 namespace uri_shortener::test {
 
@@ -22,7 +21,8 @@ protected:
     obs::init(obs_config);
 
     m_inner = std::make_shared<infrastructure::InMemoryLinkRepository>();
-    m_repo = std::make_shared<infrastructure::ObservableLinkRepository>(m_inner);
+    m_repo =
+        std::make_shared<infrastructure::ObservableLinkRepository>(m_inner);
   }
 
   void TearDown() override {

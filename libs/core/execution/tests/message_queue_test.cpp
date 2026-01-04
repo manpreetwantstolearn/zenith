@@ -1,12 +1,11 @@
 #include "MessageQueue.h"
 
-#include <gtest/gtest.h>
-
 #include <atomic>
+#include <gtest/gtest.h>
 #include <thread>
 #include <vector>
 
-namespace zenith::execution {
+namespace astra::execution {
 
 using namespace std::chrono_literals;
 
@@ -70,7 +69,9 @@ TEST(MessageQueueTest, FIFOOrder) {
   MessageQueue queue;
 
   for (int i = 0; i < 5; ++i) {
-    queue.push(Message{.affinity_key = static_cast<uint64_t>(i), .trace_ctx = {}, .payload = {}});
+    queue.push(Message{.affinity_key = static_cast<uint64_t>(i),
+                       .trace_ctx = {},
+                       .payload = {}});
   }
 
   for (int i = 0; i < 5; ++i) {
@@ -92,7 +93,9 @@ TEST(MessageQueueTest, ConcurrentPushPopSafetyTest) {
   // Producer thread
   std::thread producer([&]() {
     for (int i = 0; i < num_messages; ++i) {
-      queue.push(Message{.affinity_key = static_cast<uint64_t>(i), .trace_ctx = {}, .payload = i});
+      queue.push(Message{.affinity_key = static_cast<uint64_t>(i),
+                         .trace_ctx = {},
+                         .payload = i});
     }
     queue.close();
   });
@@ -117,7 +120,9 @@ TEST(MessageQueueTest, MultipleConsumersSafetyTest) {
 
   // Push all messages first
   for (int i = 0; i < num_messages; ++i) {
-    queue.push(Message{.affinity_key = static_cast<uint64_t>(i), .trace_ctx = {}, .payload = i});
+    queue.push(Message{.affinity_key = static_cast<uint64_t>(i),
+                       .trace_ctx = {},
+                       .payload = i});
   }
 
   // Start multiple consumers
@@ -133,7 +138,7 @@ TEST(MessageQueueTest, MultipleConsumersSafetyTest) {
   std::this_thread::sleep_for(50ms);
   queue.close();
 
-  for (auto& t : consumers) {
+  for (auto &t : consumers) {
     t.join();
   }
 
@@ -150,8 +155,9 @@ TEST(MessageQueueTest, MultipleProducersSafetyTest) {
   for (int p = 0; p < num_producers; ++p) {
     producers.emplace_back([&, p]() {
       for (int i = 0; i < messages_per_producer; ++i) {
-        queue.push(Message{
-            .affinity_key = static_cast<uint64_t>(p * 1000 + i), .trace_ctx = {}, .payload = i});
+        queue.push(Message{.affinity_key = static_cast<uint64_t>(p * 1000 + i),
+                           .trace_ctx = {},
+                           .payload = i});
       }
     });
   }
@@ -162,7 +168,7 @@ TEST(MessageQueueTest, MultipleProducersSafetyTest) {
     }
   });
 
-  for (auto& t : producers) {
+  for (auto &t : producers) {
     t.join();
   }
 
@@ -228,4 +234,4 @@ TEST(MessageQueueTest, TraceContextPreserved) {
   EXPECT_EQ(result->trace_ctx.trace_id.low, ctx.trace_id.low);
 }
 
-} // namespace zenith::execution
+} // namespace astra::execution

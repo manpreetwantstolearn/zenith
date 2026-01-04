@@ -1,21 +1,21 @@
-# Zenith
+# Astra
 
 ## 1. Development Environment
 
 ### Build Docker Image
 ```bash
-docker build --network=host -t Zenithbuilder:v11 -f tools/Dockerfile tools
+docker build --network=host -t Astrabuilder:v11 -f tools/Dockerfile tools
 ```
 
 ### Run Container
 ```bash
-docker run -it --name Zenith -v $(pwd):/app/Zenith Zenithbuilder:v11 bash
+docker run -it --name Astra -v $(pwd):/app/Astra Astrabuilder:v11 bash
 ```
 
 ### Run Container (with Sanitizer Support)
 For running ThreadSanitizer (TSan) or AddressSanitizer (ASan) tests, use:
 ```bash
-docker run -it --name Zenith --cap-add=SYS_PTRACE --security-opt seccomp=unconfined -v $(pwd):/app/Zenith Zenithbuilder:v11 bash
+docker run -it --name Astra --cap-add=SYS_PTRACE --security-opt seccomp=unconfined -v $(pwd):/app/Astra Astrabuilder:v11 bash
 ```
 > **Note**: `--cap-add=SYS_PTRACE` enables process tracing for sanitizers. `--security-opt seccomp=unconfined` allows the `personality` syscall needed by TSan to disable ASLR.
 

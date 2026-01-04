@@ -361,6 +361,9 @@
       "configurePreset": "clang-coverage",
       "output": {
         "outputOnFailure": true
+      },
+      "environment": {
+        "LLVM_PROFILE_FILE": "${sourceDir}/build/clang-coverage/coverage_%p.profraw"
       }
     },
     {

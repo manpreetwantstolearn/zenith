@@ -1,14 +1,13 @@
 #pragma once
 
+#include <IResponse.h>
 #include <functional>
 #include <memory>
 #include <optional>
 #include <string>
 
-#include <IResponse.h>
-
 // Forward declarations
-namespace zenith::observability {
+namespace astra::observability {
 class Span;
 }
 
@@ -23,10 +22,10 @@ enum class DataServiceOperation { SAVE, FIND, DELETE, EXISTS };
 /// Protocol-agnostic request to data service
 struct DataServiceRequest {
   DataServiceOperation op;
-  std::string entity_id;                               // e.g., short code
-  std::string payload;                                 // JSON payload for SAVE
-  std::shared_ptr<zenith::router::IResponse> response; // Response interface
-  std::shared_ptr<zenith::observability::Span> span;
+  std::string entity_id;                              // e.g., short code
+  std::string payload;                                // JSON payload for SAVE
+  std::shared_ptr<astra::router::IResponse> response; // Response interface
+  std::shared_ptr<astra::observability::Span> span;
 };
 
 /// Protocol-agnostic response from data service
@@ -43,8 +42,8 @@ struct DataServiceResponse {
   int http_status = 0; // Original HTTP status (for debugging)
 
   // Passthrough from request
-  std::shared_ptr<zenith::router::IResponse> response; // Response interface
-  std::shared_ptr<zenith::observability::Span> span;
+  std::shared_ptr<astra::router::IResponse> response; // Response interface
+  std::shared_ptr<astra::observability::Span> span;
 };
 
 /// Callback type for async responses

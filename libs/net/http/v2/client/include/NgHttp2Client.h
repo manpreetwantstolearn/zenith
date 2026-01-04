@@ -4,24 +4,22 @@
 #include "Http2ClientResponse.h"
 #include "http2client.pb.h"
 
-#include <boost/asio.hpp>
-#include <nghttp2/asio_http2_client.h>
-
+#include <Log.h>
+#include <Result.h>
 #include <atomic>
+#include <boost/asio.hpp>
 #include <functional>
 #include <mutex>
+#include <nghttp2/asio_http2_client.h>
 #include <queue>
 #include <thread>
 
-#include <Log.h>
-#include <Result.h>
-
-namespace zenith::http2 {
+namespace astra::http2 {
 
 enum class ConnectionState { DISCONNECTED, CONNECTING, CONNECTED, FAILED };
 
-using ResponseHandler =
-    std::function<void(zenith::outcome::Result<Http2ClientResponse, Http2ClientError>)>;
+using ResponseHandler = std::function<void(
+    astra::outcome::Result<Http2ClientResponse, Http2ClientError>)>;
 using OnCloseCallback = std::function<void()>;
 using OnErrorCallback = std::function<void(Http2ClientError)>;
 
@@ -35,15 +33,18 @@ struct PendingRequest {
 
 class NgHttp2Client {
 public:
-  NgHttp2Client(const std::string& host, uint16_t port, const ClientConfig& config,
-                OnCloseCallback on_close = nullptr, OnErrorCallback on_error = nullptr);
+  NgHttp2Client(const std::string &host, uint16_t port,
+                const ClientConfig &config, OnCloseCallback on_close = nullptr,
+                OnErrorCallback on_error = nullptr);
   ~NgHttp2Client();
 
-  NgHttp2Client(const NgHttp2Client&) = delete;
-  NgHttp2Client& operator=(const NgHttp2Client&) = delete;
+  NgHttp2Client(const NgHttp2Client &) = delete;
+  NgHttp2Client &operator=(const NgHttp2Client &) = delete;
 
-  void submit(const std::string& method, const std::string& path, const std::string& body,
-              const std::map<std::string, std::string>& headers, ResponseHandler handler);
+  void submit(const std::string &method, const std::string &path,
+              const std::string &body,
+              const std::map<std::string, std::string> &headers,
+              ResponseHandler handler);
 
   bool is_connected() const;
   ConnectionState state() const;
@@ -53,8 +54,10 @@ private:
   void connect();
   void start_io_thread();
   void stop_io_thread();
-  void do_submit(const std::string& method, const std::string& path, const std::string& body,
-                 const std::map<std::string, std::string>& headers, ResponseHandler handler);
+  void do_submit(const std::string &method, const std::string &path,
+                 const std::string &body,
+                 const std::map<std::string, std::string> &headers,
+                 ResponseHandler handler);
   void flush_pending_requests();
 
   std::string m_host;
@@ -64,7 +67,9 @@ private:
   OnErrorCallback m_on_error;
 
   boost::asio::io_context m_io_context;
-  std::unique_ptr<boost::asio::executor_work_guard<boost::asio::io_context::executor_type>> m_work;
+  std::unique_ptr<
+      boost::asio::executor_work_guard<boost::asio::io_context::executor_type>>
+      m_work;
   std::thread m_io_thread;
 
   std::unique_ptr<nghttp2::asio_http2::client::session> m_session;
@@ -73,4 +78,4 @@ private:
   std::queue<PendingRequest> m_pending_requests;
 };
 
-} // namespace zenith::http2
+} // namespace astra::http2

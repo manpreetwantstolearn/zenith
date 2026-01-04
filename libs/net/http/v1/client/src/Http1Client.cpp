@@ -5,10 +5,9 @@
 #include <boost/beast/core.hpp>
 #include <boost/beast/http.hpp>
 #include <boost/beast/version.hpp>
-
 #include <iostream>
 
-namespace zenith::http1 {
+namespace astra::http1 {
 
 namespace beast = boost::beast;
 namespace http = beast::http;
@@ -20,18 +19,20 @@ Client::Client() {
 Client::~Client() {
 }
 
-Response Client::get(const std::string& host, const std::string& port, const std::string& target) {
+Response Client::get(const std::string &host, const std::string &port,
+                     const std::string &target) {
   return perform_request(host, port, target, http::verb::get, "");
 }
 
-Response Client::post(const std::string& host, const std::string& port, const std::string& target,
-                      const std::string& body) {
+Response Client::post(const std::string &host, const std::string &port,
+                      const std::string &target, const std::string &body) {
   return perform_request(host, port, target, http::verb::post, body);
 }
 
-Response Client::perform_request(const std::string& host, const std::string& port,
-                                 const std::string& target, http::verb method,
-                                 const std::string& body) {
+Response Client::perform_request(const std::string &host,
+                                 const std::string &port,
+                                 const std::string &target, http::verb method,
+                                 const std::string &body) {
   try {
     net::io_context ioc;
     tcp::resolver resolver(ioc);
@@ -66,15 +67,16 @@ Response Client::perform_request(const std::string& host, const std::string& por
     Response response;
     response.status_code = res.result_int();
     response.body = res.body();
-    for (auto& field : res) {
-      response.headers[std::string(field.name_string())] = std::string(field.value());
+    for (auto &field : res) {
+      response.headers[std::string(field.name_string())] =
+          std::string(field.value());
     }
     return response;
 
-  } catch (const std::exception& e) {
+  } catch (const std::exception &e) {
     std::cerr << "Error: " << e.what() << std::endl;
     return {500, e.what(), {}};
   }
 }
 
-} // namespace zenith::http1
+} // namespace astra::http1

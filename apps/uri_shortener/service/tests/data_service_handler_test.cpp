@@ -1,19 +1,17 @@
 #include "DataServiceHandler.h"
 #include "DataServiceMessages.h"
 
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
-
+#include <IExecutor.h>
+#include <Message.h>
 #include <atomic>
 #include <chrono>
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 #include <memory>
 #include <thread>
 
-#include <IExecutor.h>
-#include <Message.h>
-
 using namespace uri_shortener::service;
-using namespace zenith::execution;
+using namespace astra::execution;
 using ::testing::_;
 using ::testing::Invoke;
 using ::testing::SaveArg;
@@ -26,7 +24,8 @@ namespace uri_shortener::service::test {
 
 class MockDataServiceAdapter : public IDataServiceAdapter {
 public:
-  MOCK_METHOD(void, execute, (DataServiceRequest request, DataServiceCallback callback),
+  MOCK_METHOD(void, execute,
+              (DataServiceRequest request, DataServiceCallback callback),
               (override));
 };
 
@@ -56,7 +55,8 @@ protected:
 TEST_F(DataServiceHandlerTest, RoutesDataServiceRequestToAdapter) {
   DataServiceHandler handler(m_mock_adapter, m_mock_executor);
 
-  DataServiceRequest ds_req{DataServiceOperation::FIND, "test123", "", nullptr, nullptr};
+  DataServiceRequest ds_req{DataServiceOperation::FIND, "test123", "", nullptr,
+                            nullptr};
 
   Message msg;
   msg.affinity_key = 42;
@@ -71,7 +71,8 @@ TEST_F(DataServiceHandlerTest, RoutesDataServiceRequestToAdapter) {
 TEST_F(DataServiceHandlerTest, AdapterCallbackSubmitsToExecutor) {
   DataServiceHandler handler(m_mock_adapter, m_mock_executor);
 
-  DataServiceRequest ds_req{DataServiceOperation::FIND, "abc123", "", nullptr, nullptr};
+  DataServiceRequest ds_req{DataServiceOperation::FIND, "abc123", "", nullptr,
+                            nullptr};
 
   Message msg;
   msg.affinity_key = 123;
@@ -79,7 +80,8 @@ TEST_F(DataServiceHandlerTest, AdapterCallbackSubmitsToExecutor) {
 
   DataServiceCallback captured_callback;
 
-  EXPECT_CALL(m_mock_adapter, execute(_, _)).WillOnce(SaveArg<1>(&captured_callback));
+  EXPECT_CALL(m_mock_adapter, execute(_, _))
+      .WillOnce(SaveArg<1>(&captured_callback));
 
   EXPECT_CALL(m_mock_executor, submit(_)).Times(1);
 
@@ -97,7 +99,8 @@ TEST_F(DataServiceHandlerTest, AdapterCallbackSubmitsToExecutor) {
 TEST_F(DataServiceHandlerTest, AffinityKeyPreservedInResponse) {
   DataServiceHandler handler(m_mock_adapter, m_mock_executor);
 
-  DataServiceRequest ds_req{DataServiceOperation::FIND, "xyz", "", nullptr, nullptr};
+  DataServiceRequest ds_req{DataServiceOperation::FIND, "xyz", "", nullptr,
+                            nullptr};
 
   Message msg;
   msg.affinity_key = 9999;
@@ -106,11 +109,13 @@ TEST_F(DataServiceHandlerTest, AffinityKeyPreservedInResponse) {
   DataServiceCallback captured_callback;
   Message captured_response_msg;
 
-  EXPECT_CALL(m_mock_adapter, execute(_, _)).WillOnce(SaveArg<1>(&captured_callback));
+  EXPECT_CALL(m_mock_adapter, execute(_, _))
+      .WillOnce(SaveArg<1>(&captured_callback));
 
-  EXPECT_CALL(m_mock_executor, submit(_)).WillOnce([&captured_response_msg](Message m) {
-    captured_response_msg = std::move(m);
-  });
+  EXPECT_CALL(m_mock_executor, submit(_))
+      .WillOnce([&captured_response_msg](Message m) {
+        captured_response_msg = std::move(m);
+      });
 
   handler.handle(msg);
 
@@ -127,8 +132,8 @@ TEST_F(DataServiceHandlerTest, AffinityKeyPreservedInResponse) {
 TEST_F(DataServiceHandlerTest, TraceContextPreservedInResponse) {
   DataServiceHandler handler(m_mock_adapter, m_mock_executor);
 
-  DataServiceRequest ds_req{DataServiceOperation::SAVE, "", R"({"url":"https://test.com"})",
-                            nullptr, nullptr};
+  DataServiceRequest ds_req{DataServiceOperation::SAVE, "",
+                            R"({"url":"https://test.com"})", nullptr, nullptr};
 
   Message msg;
   msg.affinity_key = 1;
@@ -138,11 +143,13 @@ TEST_F(DataServiceHandlerTest, TraceContextPreservedInResponse) {
   DataServiceCallback captured_callback;
   Message captured_response_msg;
 
-  EXPECT_CALL(m_mock_adapter, execute(_, _)).WillOnce(SaveArg<1>(&captured_callback));
+  EXPECT_CALL(m_mock_adapter, execute(_, _))
+      .WillOnce(SaveArg<1>(&captured_callback));
 
-  EXPECT_CALL(m_mock_executor, submit(_)).WillOnce([&captured_response_msg](Message m) {
-    captured_response_msg = std::move(m);
-  });
+  EXPECT_CALL(m_mock_executor, submit(_))
+      .WillOnce([&captured_response_msg](Message m) {
+        captured_response_msg = std::move(m);
+      });
 
   handler.handle(msg);
 
@@ -157,7 +164,8 @@ TEST_F(DataServiceHandlerTest, TraceContextPreservedInResponse) {
 TEST_F(DataServiceHandlerTest, ErrorResponseSubmittedToExecutor) {
   DataServiceHandler handler(m_mock_adapter, m_mock_executor);
 
-  DataServiceRequest ds_req{DataServiceOperation::FIND, "notfound", "", nullptr, nullptr};
+  DataServiceRequest ds_req{DataServiceOperation::FIND, "notfound", "", nullptr,
+                            nullptr};
 
   Message msg;
   msg.affinity_key = 500;
@@ -166,11 +174,13 @@ TEST_F(DataServiceHandlerTest, ErrorResponseSubmittedToExecutor) {
   DataServiceCallback captured_callback;
   Message captured_response_msg;
 
-  EXPECT_CALL(m_mock_adapter, execute(_, _)).WillOnce(SaveArg<1>(&captured_callback));
+  EXPECT_CALL(m_mock_adapter, execute(_, _))
+      .WillOnce(SaveArg<1>(&captured_callback));
 
-  EXPECT_CALL(m_mock_executor, submit(_)).WillOnce([&captured_response_msg](Message m) {
-    captured_response_msg = std::move(m);
-  });
+  EXPECT_CALL(m_mock_executor, submit(_))
+      .WillOnce([&captured_response_msg](Message m) {
+        captured_response_msg = std::move(m);
+      });
 
   handler.handle(msg);
 
@@ -182,7 +192,8 @@ TEST_F(DataServiceHandlerTest, ErrorResponseSubmittedToExecutor) {
   captured_callback(std::move(resp));
 
   // Verify response was submitted
-  auto& payload = std::any_cast<DataServiceResponse&>(captured_response_msg.payload);
+  auto &payload =
+      std::any_cast<DataServiceResponse &>(captured_response_msg.payload);
   EXPECT_FALSE(payload.success);
 }
 

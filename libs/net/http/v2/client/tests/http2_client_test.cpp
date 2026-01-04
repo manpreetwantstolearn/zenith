@@ -4,14 +4,13 @@
 #include "Http2ClientResponse.h"
 #include "NgHttp2Client.h"
 
-#include <gtest/gtest.h>
-
 #include <atomic>
 #include <chrono>
+#include <gtest/gtest.h>
 #include <thread>
 #include <vector>
 
-namespace zenith::http2 {
+namespace astra::http2 {
 namespace test {
 
 class Http2ClientTest : public ::testing::Test {
@@ -52,9 +51,10 @@ TEST_F(Http2ClientTest, SubmitPostWithBody) {
   std::map<std::string, std::string> headers;
   headers["Content-Type"] = "application/json";
 
-  client.submit("127.0.0.1", 19999, "POST", "/api/data", body, headers, [&](auto) {
-    done = true;
-  });
+  client.submit("127.0.0.1", 19999, "POST", "/api/data", body, headers,
+                [&](auto) {
+                  done = true;
+                });
 
   while (!done) {
     std::this_thread::yield();
@@ -86,9 +86,10 @@ TEST_F(Http2ClientTest, SubmitToSamePeerMultipleTimes) {
   std::atomic<int> count{0};
 
   for (int i = 0; i < 5; i++) {
-    client.submit("127.0.0.1", 19999, "GET", "/test" + std::to_string(i), "", {}, [&](auto) {
-      count++;
-    });
+    client.submit("127.0.0.1", 19999, "GET", "/test" + std::to_string(i), "",
+                  {}, [&](auto) {
+                    count++;
+                  });
   }
 
   while (count < 5) {
@@ -123,13 +124,14 @@ TEST_F(Http2ClientTest, ConcurrentSubmitsFromMultipleThreads) {
 
   for (int i = 0; i < 10; i++) {
     threads.emplace_back([&client, &count, i]() {
-      client.submit("127.0.0.1", 19999, "GET", "/test" + std::to_string(i), "", {}, [&count](auto) {
-        count++;
-      });
+      client.submit("127.0.0.1", 19999, "GET", "/test" + std::to_string(i), "",
+                    {}, [&count](auto) {
+                      count++;
+                    });
     });
   }
 
-  for (auto& t : threads) {
+  for (auto &t : threads) {
     t.join();
   }
 
@@ -175,9 +177,10 @@ TEST_F(Http2ClientTest, SubmitWithAllHttpMethods) {
   client.submit("127.0.0.1", 19999, "DELETE", "/resource/1", "", {}, [&](auto) {
     count++;
   });
-  client.submit("127.0.0.1", 19999, "PATCH", "/resource/1", "{}", {}, [&](auto) {
-    count++;
-  });
+  client.submit("127.0.0.1", 19999, "PATCH", "/resource/1", "{}", {},
+                [&](auto) {
+                  count++;
+                });
 
   while (count < 5) {
     std::this_thread::yield();
@@ -227,9 +230,10 @@ TEST_F(Http2ClientTest, HighConcurrencyMultiplePeers) {
 
   for (int i = 0; i < num_requests; i++) {
     uint16_t port = 19990 + (i % num_peers);
-    client.submit("127.0.0.1", port, "GET", "/test" + std::to_string(i), "", {}, [&](auto) {
-      count++;
-    });
+    client.submit("127.0.0.1", port, "GET", "/test" + std::to_string(i), "", {},
+                  [&](auto) {
+                    count++;
+                  });
   }
 
   while (count < num_requests) {
@@ -257,9 +261,10 @@ TEST_F(Http2ClientTest, SubmitWithLargeBody) {
 
   std::string large_body(10000, 'x');
 
-  client.submit("127.0.0.1", 19999, "POST", "/large", large_body, {}, [&](auto) {
-    done = true;
-  });
+  client.submit("127.0.0.1", 19999, "POST", "/large", large_body, {},
+                [&](auto) {
+                  done = true;
+                });
 
   while (!done) {
     std::this_thread::yield();
@@ -270,8 +275,8 @@ TEST_F(Http2ClientTest, SubmitWithSpecialCharactersInPath) {
   Http2Client client(m_config);
   std::atomic<bool> done{false};
 
-  client.submit("127.0.0.1", 19999, "GET", "/path/with/special?query=value&foo=bar", "", {},
-                [&](auto) {
+  client.submit("127.0.0.1", 19999, "GET",
+                "/path/with/special?query=value&foo=bar", "", {}, [&](auto) {
                   done = true;
                 });
 
@@ -460,9 +465,10 @@ TEST_F(ClientDispatcherTest, SubmitToSamePeerReusesClient) {
   std::atomic<int> count{0};
 
   for (int i = 0; i < 5; i++) {
-    dispatcher.submit("127.0.0.1", 19999, "GET", "/test" + std::to_string(i), "", {}, [&](auto) {
-      count++;
-    });
+    dispatcher.submit("127.0.0.1", 19999, "GET", "/test" + std::to_string(i),
+                      "", {}, [&](auto) {
+                        count++;
+                      });
   }
 
   while (count < 5) {
@@ -477,9 +483,10 @@ TEST_F(ClientDispatcherTest, DestructorWaitsForPendingRequests) {
   {
     ClientDispatcher dispatcher(m_config);
     for (int i = 0; i < 3; i++) {
-      dispatcher.submit("127.0.0.1", 19999 + i, "GET", "/test", "", {}, [&](auto) {
-        count++;
-      });
+      dispatcher.submit("127.0.0.1", 19999 + i, "GET", "/test", "", {},
+                        [&](auto) {
+                          count++;
+                        });
     }
     while (count < 3) {
       std::this_thread::yield();
@@ -488,4 +495,4 @@ TEST_F(ClientDispatcherTest, DestructorWaitsForPendingRequests) {
 }
 
 } // namespace test
-} // namespace zenith::http2
+} // namespace astra::http2

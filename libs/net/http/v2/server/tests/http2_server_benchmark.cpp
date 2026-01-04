@@ -4,18 +4,17 @@
 #include "Router.h"
 
 #include <benchmark/benchmark.h>
-
 #include <memory>
 #include <thread>
 
-using namespace zenith::http2;
+using namespace astra::http2;
 
 // =============================================================================
 // Router Dispatch Benchmarks (internal path through server)
 // =============================================================================
 
-static void BM_RouterDispatch(benchmark::State& state) {
-  zenith::router::Router router;
+static void BM_RouterDispatch(benchmark::State &state) {
+  astra::router::Router router;
   router.get("/users/:id", [](auto req, auto res) {
     res->set_status(200);
     res->write("OK");
@@ -38,7 +37,7 @@ BENCHMARK(BM_RouterDispatch);
 // Handler Registration Benchmarks
 // =============================================================================
 
-static void BM_RegisterHandlers(benchmark::State& state) {
+static void BM_RegisterHandlers(benchmark::State &state) {
   for (auto _ : state) {
     ServerConfig config;
     config.set_port(0); // Random port
@@ -60,7 +59,7 @@ BENCHMARK(BM_RegisterHandlers);
 // Full Server Lifecycle (construction/destruction)
 // =============================================================================
 
-static void BM_ServerConstruction(benchmark::State& state) {
+static void BM_ServerConstruction(benchmark::State &state) {
   for (auto _ : state) {
     ServerConfig config;
     config.set_port(0);

@@ -22,13 +22,14 @@ public:
     return m_created_at;
   }
 
-  [[nodiscard]] bool operator==(const ExpirationPolicy& other) const noexcept;
-  [[nodiscard]] bool operator!=(const ExpirationPolicy& other) const noexcept;
+  [[nodiscard]] bool operator==(const ExpirationPolicy &other) const noexcept;
+  [[nodiscard]] bool operator!=(const ExpirationPolicy &other) const noexcept;
 
 private:
   enum class Type { Never, AtTime };
 
-  ExpirationPolicy(Type type, std::optional<TimePoint> expires_at, TimePoint created_at);
+  ExpirationPolicy(Type type, std::optional<TimePoint> expires_at,
+                   TimePoint created_at);
 
   Type m_type;
   std::optional<TimePoint> m_expires_at;

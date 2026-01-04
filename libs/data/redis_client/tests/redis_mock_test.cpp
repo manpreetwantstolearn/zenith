@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-using namespace zenith::redis;
+using namespace astra::redis;
 using ::testing::_;
 using ::testing::Return;
 

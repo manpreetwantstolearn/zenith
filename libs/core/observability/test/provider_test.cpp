@@ -1,6 +1,5 @@
-#include <gtest/gtest.h>
-
 #include <Provider.h>
+#include <gtest/gtest.h>
 
 namespace {
 
@@ -28,7 +27,7 @@ TEST_F(ProviderTest, CanInitializeMultipleTimes) {
   ASSERT_TRUE(obs::init(config));
   ASSERT_TRUE(obs::init(config)); // Should be idempotent
 
-                                  // Should not throw
+  // Should not throw
 }
 
 TEST_F(ProviderTest, ShutdownWithoutInitDoesNotCrash) {

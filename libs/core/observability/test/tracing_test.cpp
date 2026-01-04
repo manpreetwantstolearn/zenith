@@ -1,8 +1,7 @@
-#include <gtest/gtest.h>
-
 #include <Provider.h>
 #include <Span.h>
 #include <Tracer.h>
+#include <gtest/gtest.h>
 
 class TracingTest : public ::testing::Test {
 protected:
@@ -49,9 +48,7 @@ TEST_F(TracingTest, SpanAttributes) {
 
 TEST_F(TracingTest, SpanEvents) {
   auto span = tracer->start_span("operation");
-  span->add_event("cache_hit", {
-                                   {"key", "user_123"}
-  });
+  span->add_event("cache_hit", {{"key", "user_123"}});
   span->end();
   SUCCEED();
 }

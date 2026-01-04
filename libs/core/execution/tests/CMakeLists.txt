@@ -1,11 +1,11 @@
 add_executable(message_queue_test message_queue_test.cpp)
-target_link_libraries(message_queue_test PRIVATE zenith_execution GTest::gtest_main)
+target_link_libraries(message_queue_test PRIVATE astra_execution GTest::gtest_main)
 
 add_executable(affinity_executor_test affinity_executor_test.cpp)
-target_link_libraries(affinity_executor_test PRIVATE zenith_execution GTest::gtest_main)
+target_link_libraries(affinity_executor_test PRIVATE astra_execution GTest::gtest_main)
 
 add_executable(pool_executor_test pool_executor_test.cpp)
-target_link_libraries(pool_executor_test PRIVATE zenith_execution GTest::gtest_main)
+target_link_libraries(pool_executor_test PRIVATE astra_execution GTest::gtest_main)
 
 include(GoogleTest)
 gtest_discover_tests(message_queue_test)

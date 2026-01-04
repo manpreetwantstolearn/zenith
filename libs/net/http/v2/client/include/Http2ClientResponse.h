@@ -3,7 +3,7 @@
 #include <map>
 #include <string>
 
-namespace zenith::http2 {
+namespace astra::http2 {
 
 class Http2ClientResponse {
 public:
@@ -14,11 +14,11 @@ public:
   [[nodiscard]] int status_code() const {
     return m_status_code;
   }
-  [[nodiscard]] const std::string& body() const {
+  [[nodiscard]] const std::string &body() const {
     return m_body;
   }
-  [[nodiscard]] std::string header(const std::string& name) const;
-  [[nodiscard]] const std::map<std::string, std::string>& headers() const {
+  [[nodiscard]] std::string header(const std::string &name) const;
+  [[nodiscard]] const std::map<std::string, std::string> &headers() const {
     return m_headers;
   }
 
@@ -28,4 +28,4 @@ private:
   std::map<std::string, std::string> m_headers;
 };
 
-} // namespace zenith::http2
+} // namespace astra::http2

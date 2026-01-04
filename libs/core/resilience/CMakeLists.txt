@@ -10,9 +10,9 @@ target_include_directories(resilience
 
 target_link_libraries(resilience
     PRIVATE
-        zenith_sanitizers
+        astra_sanitizers
     PUBLIC
-        zenith_execution
+        astra_execution
 )
 
 # Add tests if testing is enabled

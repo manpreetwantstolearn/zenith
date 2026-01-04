@@ -1,17 +1,15 @@
 #include "ProviderImpl.h"
 #include "SpanImpl.h"
 
+#include <Log.h>
+#include <Provider.h>
+#include <Span.h>
+#include <cstring>
 #include <opentelemetry/trace/provider.h>
 #include <opentelemetry/trace/span.h>
 #include <opentelemetry/trace/tracer.h>
 
-#include <cstring>
-
-#include <Log.h>
-#include <Provider.h>
-#include <Span.h>
-
-namespace zenith::observability {
+namespace astra::observability {
 
 // Span::Impl methods
 void Span::Impl::end_span() {
@@ -19,7 +17,7 @@ void Span::Impl::end_span() {
     otel_span->End();
 
     // Pop from active span stack
-    auto& provider = Provider::instance();
+    auto &provider = Provider::instance();
     provider.impl().pop_active_span();
     ended = true;
   }
@@ -28,25 +26,27 @@ void Span::Impl::end_span() {
 Span::Impl::~Impl() {
   // Auto-end if not explicitly ended (RAII fallback)
   if (!ended && otel_span) {
-    zenith::observability::warn("Span destroyed without explicit end() - auto-ending");
+    astra::observability::warn(
+        "Span destroyed without explicit end() - auto-ending");
     end_span();
   }
 }
 
 // Constructor
-Span::Span(Impl* impl) : m_impl(impl) {
+Span::Span(Impl *impl) : m_impl(impl) {
 }
 
 // Destructor
 Span::~Span() = default;
 
 // Move constructor
-Span::Span(Span&& other) noexcept : m_impl(std::move(other.m_impl)), m_ended(other.m_ended) {
+Span::Span(Span &&other) noexcept
+    : m_impl(std::move(other.m_impl)), m_ended(other.m_ended) {
   other.m_ended = true; // Prevent double-end
 }
 
 // Move assignment
-Span& Span::operator=(Span&& other) noexcept {
+Span &Span::operator=(Span &&other) noexcept {
   if (this != &other) {
     m_impl = std::move(other.m_impl);
     m_ended = other.m_ended;
@@ -69,28 +69,28 @@ bool Span::is_ended() const {
 }
 
 // Attributes
-Span& Span::attr(const std::string& key, const std::string& value) {
+Span &Span::attr(const std::string &key, const std::string &value) {
   if (m_impl && m_impl->otel_span && !m_ended) {
     m_impl->otel_span->SetAttribute(key, value);
   }
   return *this;
 }
 
-Span& Span::attr(const std::string& key, int64_t value) {
+Span &Span::attr(const std::string &key, int64_t value) {
   if (m_impl && m_impl->otel_span && !m_ended) {
     m_impl->otel_span->SetAttribute(key, value);
   }
   return *this;
 }
 
-Span& Span::attr(const std::string& key, double value) {
+Span &Span::attr(const std::string &key, double value) {
   if (m_impl && m_impl->otel_span && !m_ended) {
     m_impl->otel_span->SetAttribute(key, value);
   }
   return *this;
 }
 
-Span& Span::attr(const std::string& key, bool value) {
+Span &Span::attr(const std::string &key, bool value) {
   if (m_impl && m_impl->otel_span && !m_ended) {
     m_impl->otel_span->SetAttribute(key, value);
   }
@@ -98,7 +98,7 @@ Span& Span::attr(const std::string& key, bool value) {
 }
 
 // Status
-Span& Span::set_status(StatusCode code, const std::string& message) {
+Span &Span::set_status(StatusCode code, const std::string &message) {
   if (m_impl && m_impl->otel_span && !m_ended) {
     trace_api::StatusCode otel_code;
     switch (code) {
@@ -120,9 +120,9 @@ Span& Span::set_status(StatusCode code, const std::string& message) {
 }
 
 // Kind
-Span& Span::kind(SpanKind kind) {
+Span &Span::kind(SpanKind kind) {
   if (m_impl && m_impl->otel_span && !m_ended) {
-    const char* kind_str = "internal";
+    const char *kind_str = "internal";
     switch (kind) {
     case SpanKind::Internal:
       kind_str = "internal";
@@ -146,18 +146,18 @@ Span& Span::kind(SpanKind kind) {
 }
 
 // Events
-Span& Span::add_event(const std::string& name) {
+Span &Span::add_event(const std::string &name) {
   if (m_impl && m_impl->otel_span && !m_ended) {
     m_impl->otel_span->AddEvent(name);
   }
   return *this;
 }
 
-Span& Span::add_event(const std::string& name, Attributes attrs) {
+Span &Span::add_event(const std::string &name, Attributes attrs) {
   if (m_impl && m_impl->otel_span && !m_ended) {
     // Build OTel attributes map
     std::map<std::string, opentelemetry::common::AttributeValue> otel_attrs;
-    for (const auto& attr : attrs) {
+    for (const auto &attr : attrs) {
       otel_attrs[attr.first] = attr.second;
     }
     m_impl->otel_span->AddEvent(name, otel_attrs);
@@ -181,4 +181,4 @@ bool Span::is_recording() const {
   return false;
 }
 
-} // namespace zenith::observability
+} // namespace astra::observability

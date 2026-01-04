@@ -3,14 +3,14 @@
 #include <stdexcept>
 #include <variant>
 
-namespace zenith::outcome {
+namespace astra::outcome {
 
 /// Unit type - represents "no value" for Result<void, E> equivalent
 struct Unit {
-  constexpr bool operator==(const Unit&) const noexcept {
+  constexpr bool operator==(const Unit &) const noexcept {
     return true;
   }
-  constexpr bool operator!=(const Unit&) const noexcept {
+  constexpr bool operator!=(const Unit &) const noexcept {
     return false;
   }
 };
@@ -22,8 +22,7 @@ struct Unit {
  * Use for expected errors (network, DB, validation)
  * NOT for programmer errors (use exceptions/assertions)
  */
-template <typename T, typename E>
-class Result {
+template <typename T, typename E> class Result {
 public:
   static Result Ok(T value) {
     return Result(std::move(value));
@@ -41,42 +40,42 @@ public:
     return std::holds_alternative<E>(m_data);
   }
 
-  [[nodiscard]] T& value() & {
+  [[nodiscard]] T &value() & {
     if (is_err()) {
       throw std::logic_error("Attempted to get value from error Result");
     }
     return std::get<T>(m_data);
   }
 
-  [[nodiscard]] const T& value() const& {
+  [[nodiscard]] const T &value() const & {
     if (is_err()) {
       throw std::logic_error("Attempted to get value from error Result");
     }
     return std::get<T>(m_data);
   }
 
-  [[nodiscard]] T&& value() && {
+  [[nodiscard]] T &&value() && {
     if (is_err()) {
       throw std::logic_error("Attempted to get value from error Result");
     }
     return std::get<T>(std::move(m_data));
   }
 
-  [[nodiscard]] E& error() & {
+  [[nodiscard]] E &error() & {
     if (is_ok()) {
       throw std::logic_error("Attempted to get error from ok Result");
     }
     return std::get<E>(m_data);
   }
 
-  [[nodiscard]] const E& error() const& {
+  [[nodiscard]] const E &error() const & {
     if (is_ok()) {
       throw std::logic_error("Attempted to get error from ok Result");
     }
     return std::get<E>(m_data);
   }
 
-  [[nodiscard]] T value_or(T default_value) const& {
+  [[nodiscard]] T value_or(T default_value) const & {
     return is_ok() ? std::get<T>(m_data) : std::move(default_value);
   }
 
@@ -98,8 +97,7 @@ private:
  *
  * Uses Unit internally but provides void-like interface
  */
-template <typename E>
-class Result<void, E> {
+template <typename E> class Result<void, E> {
 public:
   static Result Ok() {
     return Result(Unit{});
@@ -117,14 +115,14 @@ public:
     return std::holds_alternative<E>(m_data);
   }
 
-  [[nodiscard]] E& error() & {
+  [[nodiscard]] E &error() & {
     if (is_ok()) {
       throw std::logic_error("Attempted to get error from ok Result");
     }
     return std::get<E>(m_data);
   }
 
-  [[nodiscard]] const E& error() const& {
+  [[nodiscard]] const E &error() const & {
     if (is_ok()) {
       throw std::logic_error("Attempted to get error from ok Result");
     }
@@ -144,4 +142,4 @@ private:
   std::variant<Unit, E> m_data;
 };
 
-} // namespace zenith::outcome
+} // namespace astra::outcome

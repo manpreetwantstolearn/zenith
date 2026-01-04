@@ -7,27 +7,27 @@
 #include <boost/asio.hpp>
 #include <boost/beast/core.hpp>
 #include <boost/beast/http.hpp>
-
 #include <functional>
 #include <memory>
 #include <string>
 #include <thread>
 #include <vector>
 
-namespace zenith::http1 {
+namespace astra::http1 {
 
 class Server {
 public:
-  using Handler = std::function<void(zenith::router::IRequest&, zenith::router::IResponse&)>;
+  using Handler = std::function<void(astra::router::IRequest &,
+                                     astra::router::IResponse &)>;
 
-  Server(const std::string& address, unsigned short port, int threads = 1);
+  Server(const std::string &address, unsigned short port, int threads = 1);
   ~Server();
 
   void handle(Handler handler);
   void run();
   void stop();
 
-  zenith::router::Router& router() {
+  astra::router::Router &router() {
     return m_router;
   }
 
@@ -39,11 +39,11 @@ private:
   unsigned short m_port;
   int m_threads;
   boost::asio::io_context m_ioc;
-  zenith::router::Router m_router;
+  astra::router::Router m_router;
   boost::asio::ip::tcp::acceptor m_acceptor;
   std::vector<std::thread> m_thread_pool;
   Handler m_handler;
   mutable std::mutex m_handler_mutex;
 };
 
-} // namespace zenith::http1
+} // namespace astra::http1

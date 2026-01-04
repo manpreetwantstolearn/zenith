@@ -14,18 +14,19 @@ class ShortLink {
 public:
   using Clock = std::chrono::system_clock;
   using TimePoint = Clock::time_point;
-  using CreateResult = zenith::outcome::Result<ShortLink, DomainError>;
+  using CreateResult = astra::outcome::Result<ShortLink, DomainError>;
 
-  [[nodiscard]] static CreateResult create(ShortCode code, OriginalUrl original,
-                                           ExpirationPolicy expiration = ExpirationPolicy::never());
+  [[nodiscard]] static CreateResult
+  create(ShortCode code, OriginalUrl original,
+         ExpirationPolicy expiration = ExpirationPolicy::never());
 
-  [[nodiscard]] const ShortCode& code() const noexcept {
+  [[nodiscard]] const ShortCode &code() const noexcept {
     return m_code;
   }
-  [[nodiscard]] const OriginalUrl& original() const noexcept {
+  [[nodiscard]] const OriginalUrl &original() const noexcept {
     return m_original;
   }
-  [[nodiscard]] const ExpirationPolicy& expiration() const noexcept {
+  [[nodiscard]] const ExpirationPolicy &expiration() const noexcept {
     return m_expiration;
   }
   [[nodiscard]] TimePoint created_at() const noexcept {
@@ -36,11 +37,11 @@ public:
     return !is_expired();
   }
 
-  [[nodiscard]] bool operator==(const ShortLink& other) const noexcept {
+  [[nodiscard]] bool operator==(const ShortLink &other) const noexcept {
     return m_code == other.m_code;
   }
 
-  [[nodiscard]] bool operator!=(const ShortLink& other) const noexcept {
+  [[nodiscard]] bool operator!=(const ShortLink &other) const noexcept {
     return !(*this == other);
   }
 

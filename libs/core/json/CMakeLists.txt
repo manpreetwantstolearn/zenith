@@ -16,7 +16,7 @@ target_include_directories(json
 
 target_link_libraries(json
     PRIVATE
-        zenith_sanitizers
+        astra_sanitizers
         Boost::headers
 )
 

@@ -1,18 +1,17 @@
 // =============================================================================
 // Context.cpp - Implementation of trace context
 // =============================================================================
+#include <Context.h>
 #include <cstring>
 #include <iomanip>
 #include <random>
 #include <sstream>
 
-#include <Context.h>
-
-namespace zenith::observability {
+namespace astra::observability {
 
 namespace {
 // Thread-local random generator for trace/span ID generation
-std::mt19937_64& get_random_engine() {
+std::mt19937_64 &get_random_engine() {
   thread_local std::mt19937_64 engine{std::random_device{}()};
   return engine;
 }
@@ -36,7 +35,7 @@ uint8_t hex_to_nibble(char c) {
 }
 
 // Parse 16 hex chars into uint64_t
-uint64_t parse_hex64(const char* str) {
+uint64_t parse_hex64(const char *str) {
   uint64_t result = 0;
   for (int i = 0; i < 16; ++i) {
     result = (result << 4) | hex_to_nibble(str[i]);
@@ -85,12 +84,13 @@ Context Context::child(SpanId new_span) const {
 std::string Context::to_traceparent() const {
   // Format: 00-{trace_id}-{span_id}-{flags}
   std::ostringstream oss;
-  oss << "00-" << trace_id.to_hex() << "-" << span_id.to_hex() << "-" << std::hex
-      << std::setfill('0') << std::setw(2) << static_cast<int>(trace_flags);
+  oss << "00-" << trace_id.to_hex() << "-" << span_id.to_hex() << "-"
+      << std::hex << std::setfill('0') << std::setw(2)
+      << static_cast<int>(trace_flags);
   return oss.str();
 }
 
-Context Context::from_traceparent(const std::string& header) {
+Context Context::from_traceparent(const std::string &header) {
   // Format: 00-{trace_id:32}-{span_id:16}-{flags:2}
   // Length: 2 + 1 + 32 + 1 + 16 + 1 + 2 = 55
   if (header.length() < 55) {
@@ -117,7 +117,8 @@ Context Context::from_traceparent(const std::string& header) {
   ctx.span_id.value = parse_hex64(header.data() + 36);
 
   // Parse flags (2 hex chars)
-  ctx.trace_flags = (hex_to_nibble(header[53]) << 4) | hex_to_nibble(header[54]);
+  ctx.trace_flags =
+      (hex_to_nibble(header[53]) << 4) | hex_to_nibble(header[54]);
 
   return ctx;
 }
@@ -129,7 +130,7 @@ std::string Context::to_baggage_header() const {
 
   std::ostringstream oss;
   bool first = true;
-  for (const auto& [key, value] : baggage) {
+  for (const auto &[key, value] : baggage) {
     if (!first) {
       oss << ",";
     }
@@ -139,7 +140,7 @@ std::string Context::to_baggage_header() const {
   return oss.str();
 }
 
-void Context::parse_baggage(Context& ctx, const std::string& header) {
+void Context::parse_baggage(Context &ctx, const std::string &header) {
   // Simple parsing: key=value,key=value
   size_t pos = 0;
   while (pos < header.length()) {
@@ -161,4 +162,4 @@ void Context::parse_baggage(Context& ctx, const std::string& header) {
   }
 }
 
-} // namespace zenith::observability
+} // namespace astra::observability

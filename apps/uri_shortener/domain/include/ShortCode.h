@@ -12,19 +12,19 @@ constexpr size_t kMaxCodeLength = 8;
 
 class ShortCode {
 public:
-  using CreateResult = zenith::outcome::Result<ShortCode, DomainError>;
+  using CreateResult = astra::outcome::Result<ShortCode, DomainError>;
 
-  [[nodiscard]] static CreateResult create(const std::string& raw);
+  [[nodiscard]] static CreateResult create(const std::string &raw);
   [[nodiscard]] static ShortCode from_trusted(std::string raw);
-  [[nodiscard]] const std::string& value() const noexcept {
+  [[nodiscard]] const std::string &value() const noexcept {
     return m_value;
   }
 
-  [[nodiscard]] bool operator==(const ShortCode& other) const noexcept {
+  [[nodiscard]] bool operator==(const ShortCode &other) const noexcept {
     return m_value == other.m_value;
   }
 
-  [[nodiscard]] bool operator!=(const ShortCode& other) const noexcept {
+  [[nodiscard]] bool operator!=(const ShortCode &other) const noexcept {
     return !(*this == other);
   }
 

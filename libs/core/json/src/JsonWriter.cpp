@@ -1,11 +1,10 @@
 #include "JsonWriter.h"
 
 #include <boost/json.hpp>
-
 #include <utility>
 #include <vector>
 
-namespace zenith::json {
+namespace astra::json {
 
 class JsonWriter::Impl {
 public:
@@ -24,38 +23,38 @@ JsonWriter::JsonWriter() : m_impl(std::make_unique<Impl>()) {
 
 JsonWriter::~JsonWriter() = default;
 
-JsonWriter::JsonWriter(JsonWriter&&) noexcept = default;
-JsonWriter& JsonWriter::operator=(JsonWriter&&) noexcept = default;
+JsonWriter::JsonWriter(JsonWriter &&) noexcept = default;
+JsonWriter &JsonWriter::operator=(JsonWriter &&) noexcept = default;
 
-void JsonWriter::add(const std::string& key, const std::string& value) {
+void JsonWriter::add(const std::string &key, const std::string &value) {
   m_impl->stack.back().second.emplace(key, value);
 }
 
-void JsonWriter::add(const std::string& key, const char* value) {
+void JsonWriter::add(const std::string &key, const char *value) {
   m_impl->stack.back().second.emplace(key, value);
 }
 
-void JsonWriter::add(const std::string& key, int value) {
+void JsonWriter::add(const std::string &key, int value) {
   m_impl->stack.back().second.emplace(key, value);
 }
 
-void JsonWriter::add(const std::string& key, long value) {
+void JsonWriter::add(const std::string &key, long value) {
   m_impl->stack.back().second.emplace(key, value);
 }
 
-void JsonWriter::add(const std::string& key, unsigned long value) {
+void JsonWriter::add(const std::string &key, unsigned long value) {
   m_impl->stack.back().second.emplace(key, value);
 }
 
-void JsonWriter::add(const std::string& key, bool value) {
+void JsonWriter::add(const std::string &key, bool value) {
   m_impl->stack.back().second.emplace(key, value);
 }
 
-void JsonWriter::add(const std::string& key, double value) {
+void JsonWriter::add(const std::string &key, double value) {
   m_impl->stack.back().second.emplace(key, value);
 }
 
-void JsonWriter::start_object(const std::string& key) {
+void JsonWriter::start_object(const std::string &key) {
   m_impl->stack.emplace_back(key, boost::json::object());
 }
 
@@ -65,7 +64,8 @@ void JsonWriter::end_object() {
     m_impl->stack.pop_back();
     m_impl->stack.back().second.emplace(child.first, std::move(child.second));
   }
-  // If stack size is 1, it's the root object closing. We keep it to serialize later.
+  // If stack size is 1, it's the root object closing. We keep it to serialize
+  // later.
 }
 
 std::string JsonWriter::get_string() const {
@@ -76,4 +76,4 @@ std::string JsonWriter::get_string() const {
   return boost::json::serialize(m_impl->stack.front().second);
 }
 
-} // namespace zenith::json
+} // namespace astra::json

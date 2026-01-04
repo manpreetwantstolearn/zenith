@@ -7,15 +7,15 @@
 #include <mutex>
 #include <optional>
 
-namespace zenith::execution {
+namespace astra::execution {
 
 class MessageQueue {
 public:
   MessageQueue() = default;
   ~MessageQueue() = default;
 
-  MessageQueue(const MessageQueue&) = delete;
-  MessageQueue& operator=(const MessageQueue&) = delete;
+  MessageQueue(const MessageQueue &) = delete;
+  MessageQueue &operator=(const MessageQueue &) = delete;
 
   void push(Message msg);
   std::optional<Message> pop();
@@ -28,4 +28,4 @@ private:
   bool m_closed{false};
 };
 
-} // namespace zenith::execution
+} // namespace astra::execution

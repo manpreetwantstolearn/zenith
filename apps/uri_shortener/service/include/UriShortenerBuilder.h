@@ -23,36 +23,36 @@ inline std::string to_string(BuilderError err) {
 
 class UriShortenerBuilder {
 public:
-  static zenith::outcome::Result<UriShortenerApp, BuilderError> bootstrap();
+  static astra::outcome::Result<UriShortenerApp, BuilderError> bootstrap();
 
-  explicit UriShortenerBuilder(const Config& config);
+  explicit UriShortenerBuilder(const Config &config);
 
-  UriShortenerBuilder& domain();
-  UriShortenerBuilder& backend();
-  UriShortenerBuilder& messaging();
-  UriShortenerBuilder& resilience();
+  UriShortenerBuilder &domain();
+  UriShortenerBuilder &backend();
+  UriShortenerBuilder &messaging();
+  UriShortenerBuilder &resilience();
 
-  zenith::outcome::Result<UriShortenerApp, BuilderError> build();
+  astra::outcome::Result<UriShortenerApp, BuilderError> build();
 
 private:
-  UriShortenerBuilder& repo();
-  UriShortenerBuilder& codeGen();
-  UriShortenerBuilder& useCases();
+  UriShortenerBuilder &repo();
+  UriShortenerBuilder &codeGen();
+  UriShortenerBuilder &useCases();
 
-  UriShortenerBuilder& httpClient();
-  UriShortenerBuilder& serviceResolver();
-  UriShortenerBuilder& dataAdapter();
+  UriShortenerBuilder &httpClient();
+  UriShortenerBuilder &serviceResolver();
+  UriShortenerBuilder &dataAdapter();
 
-  UriShortenerBuilder& msgHandler();
-  UriShortenerBuilder& executor();
-  UriShortenerBuilder& reqHandler();
-  UriShortenerBuilder& wrapObservable();
+  UriShortenerBuilder &msgHandler();
+  UriShortenerBuilder &executor();
+  UriShortenerBuilder &reqHandler();
+  UriShortenerBuilder &wrapObservable();
 
-  UriShortenerBuilder& loadShedder();
+  UriShortenerBuilder &loadShedder();
 
   void initObservability();
 
-  const Config& m_config;
+  const Config &m_config;
   UriShortenerComponents m_components;
 };
 

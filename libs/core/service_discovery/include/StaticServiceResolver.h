@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include <unordered_map>
 
-namespace zenith::service_discovery {
+namespace astra::service_discovery {
 
 /**
  * @brief Static/hardcoded service resolver
@@ -25,16 +25,18 @@ public:
    * @param port Port number
    * @throws std::invalid_argument if service_name or host is empty
    */
-  void register_service(const std::string& service_name, const std::string& host, uint16_t port);
+  void register_service(const std::string &service_name,
+                        const std::string &host, uint16_t port);
 
   /**
    * @brief Unregister a service
    * @param service_name Logical service name
    */
-  void unregister_service(const std::string& service_name);
+  void unregister_service(const std::string &service_name);
 
-  std::pair<std::string, uint16_t> resolve(const std::string& service_name) override;
-  bool has_service(const std::string& service_name) const override;
+  std::pair<std::string, uint16_t>
+  resolve(const std::string &service_name) override;
+  bool has_service(const std::string &service_name) const override;
 
 private:
   struct Endpoint {
@@ -45,4 +47,4 @@ private:
   std::unordered_map<std::string, Endpoint> m_services;
 };
 
-} // namespace zenith::service_discovery
+} // namespace astra::service_discovery

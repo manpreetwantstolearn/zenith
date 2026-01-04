@@ -4,10 +4,9 @@
 #include <boost/asio/io_context.hpp>
 #include <boost/asio/post.hpp>
 #include <gtest/gtest.h>
-
 #include <memory>
 
-using namespace zenith::http2;
+using namespace astra::http2;
 
 /**
  * TDD Tests for Response as lightweight copyable handle
@@ -34,7 +33,8 @@ protected:
 
   std::shared_ptr<Http2ResponseWriter> make_response_handle() {
     return std::make_shared<Http2ResponseWriter>(
-        [this](int status, std::map<std::string, std::string> headers, std::string body) {
+        [this](int status, std::map<std::string, std::string> headers,
+               std::string body) {
           sent.status = status;
           sent.headers = std::move(headers);
           sent.body = std::move(body);
@@ -82,7 +82,8 @@ TEST_F(Http2ResponseWriterIntegrationTest, Http2ResponseCloseSendsViaHandle) {
   EXPECT_EQ(sent.send_count, 1);
 }
 
-TEST_F(Http2ResponseWriterIntegrationTest, Http2ResponseDoubleCloseOnlySendsOnce) {
+TEST_F(Http2ResponseWriterIntegrationTest,
+       Http2ResponseDoubleCloseOnlySendsOnce) {
   auto handle = make_response_handle();
   Http2Response res(handle);
 
@@ -97,7 +98,8 @@ TEST_F(Http2ResponseWriterIntegrationTest, Http2ResponseDoubleCloseOnlySendsOnce
   EXPECT_EQ(sent.send_count, 1); // Only sent once
 }
 
-TEST_F(Http2ResponseWriterIntegrationTest, Http2ResponseCloseGracefulWhenHandleExpired) {
+TEST_F(Http2ResponseWriterIntegrationTest,
+       Http2ResponseCloseGracefulWhenHandleExpired) {
   std::weak_ptr<Http2ResponseWriter> weak_handle;
   {
     auto handle = make_response_handle();
@@ -115,7 +117,8 @@ TEST_F(Http2ResponseWriterIntegrationTest, Http2ResponseCloseGracefulWhenHandleE
   EXPECT_EQ(sent.send_count, 0); // Not sent
 }
 
-TEST_F(Http2ResponseWriterIntegrationTest, Http2ResponseStatusDefaultsTo500IfNotSet) {
+TEST_F(Http2ResponseWriterIntegrationTest,
+       Http2ResponseStatusDefaultsTo500IfNotSet) {
   auto handle = make_response_handle();
   Http2Response res(handle);
 
@@ -144,7 +147,8 @@ TEST_F(Http2ResponseWriterIntegrationTest, Http2ResponseAccumulatesWrites) {
   EXPECT_EQ(sent.body, "Hello World");
 }
 
-TEST_F(Http2ResponseWriterIntegrationTest, CopiedHttp2ResponseSharesClosedState) {
+TEST_F(Http2ResponseWriterIntegrationTest,
+       CopiedHttp2ResponseSharesClosedState) {
   auto handle = make_response_handle();
   Http2Response res1(handle);
   res1.set_status(200);
@@ -169,7 +173,8 @@ TEST_F(Http2ResponseWriterIntegrationTest, CopiedHttp2ResponseSharesClosedState)
   EXPECT_EQ(sent.send_count, 2); // Both copies sent
 }
 
-TEST_F(Http2ResponseWriterIntegrationTest, Http2ResponseSetHeaderMultipleTimes) {
+TEST_F(Http2ResponseWriterIntegrationTest,
+       Http2ResponseSetHeaderMultipleTimes) {
   auto handle = make_response_handle();
   Http2Response res(handle);
 

@@ -1,19 +1,21 @@
 #include "ObservableRequestHandler.h"
 
-#include <chrono>
-
 #include <Provider.h>
+#include <chrono>
 
 namespace uri_shortener {
 
-ObservableRequestHandler::ObservableRequestHandler(UriShortenerRequestHandler& inner) :
-    m_inner(inner), m_tracer(obs::Provider::instance().get_tracer("uri-shortener")) {
+ObservableRequestHandler::ObservableRequestHandler(
+    UriShortenerRequestHandler &inner)
+    : m_inner(inner),
+      m_tracer(obs::Provider::instance().get_tracer("uri-shortener")) {
   m_metrics.counter("requests_total", "uri_shortener.requests.total")
       .duration_histogram("request_latency", "uri_shortener.request.latency");
 }
 
-void ObservableRequestHandler::handle(std::shared_ptr<zenith::router::IRequest> req,
-                                      std::shared_ptr<zenith::router::IResponse> res) {
+void ObservableRequestHandler::handle(
+    std::shared_ptr<astra::router::IRequest> req,
+    std::shared_ptr<astra::router::IResponse> res) {
   auto span = m_tracer->start_span("uri_shortener.http.request");
   span->kind(obs::SpanKind::Server);
   span->attr("http.method", req->method());
@@ -25,11 +27,9 @@ void ObservableRequestHandler::handle(std::shared_ptr<zenith::router::IRequest> 
   try {
     m_inner.handle(req, res);
     span->set_status(obs::StatusCode::Ok);
-  } catch (const std::exception& e) {
+  } catch (const std::exception &e) {
     span->set_status(obs::StatusCode::Error, e.what());
-    obs::error("Request handling failed", {
-                                              {"error", e.what()}
-    });
+    obs::error("Request handling failed", {{"error", e.what()}});
     span->end();
     throw;
   }

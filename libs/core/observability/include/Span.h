@@ -1,14 +1,13 @@
 #pragma once
 
+#include <Context.h>
 #include <chrono>
 #include <initializer_list>
 #include <memory>
 #include <string>
 #include <utility>
 
-#include <Context.h>
-
-namespace zenith::observability {
+namespace astra::observability {
 
 // Forward declarations
 class Provider;
@@ -50,26 +49,26 @@ public:
   ~Span();
 
   // Move-only (no copy)
-  Span(Span&&) noexcept;
-  Span& operator=(Span&&) noexcept;
-  Span(const Span&) = delete;
-  Span& operator=(const Span&) = delete;
+  Span(Span &&) noexcept;
+  Span &operator=(Span &&) noexcept;
+  Span(const Span &) = delete;
+  Span &operator=(const Span &) = delete;
 
   // Fluent API - set attributes (returns *this for chaining)
-  Span& attr(const std::string& key, const std::string& value);
-  Span& attr(const std::string& key, int64_t value);
-  Span& attr(const std::string& key, double value);
-  Span& attr(const std::string& key, bool value);
+  Span &attr(const std::string &key, const std::string &value);
+  Span &attr(const std::string &key, int64_t value);
+  Span &attr(const std::string &key, double value);
+  Span &attr(const std::string &key, bool value);
 
   // Set span status
-  Span& set_status(StatusCode code, const std::string& message = "");
+  Span &set_status(StatusCode code, const std::string &message = "");
 
   // Set span kind (Server, Client, Internal, Producer, Consumer)
-  Span& kind(SpanKind kind);
+  Span &kind(SpanKind kind);
 
   // Add timestamped event with optional attributes
-  Span& add_event(const std::string& name);
-  Span& add_event(const std::string& name, Attributes attrs);
+  Span &add_event(const std::string &name);
+  Span &add_event(const std::string &name, Attributes attrs);
 
   // Explicit end - call when async work completes
   // Safe to call multiple times (no-op after first call)
@@ -92,10 +91,10 @@ private:
   friend class Provider;
 
   // Private constructor (only callable by TracerImpl)
-  explicit Span(Impl* impl);
+  explicit Span(Impl *impl);
 
   std::unique_ptr<Impl> m_impl;
   bool m_ended = false;
 };
 
-} // namespace zenith::observability
+} // namespace astra::observability

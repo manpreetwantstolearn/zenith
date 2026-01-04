@@ -1,29 +1,30 @@
-#include "ProviderImpl.h"
-#include "SpanImpl.h"
 #include "TracerImpl.h"
 
+#include "ProviderImpl.h"
+#include "SpanImpl.h"
+
+#include <Log.h>
+#include <Span.h>
 #include <opentelemetry/trace/provider.h>
 #include <opentelemetry/trace/span.h>
 #include <opentelemetry/trace/tracer.h>
 
-#include <Log.h>
-#include <Span.h>
+namespace astra::observability {
 
-namespace zenith::observability {
-
-TracerImpl::TracerImpl(std::string name, ProviderImpl& provider) :
-    m_name(std::move(name)), m_provider(provider) {
+TracerImpl::TracerImpl(std::string name, ProviderImpl &provider)
+    : m_name(std::move(name)), m_provider(provider) {
 }
 
-std::shared_ptr<Span> TracerImpl::start_span(const std::string& name) {
+std::shared_ptr<Span> TracerImpl::start_span(const std::string &name) {
   auto parent_ctx = m_provider.get_active_context();
   return start_span(name, parent_ctx);
 }
 
-std::shared_ptr<Span> TracerImpl::start_span(const std::string& name, const Context& parent) {
+std::shared_ptr<Span> TracerImpl::start_span(const std::string &name,
+                                             const Context &parent) {
   auto tracer = m_provider.get_tracer();
   if (!tracer) {
-    zenith::observability::warn("Tracer not initialized - returning null span");
+    astra::observability::warn("Tracer not initialized - returning null span");
     return std::shared_ptr<Span>(new Span(nullptr));
   }
 
@@ -48,4 +49,4 @@ std::shared_ptr<Span> TracerImpl::start_span(const std::string& name, const Cont
   return span;
 }
 
-} // namespace zenith::observability
+} // namespace astra::observability

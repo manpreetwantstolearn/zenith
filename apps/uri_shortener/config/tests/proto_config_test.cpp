@@ -24,15 +24,15 @@ public:
   }
 };
 
-[[maybe_unused]] static ::testing::Environment* const protobuf_env =
+[[maybe_unused]] static ::testing::Environment *const protobuf_env =
     ::testing::AddGlobalTestEnvironment(new ProtobufEnvironment);
 
 // =============================================================================
-// LIBRARY CONFIG TESTS - zenith::http2::ServerConfig
+// LIBRARY CONFIG TESTS - astra::http2::ServerConfig
 // =============================================================================
 
 TEST(Http2ServerConfigTest, Defaults) {
-  zenith::http2::ServerConfig server;
+  astra::http2::ServerConfig server;
   EXPECT_EQ(server.address(), "");
   EXPECT_EQ(server.port(), 0);
   EXPECT_EQ(server.thread_count(), 0);
@@ -43,29 +43,29 @@ TEST(Http2ServerConfigTest, Defaults) {
 }
 
 TEST(Http2ServerConfigTest, CanSetAddress) {
-  zenith::http2::ServerConfig server;
+  astra::http2::ServerConfig server;
   server.set_address("0.0.0.0");
   EXPECT_EQ(server.address(), "0.0.0.0");
 }
 
 TEST(Http2ServerConfigTest, CanSetPort) {
-  zenith::http2::ServerConfig server;
+  astra::http2::ServerConfig server;
   server.set_port(8080);
   EXPECT_EQ(server.port(), 8080);
 }
 
 TEST(Http2ServerConfigTest, CanSetThreadCount) {
-  zenith::http2::ServerConfig server;
+  astra::http2::ServerConfig server;
   server.set_thread_count(4);
   EXPECT_EQ(server.thread_count(), 4);
 }
 
 // =============================================================================
-// LIBRARY CONFIG TESTS - zenith::http2::ClientConfig
+// LIBRARY CONFIG TESTS - astra::http2::ClientConfig
 // =============================================================================
 
 TEST(Http2ClientConfigTest, Defaults) {
-  zenith::http2::ClientConfig client;
+  astra::http2::ClientConfig client;
   EXPECT_EQ(client.connect_timeout_ms(), 0);
   EXPECT_EQ(client.request_timeout_ms(), 0);
   EXPECT_EQ(client.max_concurrent_streams(), 0);
@@ -73,7 +73,7 @@ TEST(Http2ClientConfigTest, Defaults) {
 }
 
 TEST(Http2ClientConfigTest, CanSetTimeouts) {
-  zenith::http2::ClientConfig client;
+  astra::http2::ClientConfig client;
   client.set_connect_timeout_ms(1000);
   client.set_request_timeout_ms(3000);
   EXPECT_EQ(client.connect_timeout_ms(), 1000);
@@ -81,7 +81,7 @@ TEST(Http2ClientConfigTest, CanSetTimeouts) {
 }
 
 TEST(Http2ClientConfigTest, CanSetStreamSettings) {
-  zenith::http2::ClientConfig client;
+  astra::http2::ClientConfig client;
   client.set_max_concurrent_streams(100);
   client.set_initial_window_size(65535);
   EXPECT_EQ(client.max_concurrent_streams(), 100);
@@ -332,7 +332,7 @@ TEST(ConfigTest, HasRuntimeField) {
 // =============================================================================
 
 TEST(JsonParsingTest, ParsesMinimalValidJson) {
-  const char* json = R"({"schema_version": 1})";
+  const char *json = R"({"schema_version": 1})";
 
   uri_shortener::Config config;
   auto status = google::protobuf::util::JsonStringToMessage(json, &config);
@@ -342,7 +342,7 @@ TEST(JsonParsingTest, ParsesMinimalValidJson) {
 }
 
 TEST(JsonParsingTest, ParsesServerConfig) {
-  const char* json = R"({
+  const char *json = R"({
         "bootstrap": {
             "server": {
                 "address": "0.0.0.0",
@@ -363,7 +363,7 @@ TEST(JsonParsingTest, ParsesServerConfig) {
 }
 
 TEST(JsonParsingTest, ParsesExecutionConfig) {
-  const char* json = R"({
+  const char *json = R"({
         "bootstrap": {
             "execution": {
                 "pool_executor": {"num_workers": 4},
@@ -380,7 +380,7 @@ TEST(JsonParsingTest, ParsesExecutionConfig) {
 }
 
 TEST(JsonParsingTest, ParsesObservabilityConfig) {
-  const char* json = R"({
+  const char *json = R"({
         "bootstrap": {
             "observability": {
                 "service_name": "uri-shortener",
@@ -400,7 +400,7 @@ TEST(JsonParsingTest, ParsesObservabilityConfig) {
 }
 
 TEST(JsonParsingTest, ParsesDataserviceConfig) {
-  const char* json = R"({
+  const char *json = R"({
         "bootstrap": {
             "dataservice": {
                 "client": {
@@ -419,12 +419,14 @@ TEST(JsonParsingTest, ParsesDataserviceConfig) {
   auto status = google::protobuf::util::JsonStringToMessage(json, &config);
 
   EXPECT_TRUE(status.ok()) << status.message();
-  EXPECT_EQ(config.bootstrap().dataservice().client().connect_timeout_ms(), 1000);
-  EXPECT_EQ(config.bootstrap().dataservice().resilience().retry().max_attempts(), 3);
+  EXPECT_EQ(config.bootstrap().dataservice().client().connect_timeout_ms(),
+            1000);
+  EXPECT_EQ(
+      config.bootstrap().dataservice().resilience().retry().max_attempts(), 3);
 }
 
 TEST(JsonParsingTest, ParsesRuntimeConfig) {
-  const char* json = R"({
+  const char *json = R"({
         "runtime": {
             "load_shedder": {
                 "max_concurrent_requests": 10000,
@@ -441,7 +443,7 @@ TEST(JsonParsingTest, ParsesRuntimeConfig) {
 }
 
 TEST(JsonParsingTest, IgnoresUnknownFieldsWithOption) {
-  const char* json = R"({
+  const char *json = R"({
         "schema_version": 1,
         "unknown_field": "should be ignored"
     })";
@@ -450,12 +452,13 @@ TEST(JsonParsingTest, IgnoresUnknownFieldsWithOption) {
   google::protobuf::util::JsonParseOptions options;
   options.ignore_unknown_fields = true;
 
-  auto status = google::protobuf::util::JsonStringToMessage(json, &config, options);
+  auto status =
+      google::protobuf::util::JsonStringToMessage(json, &config, options);
   EXPECT_TRUE(status.ok());
 }
 
 TEST(JsonParsingTest, FailsOnInvalidJson) {
-  const char* json = "not valid json";
+  const char *json = "not valid json";
 
   uri_shortener::Config config;
   auto status = google::protobuf::util::JsonStringToMessage(json, &config);
@@ -463,7 +466,7 @@ TEST(JsonParsingTest, FailsOnInvalidJson) {
 }
 
 TEST(JsonParsingTest, ParsesEmptyObject) {
-  const char* json = "{}";
+  const char *json = "{}";
 
   uri_shortener::Config config;
   auto status = google::protobuf::util::JsonStringToMessage(json, &config);
@@ -482,7 +485,8 @@ TEST(MessageDiffTest, IdenticalConfigsAreEqual) {
 
   uri_shortener::Config config2 = config1;
 
-  EXPECT_TRUE(google::protobuf::util::MessageDifferencer::Equals(config1, config2));
+  EXPECT_TRUE(
+      google::protobuf::util::MessageDifferencer::Equals(config1, config2));
 }
 
 TEST(MessageDiffTest, DifferentVersionsAreNotEqual) {
@@ -492,7 +496,8 @@ TEST(MessageDiffTest, DifferentVersionsAreNotEqual) {
   uri_shortener::Config config2;
   config2.set_schema_version(2);
 
-  EXPECT_FALSE(google::protobuf::util::MessageDifferencer::Equals(config1, config2));
+  EXPECT_FALSE(
+      google::protobuf::util::MessageDifferencer::Equals(config1, config2));
 }
 
 // =============================================================================
@@ -503,7 +508,9 @@ TEST(SerializationTest, BinaryRoundTrip) {
   uri_shortener::Config original;
   original.set_schema_version(1);
   original.mutable_bootstrap()->mutable_server()->set_port(8080);
-  original.mutable_runtime()->mutable_load_shedder()->set_max_concurrent_requests(10000);
+  original.mutable_runtime()
+      ->mutable_load_shedder()
+      ->set_max_concurrent_requests(10000);
 
   std::string binary;
   EXPECT_TRUE(original.SerializeToString(&binary));
@@ -511,7 +518,8 @@ TEST(SerializationTest, BinaryRoundTrip) {
   uri_shortener::Config parsed;
   EXPECT_TRUE(parsed.ParseFromString(binary));
 
-  EXPECT_TRUE(google::protobuf::util::MessageDifferencer::Equals(original, parsed));
+  EXPECT_TRUE(
+      google::protobuf::util::MessageDifferencer::Equals(original, parsed));
 }
 
 TEST(SerializationTest, JsonRoundTrip) {
@@ -525,7 +533,8 @@ TEST(SerializationTest, JsonRoundTrip) {
   uri_shortener::Config parsed;
   google::protobuf::util::JsonStringToMessage(json, &parsed);
 
-  EXPECT_TRUE(google::protobuf::util::MessageDifferencer::Equals(original, parsed));
+  EXPECT_TRUE(
+      google::protobuf::util::MessageDifferencer::Equals(original, parsed));
 }
 
 } // namespace uri_shortener::test

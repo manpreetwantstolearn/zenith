@@ -1,9 +1,9 @@
 #include "PoolExecutor.h"
 
-namespace zenith::execution {
+namespace astra::execution {
 
-PoolExecutor::PoolExecutor(size_t num_threads, IMessageHandler& handler) :
-    m_handler(handler), m_num_threads(num_threads) {
+PoolExecutor::PoolExecutor(size_t num_threads, IMessageHandler &handler)
+    : m_handler(handler), m_num_threads(num_threads) {
 }
 
 PoolExecutor::~PoolExecutor() {
@@ -32,7 +32,7 @@ void PoolExecutor::stop() {
 
   m_queue.close();
 
-  for (auto& thread : m_threads) {
+  for (auto &thread : m_threads) {
     if (thread.joinable()) {
       thread.join();
     }
@@ -50,4 +50,4 @@ void PoolExecutor::run_worker() {
   }
 }
 
-} // namespace zenith::execution
+} // namespace astra::execution

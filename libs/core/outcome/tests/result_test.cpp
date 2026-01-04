@@ -1,10 +1,9 @@
 #include "Result.h"
 
 #include <gtest/gtest.h>
-
 #include <string>
 
-using namespace zenith::outcome;
+using namespace astra::outcome;
 
 struct TestError {
   int code;

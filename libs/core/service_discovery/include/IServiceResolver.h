@@ -4,7 +4,7 @@
 #include <string>
 #include <utility>
 
-namespace zenith::service_discovery {
+namespace astra::service_discovery {
 
 /**
  * @brief Interface for service resolution
@@ -22,14 +22,15 @@ public:
    * @return Pair of (host, port)
    * @throws std::runtime_error if service not found
    */
-  virtual std::pair<std::string, uint16_t> resolve(const std::string& service_name) = 0;
+  virtual std::pair<std::string, uint16_t>
+  resolve(const std::string &service_name) = 0;
 
   /**
    * @brief Check if a service is registered
    * @param service_name The logical service name
    * @return true if service exists
    */
-  virtual bool has_service(const std::string& service_name) const = 0;
+  virtual bool has_service(const std::string &service_name) const = 0;
 };
 
-} // namespace zenith::service_discovery
+} // namespace astra::service_discovery

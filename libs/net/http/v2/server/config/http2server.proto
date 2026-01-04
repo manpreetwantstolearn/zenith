@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package zenith.http2;
+package astra.http2;
 
 // HTTP/2 server configuration
 message ServerConfig {

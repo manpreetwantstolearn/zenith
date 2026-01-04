@@ -2,11 +2,10 @@
 #include "Http2Response.h"
 #include "Http2Server.h"
 
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
-
 #include <atomic>
 #include <chrono>
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 #include <thread>
 
 using namespace testing;
@@ -15,9 +14,9 @@ using namespace std::chrono_literals;
 namespace {
 
 // Helper to create proto config for tests
-zenith::http2::ServerConfig make_config(const std::string& address, uint32_t port,
-                                        uint32_t threads = 1) {
-  zenith::http2::ServerConfig config;
+astra::http2::ServerConfig make_config(const std::string &address,
+                                       uint32_t port, uint32_t threads = 1) {
+  astra::http2::ServerConfig config;
   config.set_address(address);
   config.set_port(port);
   config.set_thread_count(threads);
@@ -31,14 +30,18 @@ zenith::http2::ServerConfig make_config(const std::string& address, uint32_t por
 // =============================================================================
 
 TEST(Http2ServerTest, Construction) {
-  auto server = std::make_unique<zenith::http2::Http2Server>(make_config("127.0.0.1", 9001));
+  auto server = std::make_unique<astra::http2::Http2Server>(
+      make_config("127.0.0.1", 9001));
   EXPECT_NE(server, nullptr);
 }
 
 TEST(Http2ServerTest, ConstructionWithDifferentPorts) {
-  auto server1 = std::make_unique<zenith::http2::Http2Server>(make_config("127.0.0.1", 9101));
-  auto server2 = std::make_unique<zenith::http2::Http2Server>(make_config("127.0.0.1", 9102));
-  auto server3 = std::make_unique<zenith::http2::Http2Server>(make_config("127.0.0.1", 9103));
+  auto server1 = std::make_unique<astra::http2::Http2Server>(
+      make_config("127.0.0.1", 9101));
+  auto server2 = std::make_unique<astra::http2::Http2Server>(
+      make_config("127.0.0.1", 9102));
+  auto server3 = std::make_unique<astra::http2::Http2Server>(
+      make_config("127.0.0.1", 9103));
 
   EXPECT_NE(server1, nullptr);
   EXPECT_NE(server2, nullptr);
@@ -46,7 +49,8 @@ TEST(Http2ServerTest, ConstructionWithDifferentPorts) {
 }
 
 TEST(Http2ServerTest, BindToAllInterfaces) {
-  auto server = std::make_unique<zenith::http2::Http2Server>(make_config("0.0.0.0", 9007));
+  auto server =
+      std::make_unique<astra::http2::Http2Server>(make_config("0.0.0.0", 9007));
   EXPECT_NE(server, nullptr);
 }
 
@@ -55,11 +59,12 @@ TEST(Http2ServerTest, BindToAllInterfaces) {
 // =============================================================================
 
 TEST(Http2ServerTest, HandlerRegistration) {
-  auto server = std::make_unique<zenith::http2::Http2Server>(make_config("127.0.0.1", 9002));
+  auto server = std::make_unique<astra::http2::Http2Server>(
+      make_config("127.0.0.1", 9002));
 
   server->handle("GET", "/test",
-                 [&](std::shared_ptr<zenith::router::IRequest>,
-                     std::shared_ptr<zenith::router::IResponse> res) {
+                 [&](std::shared_ptr<astra::router::IRequest>,
+                     std::shared_ptr<astra::router::IResponse> res) {
                    res->close();
                  });
 
@@ -67,7 +72,8 @@ TEST(Http2ServerTest, HandlerRegistration) {
 }
 
 TEST(Http2ServerTest, MultipleHandlers) {
-  auto server = std::make_unique<zenith::http2::Http2Server>(make_config("127.0.0.1", 9003));
+  auto server = std::make_unique<astra::http2::Http2Server>(
+      make_config("127.0.0.1", 9003));
 
   server->handle("GET", "/path1", [](auto, auto res) {
     res->close();
@@ -83,7 +89,8 @@ TEST(Http2ServerTest, MultipleHandlers) {
 }
 
 TEST(Http2ServerTest, SamePathDifferentMethods) {
-  auto server = std::make_unique<zenith::http2::Http2Server>(make_config("127.0.0.1", 9010));
+  auto server = std::make_unique<astra::http2::Http2Server>(
+      make_config("127.0.0.1", 9010));
 
   server->handle("GET", "/users", [](auto, auto res) {
     res->close();
@@ -102,7 +109,8 @@ TEST(Http2ServerTest, SamePathDifferentMethods) {
 }
 
 TEST(Http2ServerTest, HandlerWithPathParams) {
-  auto server = std::make_unique<zenith::http2::Http2Server>(make_config("127.0.0.1", 9011));
+  auto server = std::make_unique<astra::http2::Http2Server>(
+      make_config("127.0.0.1", 9011));
 
   server->handle("GET", "/users/:userId", [](auto, auto res) {
     res->close();
@@ -110,15 +118,17 @@ TEST(Http2ServerTest, HandlerWithPathParams) {
   server->handle("GET", "/users/:userId/posts/:postId", [](auto, auto res) {
     res->close();
   });
-  server->handle("GET", "/org/:orgId/team/:teamId/member/:memberId", [](auto, auto res) {
-    res->close();
-  });
+  server->handle("GET", "/org/:orgId/team/:teamId/member/:memberId",
+                 [](auto, auto res) {
+                   res->close();
+                 });
 
   SUCCEED();
 }
 
 TEST(Http2ServerTest, ManyHandlersStress) {
-  auto server = std::make_unique<zenith::http2::Http2Server>(make_config("127.0.0.1", 9012));
+  auto server = std::make_unique<astra::http2::Http2Server>(
+      make_config("127.0.0.1", 9012));
 
   for (int i = 0; i < 100; ++i) {
     server->handle("GET", "/path" + std::to_string(i), [](auto, auto res) {
@@ -135,15 +145,19 @@ TEST(Http2ServerTest, ManyHandlersStress) {
 
 TEST(Http2ServerTest, ThreadConfiguration) {
   EXPECT_NO_THROW({
-    auto server1 = std::make_unique<zenith::http2::Http2Server>(make_config("127.0.0.1", 9004, 1));
-    auto server2 = std::make_unique<zenith::http2::Http2Server>(make_config("127.0.0.1", 9005, 2));
-    auto server4 = std::make_unique<zenith::http2::Http2Server>(make_config("127.0.0.1", 9006, 4));
+    auto server1 = std::make_unique<astra::http2::Http2Server>(
+        make_config("127.0.0.1", 9004, 1));
+    auto server2 = std::make_unique<astra::http2::Http2Server>(
+        make_config("127.0.0.1", 9005, 2));
+    auto server4 = std::make_unique<astra::http2::Http2Server>(
+        make_config("127.0.0.1", 9006, 4));
   });
 }
 
 TEST(Http2ServerTest, ManyThreadsConfiguration) {
   EXPECT_NO_THROW({
-    auto server = std::make_unique<zenith::http2::Http2Server>(make_config("127.0.0.1", 9013, 16));
+    auto server = std::make_unique<astra::http2::Http2Server>(
+        make_config("127.0.0.1", 9013, 16));
   });
 }
 
@@ -153,7 +167,8 @@ TEST(Http2ServerTest, ManyThreadsConfiguration) {
 
 TEST(Http2ServerTest, StressConstruction) {
   for (int i = 0; i < 100; ++i) {
-    auto server = std::make_unique<zenith::http2::Http2Server>(make_config("127.0.0.1", 9008));
+    auto server = std::make_unique<astra::http2::Http2Server>(
+        make_config("127.0.0.1", 9008));
     EXPECT_NE(server, nullptr);
   }
 }
@@ -165,8 +180,8 @@ TEST(Http2ServerTest, ConcurrentConstruction) {
   for (int i = 0; i < 10; ++i) {
     threads.emplace_back([i, &success_count]() {
       try {
-        auto server =
-            std::make_unique<zenith::http2::Http2Server>(make_config("127.0.0.1", 9100 + i));
+        auto server = std::make_unique<astra::http2::Http2Server>(
+            make_config("127.0.0.1", 9100 + i));
         if (server) {
           success_count++;
         }
@@ -176,7 +191,7 @@ TEST(Http2ServerTest, ConcurrentConstruction) {
     });
   }
 
-  for (auto& t : threads) {
+  for (auto &t : threads) {
     t.join();
   }
 
@@ -191,7 +206,8 @@ TEST(Http2ServerTest, ConcurrentConstruction) {
 class Http2ServerRuntimeTest : public Test {
 protected:
   void SetUp() override {
-    server_ = std::make_unique<zenith::http2::Http2Server>(make_config("127.0.0.1", 9009));
+    server_ = std::make_unique<astra::http2::Http2Server>(
+        make_config("127.0.0.1", 9009));
   }
 
   void TearDown() override {
@@ -203,7 +219,7 @@ protected:
     }
   }
 
-  std::unique_ptr<zenith::http2::Http2Server> server_;
+  std::unique_ptr<astra::http2::Http2Server> server_;
   std::thread server_thread_;
 };
 
@@ -243,13 +259,13 @@ TEST_F(Http2ServerRuntimeTest, DoubleStopIsIdempotent) {
 TEST_F(Http2ServerRuntimeTest, StopBeforeStartReturnsError) {
   auto result = server_->stop();
   EXPECT_TRUE(result.is_err());
-  EXPECT_EQ(result.error(), zenith::http2::Http2ServerError::NotStarted);
+  EXPECT_EQ(result.error(), astra::http2::Http2ServerError::NotStarted);
 }
 
 TEST_F(Http2ServerRuntimeTest, JoinBeforeStartReturnsError) {
   auto result = server_->join();
   EXPECT_TRUE(result.is_err());
-  EXPECT_EQ(result.error(), zenith::http2::Http2ServerError::NotStarted);
+  EXPECT_EQ(result.error(), astra::http2::Http2ServerError::NotStarted);
 }
 
 TEST_F(Http2ServerRuntimeTest, DoubleStartReturnsError) {
@@ -258,7 +274,8 @@ TEST_F(Http2ServerRuntimeTest, DoubleStartReturnsError) {
 
   auto start_result2 = server_->start();
   EXPECT_TRUE(start_result2.is_err());
-  EXPECT_EQ(start_result2.error(), zenith::http2::Http2ServerError::AlreadyRunning);
+  EXPECT_EQ(start_result2.error(),
+            astra::http2::Http2ServerError::AlreadyRunning);
 
   server_->stop();
 }

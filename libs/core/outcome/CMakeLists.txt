@@ -5,7 +5,7 @@ target_compile_features(outcome INTERFACE cxx_std_17)
 
 # Tests
 if(BUILD_TESTING)
-    zenith_add_test(
+    astra_add_test(
         TARGET outcome_test
         SOURCES tests/result_test.cpp
         INCLUDE_DIRS include

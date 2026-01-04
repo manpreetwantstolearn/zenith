@@ -8,15 +8,15 @@
 #include <thread>
 #include <vector>
 
-namespace zenith::execution {
+namespace astra::execution {
 
 class PoolExecutor : public IExecutor {
 public:
-  PoolExecutor(size_t num_threads, IMessageHandler& handler);
+  PoolExecutor(size_t num_threads, IMessageHandler &handler);
   ~PoolExecutor() override;
 
-  PoolExecutor(const PoolExecutor&) = delete;
-  PoolExecutor& operator=(const PoolExecutor&) = delete;
+  PoolExecutor(const PoolExecutor &) = delete;
+  PoolExecutor &operator=(const PoolExecutor &) = delete;
 
   void start();
   void stop();
@@ -32,9 +32,9 @@ private:
 
   MessageQueue m_queue;
   std::vector<std::thread> m_threads;
-  IMessageHandler& m_handler;
+  IMessageHandler &m_handler;
   size_t m_num_threads;
   std::atomic<bool> m_running{false};
 };
 
-} // namespace zenith::execution
+} // namespace astra::execution

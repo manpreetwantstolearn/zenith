@@ -13,7 +13,8 @@ public:
   /// Execute a data service request asynchronously
   /// @param request The request to execute
   /// @param callback Called when operation completes (success or failure)
-  virtual void execute(DataServiceRequest request, DataServiceCallback callback) = 0;
+  virtual void execute(DataServiceRequest request,
+                       DataServiceCallback callback) = 0;
 };
 
 } // namespace uri_shortener::service

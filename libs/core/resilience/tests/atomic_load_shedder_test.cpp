@@ -1,15 +1,14 @@
 #include "resilience/impl/AtomicLoadShedder.h"
 #include "resilience/policy/LoadShedderPolicy.h"
 
-#include <gtest/gtest.h>
-
 #include <atomic>
 #include <chrono>
+#include <gtest/gtest.h>
 #include <random>
 #include <thread>
 #include <vector>
 
-using namespace zenith::resilience;
+using namespace astra::resilience;
 
 class AtomicLoadShedderTest : public ::testing::Test {
 protected:
@@ -108,7 +107,7 @@ TEST_F(AtomicLoadShedderTest, ThreadSafetyConcurrentAcquireRelease) {
     threads.emplace_back(worker);
   }
 
-  for (auto& t : threads) {
+  for (auto &t : threads) {
     t.join();
   }
 
@@ -165,7 +164,7 @@ TEST_F(AtomicLoadShedderTest, HeavyStressTest) {
     threads.emplace_back(worker);
   }
 
-  for (auto& t : threads) {
+  for (auto &t : threads) {
     t.join();
   }
 
@@ -219,7 +218,7 @@ TEST_F(AtomicLoadShedderTest, PolicyUpdateDuringHighLoad) {
   std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
   stop = true;
-  for (auto& t : threads) {
+  for (auto &t : threads) {
     t.join();
   }
 
@@ -268,8 +267,8 @@ TEST_F(AtomicLoadShedderTest, ReduceMaxBelowCurrentInFlight) {
 }
 
 // NOTE: GuardOutlivesLoadShedder test was removed.
-// It intentionally triggered use-after-free (UB) which sanitizers correctly detect.
-// In production: Ensure guards never outlive their LoadShedder!
+// It intentionally triggered use-after-free (UB) which sanitizers correctly
+// detect. In production: Ensure guards never outlive their LoadShedder!
 
 TEST_F(AtomicLoadShedderTest, RapidAcquireReleaseCycles) {
   // Test rapid acquire/release doesn't cause issues

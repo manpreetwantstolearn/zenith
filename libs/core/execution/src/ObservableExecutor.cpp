@@ -1,9 +1,10 @@
 #include "ObservableExecutor.h"
 
-namespace zenith::execution {
+namespace astra::execution {
 
-ObservableExecutor::ObservableExecutor(IExecutor& inner) : m_inner(inner) {
-  m_metrics.counter("submitted", "executor.submitted").gauge("queue_depth", "executor.queue_depth");
+ObservableExecutor::ObservableExecutor(IExecutor &inner) : m_inner(inner) {
+  m_metrics.counter("submitted", "executor.submitted")
+      .gauge("queue_depth", "executor.queue_depth");
 }
 
 void ObservableExecutor::submit(Message msg) {
@@ -12,4 +13,4 @@ void ObservableExecutor::submit(Message msg) {
   m_inner.submit(std::move(msg));
 }
 
-} // namespace zenith::execution
+} // namespace astra::execution

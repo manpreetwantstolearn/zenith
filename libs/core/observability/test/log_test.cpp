@@ -1,9 +1,8 @@
-#include <gtest/gtest.h>
-
 #include <Log.h>
 #include <Provider.h>
 #include <Span.h>
 #include <Tracer.h>
+#include <gtest/gtest.h>
 
 class LogTest : public ::testing::Test {
 protected:
@@ -32,24 +31,16 @@ TEST_F(LogTest, BasicLogging) {
 }
 
 TEST_F(LogTest, LogWithAttributes) {
-  EXPECT_NO_THROW(obs::info("test", {
-                                        {"key1", "value1"},
-                                        {"key2", "value2"}
-  }));
+  EXPECT_NO_THROW(obs::info("test", {{"key1", "value1"}, {"key2", "value2"}}));
 
-  EXPECT_NO_THROW(
-      obs::error("error test", {
-                                   {"error.type",    "test"      },
-                                   {"error.message", "test error"}
-  }));
+  EXPECT_NO_THROW(obs::error(
+      "error test", {{"error.type", "test"}, {"error.message", "test error"}}));
 }
 
 TEST_F(LogTest, ScopedAttributes) {
   {
-    obs::ScopedLogAttributes scoped({
-        {"request.id", "req-123" },
-        {"session.id", "sess-456"}
-    });
+    obs::ScopedLogAttributes scoped(
+        {{"request.id", "req-123"}, {"session.id", "sess-456"}});
 
     // Logs in this scope should inherit scoped attributes
     EXPECT_NO_THROW(obs::info("message with scoped attrs"));
@@ -75,14 +66,10 @@ TEST_F(LogTest, AutomaticTraceCorrelation) {
 
 TEST_F(LogTest, NestedScopedAttributes) {
   {
-    obs::ScopedLogAttributes scope1({
-        {"key1", "value1"}
-    });
+    obs::ScopedLogAttributes scope1({{"key1", "value1"}});
 
     {
-      obs::ScopedLogAttributes scope2({
-          {"key2", "value2"}
-      });
+      obs::ScopedLogAttributes scope2({{"key2", "value2"}});
 
       // Should have both scope1 and scope2 attributes
       EXPECT_NO_THROW(obs::info("nested scoped log"));
@@ -98,9 +85,7 @@ TEST_F(LogTest, LogWithinSpanAndScope) {
     auto span = tracer->start_span("request");
     span->attr("request.id", "req-123");
 
-    obs::ScopedLogAttributes scoped({
-        {"user.id", "user-456"}
-    });
+    obs::ScopedLogAttributes scoped({{"user.id", "user-456"}});
 
     // Log should have:
     // - trace_id, span_id (from span)

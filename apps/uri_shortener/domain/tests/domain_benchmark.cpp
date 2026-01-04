@@ -4,7 +4,6 @@
 #include "ShortLink.h"
 
 #include <benchmark/benchmark.h>
-
 #include <string>
 
 using namespace uri_shortener::domain;
@@ -13,7 +12,7 @@ using namespace uri_shortener::domain;
 // ShortCode Benchmarks
 // =============================================================================
 
-static void BM_ShortCodeCreate(benchmark::State& state) {
+static void BM_ShortCodeCreate(benchmark::State &state) {
   int i = 0;
   for (auto _ : state) {
     auto code = ShortCode::create("abc" + std::to_string(i++ % 1000));
@@ -22,7 +21,7 @@ static void BM_ShortCodeCreate(benchmark::State& state) {
 }
 BENCHMARK(BM_ShortCodeCreate);
 
-static void BM_ShortCodeValidation(benchmark::State& state) {
+static void BM_ShortCodeValidation(benchmark::State &state) {
   auto code = ShortCode::create("validcode123");
 
   for (auto _ : state) {
@@ -36,15 +35,16 @@ BENCHMARK(BM_ShortCodeValidation);
 // OriginalUrl Benchmarks
 // =============================================================================
 
-static void BM_OriginalUrlCreate(benchmark::State& state) {
+static void BM_OriginalUrlCreate(benchmark::State &state) {
   for (auto _ : state) {
-    auto url = OriginalUrl::create("https://example.com/very/long/path/to/some/resource");
+    auto url = OriginalUrl::create(
+        "https://example.com/very/long/path/to/some/resource");
     benchmark::DoNotOptimize(url);
   }
 }
 BENCHMARK(BM_OriginalUrlCreate);
 
-static void BM_OriginalUrlValidation(benchmark::State& state) {
+static void BM_OriginalUrlValidation(benchmark::State &state) {
   // Invalid URLs
   std::vector<std::string> invalid_urls = {
       "not-a-url",
@@ -66,7 +66,7 @@ BENCHMARK(BM_OriginalUrlValidation);
 // ShortLink Benchmarks
 // =============================================================================
 
-static void BM_ShortLinkCreate(benchmark::State& state) {
+static void BM_ShortLinkCreate(benchmark::State &state) {
   auto code = ShortCode::create("testcode").value();
   auto url = OriginalUrl::create("https://example.com").value();
 
@@ -77,7 +77,7 @@ static void BM_ShortLinkCreate(benchmark::State& state) {
 }
 BENCHMARK(BM_ShortLinkCreate);
 
-static void BM_ShortLinkWithExpiry(benchmark::State& state) {
+static void BM_ShortLinkWithExpiry(benchmark::State &state) {
   auto code = ShortCode::create("testcode").value();
   auto url = OriginalUrl::create("https://example.com").value();
   auto expiry = ExpirationPolicy::after(std::chrono::hours(24));
@@ -89,7 +89,7 @@ static void BM_ShortLinkWithExpiry(benchmark::State& state) {
 }
 BENCHMARK(BM_ShortLinkWithExpiry);
 
-static void BM_ShortLinkIsExpired(benchmark::State& state) {
+static void BM_ShortLinkIsExpired(benchmark::State &state) {
   auto code = ShortCode::create("testcode").value();
   auto url = OriginalUrl::create("https://example.com").value();
   auto expiry = ExpirationPolicy::after(std::chrono::hours(24));

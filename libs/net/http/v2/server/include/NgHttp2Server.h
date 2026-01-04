@@ -3,25 +3,24 @@
 #include "Http2Server.h"
 #include "Http2ServerError.h"
 
-#include <nghttp2/asio_http2_server.h>
-
+#include <Result.h>
 #include <atomic>
+#include <nghttp2/asio_http2_server.h>
 #include <string>
 
-#include <Result.h>
-
-namespace zenith::http2 {
+namespace astra::http2 {
 
 class NgHttp2Server {
 public:
-  NgHttp2Server(const ServerConfig& config);
+  NgHttp2Server(const ServerConfig &config);
   ~NgHttp2Server();
 
-  void handle(const std::string& method, const std::string& path, Http2Server::Handler handler);
+  void handle(const std::string &method, const std::string &path,
+              Http2Server::Handler handler);
 
-  zenith::outcome::Result<void, Http2ServerError> start();
-  zenith::outcome::Result<void, Http2ServerError> join();
-  zenith::outcome::Result<void, Http2ServerError> stop();
+  astra::outcome::Result<void, Http2ServerError> start();
+  astra::outcome::Result<void, Http2ServerError> join();
+  astra::outcome::Result<void, Http2ServerError> stop();
 
 private:
   ServerConfig m_config;
@@ -29,4 +28,4 @@ private:
   nghttp2::asio_http2::server::http2 m_server;
 };
 
-} // namespace zenith::http2
+} // namespace astra::http2

@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 
-using namespace zenith::json;
+using namespace astra::json;
 
 void test_basic_json() {
   JsonWriter json;
@@ -80,9 +80,11 @@ void test_logger_use_case() {
 
   std::string result = json.get_string();
 
-  assert(result.find("\"timestamp\":\"2025-11-23T18:47:00.123456\"") != std::string::npos);
+  assert(result.find("\"timestamp\":\"2025-11-23T18:47:00.123456\"") !=
+         std::string::npos);
   assert(result.find("\"level\":\"INFO\"") != std::string::npos);
-  assert(result.find("\"message\":\"Application started\"") != std::string::npos);
+  assert(result.find("\"message\":\"Application started\"") !=
+         std::string::npos);
   assert(result.find("\"source\":{") != std::string::npos);
   assert(result.find("\"file\":\"main.cpp\"") != std::string::npos);
   assert(result.find("\"line\":42") != std::string::npos);
@@ -138,7 +140,8 @@ void test_deep_nesting() {
 
   std::string result = json.get_string();
 
-  assert(result.find("\"level1\":{\"level2\":{\"level3\":{\"value\":\"deep\"}}}") !=
+  assert(result.find(
+             "\"level1\":{\"level2\":{\"level3\":{\"value\":\"deep\"}}}") !=
          std::string::npos);
 
   std::cout << "✓ Deep nesting test passed\n";
@@ -158,7 +161,7 @@ int main() {
 
     std::cout << "\n✅ All tests passed!\n";
     return 0;
-  } catch (const std::exception& e) {
+  } catch (const std::exception &e) {
     std::cerr << "\n❌ Test failed with exception: " << e.what() << "\n";
     return 1;
   }

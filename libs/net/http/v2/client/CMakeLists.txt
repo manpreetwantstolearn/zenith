@@ -33,7 +33,7 @@ target_link_libraries(http2client
         protobuf::libprotobuf
         outcome
     PRIVATE
-        zenith_sanitizers
+        astra_sanitizers
         nghttp2_asio
         OpenSSL::SSL
         OpenSSL::Crypto

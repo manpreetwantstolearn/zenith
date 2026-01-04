@@ -1,13 +1,12 @@
 #include "PoolExecutor.h"
 
-#include <gtest/gtest.h>
-
 #include <atomic>
+#include <gtest/gtest.h>
 #include <mutex>
 #include <set>
 #include <thread>
 
-namespace zenith::execution {
+namespace astra::execution {
 
 using namespace std::chrono_literals;
 
@@ -17,7 +16,7 @@ using namespace std::chrono_literals;
 
 class TestHandler : public IMessageHandler {
 public:
-  void handle(Message& msg) override {
+  void handle(Message &msg) override {
     std::lock_guard<std::mutex> lock(m_mutex);
     m_processed_count++;
     m_thread_ids.insert(std::this_thread::get_id());
@@ -190,7 +189,7 @@ TEST_F(PoolExecutorTest, WorkStealingUnderContention) {
 TEST_F(PoolExecutorTest, PropagatesTraceContext) {
   struct ContextCapture : public IMessageHandler {
     obs::Context received_ctx;
-    void handle(Message& msg) override {
+    void handle(Message &msg) override {
       received_ctx = msg.trace_ctx;
     }
   } ctx_handler;
@@ -212,7 +211,7 @@ TEST_F(PoolExecutorTest, PropagatesTraceContext) {
 TEST_F(PoolExecutorTest, PayloadPreserved) {
   struct PayloadCapture : public IMessageHandler {
     std::string received;
-    void handle(Message& msg) override {
+    void handle(Message &msg) override {
       received = std::any_cast<std::string>(msg.payload);
     }
   } payload_handler;
@@ -220,7 +219,9 @@ TEST_F(PoolExecutorTest, PayloadPreserved) {
   PoolExecutor executor(2, payload_handler);
   executor.start();
 
-  Message msg{.affinity_key = 0, .trace_ctx = {}, .payload = std::string("test payload")};
+  Message msg{.affinity_key = 0,
+              .trace_ctx = {},
+              .payload = std::string("test payload")};
   executor.submit(std::move(msg));
 
   std::this_thread::sleep_for(50ms);
@@ -282,7 +283,7 @@ TEST_F(PoolExecutorTest, ConcurrentSubmitters) {
     });
   }
 
-  for (auto& t : threads) {
+  for (auto &t : threads) {
     t.join();
   }
 
@@ -292,4 +293,4 @@ TEST_F(PoolExecutorTest, ConcurrentSubmitters) {
   EXPECT_EQ(handler.processed_count(), submitters * messages_per_submitter);
 }
 
-} // namespace zenith::execution
+} // namespace astra::execution

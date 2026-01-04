@@ -18,18 +18,18 @@ target_include_directories(http1.1server
 
 target_link_libraries(http1.1server
     PRIVATE
-        zenith_sanitizers
+        astra_sanitizers
         Boost::system
         Boost::thread
     PUBLIC
-        zenith_router
+        astra_router
 )
 
 target_compile_features(http1.1server PUBLIC cxx_std_17)
 
 enable_testing()
 
-zenith_add_test(
+astra_add_test(
     TARGET http1_server_integration_test
     SOURCES tests/http1_server_integration_test.cpp
     LIBRARIES http1.1server

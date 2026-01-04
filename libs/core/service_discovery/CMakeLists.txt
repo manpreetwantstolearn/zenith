@@ -12,7 +12,7 @@ target_include_directories(service_discovery
 
 target_link_libraries(service_discovery
     PRIVATE
-        zenith_sanitizers
+        astra_sanitizers
 )
 
 target_compile_features(service_discovery PUBLIC cxx_std_17)
@@ -21,7 +21,7 @@ target_compile_features(service_discovery PUBLIC cxx_std_17)
 if(BUILD_TESTING)
     include(GoogleTest)
     
-    zenith_add_test(
+    astra_add_test(
         TARGET test_service_discovery
         SOURCES tests/service_discovery_test.cpp
         LIBRARIES service_discovery

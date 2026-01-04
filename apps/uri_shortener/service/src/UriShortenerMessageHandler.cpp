@@ -1,49 +1,52 @@
 #include "UriShortenerMessageHandler.h"
 
-#include <any>
-#include <functional>
-#include <utility>
-
 #include <IRequest.h>
 #include <IResponse.h>
 #include <Log.h>
 #include <Message.h>
 #include <Span.h>
+#include <any>
+#include <functional>
+#include <utility>
 
 namespace uri_shortener {
 
 // Type alias for the payload pair
-using RequestResponsePair = std::pair<std::shared_ptr<zenith::router::IRequest>,
-                                      std::shared_ptr<zenith::router::IResponse>>;
+using RequestResponsePair =
+    std::pair<std::shared_ptr<astra::router::IRequest>,
+              std::shared_ptr<astra::router::IResponse>>;
 
 UriShortenerMessageHandler::UriShortenerMessageHandler(
-    std::shared_ptr<service::IDataServiceAdapter> adapter) : m_adapter(std::move(adapter)) {
+    std::shared_ptr<service::IDataServiceAdapter> adapter)
+    : m_adapter(std::move(adapter)) {
 }
 
-void UriShortenerMessageHandler::setResponseExecutor(zenith::execution::IExecutor& executor) {
+void UriShortenerMessageHandler::setResponseExecutor(
+    astra::execution::IExecutor &executor) {
   m_response_executor = &executor;
 }
 
-void UriShortenerMessageHandler::handle(zenith::execution::Message& msg) {
+void UriShortenerMessageHandler::handle(astra::execution::Message &msg) {
   try {
     // Try pair payload first (new format - HTTP request)
-    auto& pair = std::any_cast<RequestResponsePair&>(msg.payload);
-    processHttpRequest(pair.first, pair.second, msg.affinity_key, msg.trace_ctx);
-  } catch (const std::bad_any_cast&) {
+    auto &pair = std::any_cast<RequestResponsePair &>(msg.payload);
+    processHttpRequest(pair.first, pair.second, msg.affinity_key,
+                       msg.trace_ctx);
+  } catch (const std::bad_any_cast &) {
     try {
       // Try DataServiceResponse (callback from adapter)
-      auto& resp = std::any_cast<service::DataServiceResponse&>(msg.payload);
+      auto &resp = std::any_cast<service::DataServiceResponse &>(msg.payload);
       processDataServiceResponse(resp);
-    } catch (const std::bad_any_cast&) {
+    } catch (const std::bad_any_cast &) {
       obs::error("Unknown message payload type");
     }
   }
 }
 
-void UriShortenerMessageHandler::processHttpRequest(std::shared_ptr<zenith::router::IRequest> req,
-                                                    std::shared_ptr<zenith::router::IResponse> res,
-                                                    uint64_t affinity_key,
-                                                    obs::Context& trace_ctx) {
+void UriShortenerMessageHandler::processHttpRequest(
+    std::shared_ptr<astra::router::IRequest> req,
+    std::shared_ptr<astra::router::IResponse> res, uint64_t affinity_key,
+    obs::Context &trace_ctx) {
   std::string method(req->method());
   std::string path(req->path());
   std::string body(req->body());
@@ -110,28 +113,30 @@ void UriShortenerMessageHandler::processHttpRequest(std::shared_ptr<zenith::rout
   auto response_executor = m_response_executor;
 
   // Call adapter with callback that submits response to executor
-  m_adapter->execute(ds_req, [response_executor, captured_affinity_key,
-                              captured_trace_ctx](service::DataServiceResponse resp) {
-    // Submit response back to executor for processing
-    zenith::execution::Message response_msg;
-    response_msg.affinity_key = captured_affinity_key;
-    response_msg.trace_ctx = captured_trace_ctx;
-    response_msg.payload = std::move(resp);
+  m_adapter->execute(ds_req,
+                     [response_executor, captured_affinity_key,
+                      captured_trace_ctx](service::DataServiceResponse resp) {
+                       // Submit response back to executor for processing
+                       astra::execution::Message response_msg;
+                       response_msg.affinity_key = captured_affinity_key;
+                       response_msg.trace_ctx = captured_trace_ctx;
+                       response_msg.payload = std::move(resp);
 
-    if (response_executor) {
-      response_executor->submit(std::move(response_msg));
-    }
-  });
+                       if (response_executor) {
+                         response_executor->submit(std::move(response_msg));
+                       }
+                     });
 }
 
-void UriShortenerMessageHandler::processDataServiceResponse(service::DataServiceResponse& resp) {
+void UriShortenerMessageHandler::processDataServiceResponse(
+    service::DataServiceResponse &resp) {
   // Check if client is still connected
   if (!resp.response || !resp.response->is_alive()) {
     obs::warn("Client disconnected before response could be sent");
     return;
   }
 
-  auto& response = *resp.response;
+  auto &response = *resp.response;
 
   if (resp.success) {
     response.set_status(resp.http_status > 0 ? resp.http_status : 200);
@@ -178,8 +183,9 @@ void UriShortenerMessageHandler::processDataServiceResponse(service::DataService
   response.close();
 }
 
-std::string UriShortenerMessageHandler::determine_operation(const std::string& method,
-                                                            const std::string& path) {
+std::string
+UriShortenerMessageHandler::determine_operation(const std::string &method,
+                                                const std::string &path) {
   if (method == "POST" && path == "/shorten") {
     return "shorten";
   } else if (method == "GET" && path.size() > 1 && path[0] == '/') {
@@ -191,7 +197,7 @@ std::string UriShortenerMessageHandler::determine_operation(const std::string& m
 }
 
 service::DataServiceOperation
-UriShortenerMessageHandler::to_data_service_op(const std::string& operation) {
+UriShortenerMessageHandler::to_data_service_op(const std::string &operation) {
   if (operation == "shorten") {
     return service::DataServiceOperation::SAVE;
   } else if (operation == "resolve") {

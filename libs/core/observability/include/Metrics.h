@@ -5,7 +5,7 @@
 #include <string>
 #include <utility>
 
-namespace zenith::observability {
+namespace astra::observability {
 
 // Attributes for metrics (OpenTelemetry labels/tags)
 using Attributes = std::initializer_list<std::pair<std::string, std::string>>;
@@ -29,7 +29,7 @@ public:
   void inc(uint64_t delta, Attributes attrs) const noexcept;
 
 private:
-  friend Counter register_counter(const std::string&, Unit);
+  friend Counter register_counter(const std::string &, Unit);
   friend class MetricsRegistry;
   explicit Counter(uint32_t id) : m_id(id) {
   }
@@ -45,7 +45,7 @@ public:
   void record(double value, Attributes attrs) const noexcept;
 
 private:
-  friend Histogram register_histogram(const std::string&, Unit);
+  friend Histogram register_histogram(const std::string &, Unit);
   friend class MetricsRegistry;
   explicit Histogram(uint32_t id) : m_id(id) {
   }
@@ -67,13 +67,14 @@ public:
 
   // Record with attributes (Fix #1)
   template <typename Rep, typename Period>
-  void record(std::chrono::duration<Rep, Period> duration, Attributes attrs) const noexcept {
+  void record(std::chrono::duration<Rep, Period> duration,
+              Attributes attrs) const noexcept {
     auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(duration);
     record_ms(static_cast<double>(ms.count()), attrs);
   }
 
 private:
-  friend DurationHistogram register_duration_histogram(const std::string&);
+  friend DurationHistogram register_duration_histogram(const std::string &);
   friend class MetricsRegistry;
   explicit DurationHistogram(uint32_t id) : m_id(id) {
   }
@@ -93,7 +94,7 @@ public:
   void add(int64_t delta, Attributes attrs) const noexcept;
 
 private:
-  friend Gauge register_gauge(const std::string&, Unit);
+  friend Gauge register_gauge(const std::string &, Unit);
   friend class MetricsRegistry;
   explicit Gauge(uint32_t id) : m_id(id) {
   }
@@ -102,17 +103,19 @@ private:
 };
 
 // Registration functions (store returned handle)
-Counter register_counter(const std::string& name, Unit unit = Unit::Dimensionless);
-Histogram register_histogram(const std::string& name, Unit unit = Unit::Milliseconds);
-DurationHistogram register_duration_histogram(const std::string& name);
-Gauge register_gauge(const std::string& name, Unit unit = Unit::Dimensionless);
+Counter register_counter(const std::string &name,
+                         Unit unit = Unit::Dimensionless);
+Histogram register_histogram(const std::string &name,
+                             Unit unit = Unit::Milliseconds);
+DurationHistogram register_duration_histogram(const std::string &name);
+Gauge register_gauge(const std::string &name, Unit unit = Unit::Dimensionless);
 
 // Ad-hoc functions (auto-registration, cached per thread)
-Counter counter(const std::string& name, Unit unit = Unit::Dimensionless);
-Histogram histogram(const std::string& name, Unit unit = Unit::Milliseconds);
-Gauge gauge(const std::string& name, Unit unit = Unit::Dimensionless);
+Counter counter(const std::string &name, Unit unit = Unit::Dimensionless);
+Histogram histogram(const std::string &name, Unit unit = Unit::Milliseconds);
+Gauge gauge(const std::string &name, Unit unit = Unit::Dimensionless);
 
-} // namespace zenith::observability
+} // namespace astra::observability
 
 // Backward compatibility alias
-namespace obs = zenith::observability;
+namespace obs = astra::observability;

@@ -1,9 +1,9 @@
 #include "resilience/impl/AtomicLoadShedder.h"
 
-namespace zenith::resilience {
+namespace astra::resilience {
 
-AtomicLoadShedder::AtomicLoadShedder(LoadShedderPolicy policy) :
-    m_max_concurrent(policy.max_concurrent), m_name(std::move(policy.name)) {
+AtomicLoadShedder::AtomicLoadShedder(LoadShedderPolicy policy)
+    : m_max_concurrent(policy.max_concurrent), m_name(std::move(policy.name)) {
 }
 
 std::optional<LoadShedderGuard> AtomicLoadShedder::try_acquire() {
@@ -16,7 +16,8 @@ std::optional<LoadShedderGuard> AtomicLoadShedder::try_acquire() {
       return std::nullopt;
     }
 
-    if (m_in_flight.compare_exchange_weak(current, current + 1, std::memory_order_acquire,
+    if (m_in_flight.compare_exchange_weak(current, current + 1,
+                                          std::memory_order_acquire,
                                           std::memory_order_relaxed)) {
       return LoadShedderGuard::create([this]() {
         release();
@@ -29,7 +30,7 @@ void AtomicLoadShedder::release() {
   m_in_flight.fetch_sub(1, std::memory_order_release);
 }
 
-void AtomicLoadShedder::update_policy(const LoadShedderPolicy& policy) {
+void AtomicLoadShedder::update_policy(const LoadShedderPolicy &policy) {
   m_max_concurrent.store(policy.max_concurrent, std::memory_order_relaxed);
 }
 
@@ -41,4 +42,4 @@ size_t AtomicLoadShedder::max_concurrent() const {
   return m_max_concurrent.load(std::memory_order_relaxed);
 }
 
-} // namespace zenith::resilience
+} // namespace astra::resilience

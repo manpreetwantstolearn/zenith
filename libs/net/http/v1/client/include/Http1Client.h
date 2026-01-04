@@ -1,11 +1,10 @@
 #pragma once
 
 #include <boost/beast/http.hpp>
-
 #include <map>
 #include <string>
 
-namespace zenith::http1 {
+namespace astra::http1 {
 
 struct Response {
   int status_code;
@@ -18,15 +17,17 @@ public:
   Client();
   ~Client();
 
-  [[nodiscard]] Response get(const std::string& host, const std::string& port,
-                             const std::string& target);
-  [[nodiscard]] Response post(const std::string& host, const std::string& port,
-                              const std::string& target, const std::string& body);
+  [[nodiscard]] Response get(const std::string &host, const std::string &port,
+                             const std::string &target);
+  [[nodiscard]] Response post(const std::string &host, const std::string &port,
+                              const std::string &target,
+                              const std::string &body);
 
 private:
-  Response perform_request(const std::string& host, const std::string& port,
-                           const std::string& target, boost::beast::http::verb method,
-                           const std::string& body);
+  Response perform_request(const std::string &host, const std::string &port,
+                           const std::string &target,
+                           boost::beast::http::verb method,
+                           const std::string &body);
 };
 
-} // namespace zenith::http1
+} // namespace astra::http1

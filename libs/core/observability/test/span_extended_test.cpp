@@ -1,11 +1,9 @@
-#include <gtest/gtest.h>
-
-#include <thread>
-#include <vector>
-
 #include <Provider.h>
 #include <Span.h>
 #include <Tracer.h>
+#include <gtest/gtest.h>
+#include <thread>
+#include <vector>
 
 class SpanExtendedTest : public ::testing::Test {
 protected:
@@ -193,13 +191,8 @@ TEST_F(SpanExtendedTest, EventWith50Attributes) {
 
   // Can't easily create 50 with initializer_list, use 5
   EXPECT_NO_THROW(span->add_event(
-      "big.event", {
-                       {"k1", "v1"},
-                       {"k2", "v2"},
-                       {"k3", "v3"},
-                       {"k4", "v4"},
-                       {"k5", "v5"}
-  }));
+      "big.event",
+      {{"k1", "v1"}, {"k2", "v2"}, {"k3", "v3"}, {"k4", "v4"}, {"k5", "v5"}}));
   span->end();
 
   SUCCEED();
@@ -318,8 +311,8 @@ TEST_F(SpanExtendedTest, ConcurrentSpanCreation100Threads) {
   for (int i = 0; i < 100; ++i) {
     threads.emplace_back([local_tracer, i]() {
       for (int j = 0; j < 10; ++j) {
-        auto span =
-            local_tracer->start_span("thread." + std::to_string(i) + ".span." + std::to_string(j));
+        auto span = local_tracer->start_span("thread." + std::to_string(i) +
+                                             ".span." + std::to_string(j));
         span->attr("thread", static_cast<int64_t>(i));
         span->attr("index", static_cast<int64_t>(j));
         span->end();
@@ -327,7 +320,7 @@ TEST_F(SpanExtendedTest, ConcurrentSpanCreation100Threads) {
     });
   }
 
-  for (auto& t : threads) {
+  for (auto &t : threads) {
     t.join();
   }
 

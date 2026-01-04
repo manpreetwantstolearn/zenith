@@ -1,16 +1,14 @@
 #include "Http2ResponseWriter.h"
 
+#include <IScopedResource.h>
 #include <boost/asio/executor_work_guard.hpp>
 #include <boost/asio/io_context.hpp>
 #include <boost/asio/post.hpp>
-#include <gtest/gtest.h>
-
 #include <chrono>
+#include <gtest/gtest.h>
 #include <thread>
 
-#include <IScopedResource.h>
-
-using namespace zenith::http2;
+using namespace astra::http2;
 using namespace std::chrono_literals;
 
 class Http2ResponseWriterTest : public ::testing::Test {
@@ -29,7 +27,8 @@ protected:
   }
 
   auto make_send_fn() {
-    return [this](int status, std::map<std::string, std::string> headers, std::string body) {
+    return [this](int status, std::map<std::string, std::string> headers,
+                  std::string body) {
       captured_status = status;
       captured_headers = std::move(headers);
       captured_body = std::move(body);
@@ -46,14 +45,11 @@ protected:
 
 TEST_F(Http2ResponseWriterTest, SendSuccess) {
   // Create handle
-  auto handle = std::make_shared<Http2ResponseWriter>(make_send_fn(), make_post_work());
+  auto handle =
+      std::make_shared<Http2ResponseWriter>(make_send_fn(), make_post_work());
 
   // Simulate worker thread sending response
-  handle->send(200,
-               {
-                   {"Content-Type", "text/plain"}
-  },
-               "test response");
+  handle->send(200, {{"Content-Type", "text/plain"}}, "test response");
 
   // Run io_context to process posted task
   io_ctx.run();
@@ -67,7 +63,8 @@ TEST_F(Http2ResponseWriterTest, SendSuccess) {
 
 TEST_F(Http2ResponseWriterTest, SendAfterClose) {
   // Create handle
-  auto handle = std::make_shared<Http2ResponseWriter>(make_send_fn(), make_post_work());
+  auto handle =
+      std::make_shared<Http2ResponseWriter>(make_send_fn(), make_post_work());
 
   // Simulate stream closure
   handle->mark_closed();
@@ -86,7 +83,8 @@ TEST_F(Http2ResponseWriterTest, SendAfterClose) {
 
 TEST_F(Http2ResponseWriterTest, CloseAfterSendPosted) {
   // Create handle
-  auto handle = std::make_shared<Http2ResponseWriter>(make_send_fn(), make_post_work());
+  auto handle =
+      std::make_shared<Http2ResponseWriter>(make_send_fn(), make_post_work());
 
   // Worker posts send (but io_context not run yet)
   handle->send(200, {}, "test data");
@@ -104,7 +102,8 @@ TEST_F(Http2ResponseWriterTest, CloseAfterSendPosted) {
 
 TEST_F(Http2ResponseWriterTest, WeakPtrExpiration) {
   // Create handle with strong reference
-  auto handle = std::make_shared<Http2ResponseWriter>(make_send_fn(), make_post_work());
+  auto handle =
+      std::make_shared<Http2ResponseWriter>(make_send_fn(), make_post_work());
 
   // Worker holds weak reference
   std::weak_ptr<Http2ResponseWriter> weak_handle = handle;
@@ -134,12 +133,14 @@ TEST_F(Http2ResponseWriterTest, WeakPtrExpiration) {
 }
 
 TEST_F(Http2ResponseWriterTest, IsAliveInitiallyTrue) {
-  auto handle = std::make_shared<Http2ResponseWriter>(make_send_fn(), make_post_work());
+  auto handle =
+      std::make_shared<Http2ResponseWriter>(make_send_fn(), make_post_work());
   EXPECT_TRUE(handle->is_alive());
 }
 
 TEST_F(Http2ResponseWriterTest, IsAliveFalseAfterClose) {
-  auto handle = std::make_shared<Http2ResponseWriter>(make_send_fn(), make_post_work());
+  auto handle =
+      std::make_shared<Http2ResponseWriter>(make_send_fn(), make_post_work());
   handle->mark_closed();
   EXPECT_FALSE(handle->is_alive());
 }
@@ -147,7 +148,8 @@ TEST_F(Http2ResponseWriterTest, IsAliveFalseAfterClose) {
 TEST_F(Http2ResponseWriterTest, ConcurrentSends) {
   // Test multiple worker threads sending through same handle
   auto handle = std::make_shared<Http2ResponseWriter>(
-      [](int, std::map<std::string, std::string>, std::string) { /* no-op for this test */ },
+      [](int, std::map<std::string, std::string>,
+         std::string) { /* no-op for this test */ },
       make_post_work());
 
   constexpr int NUM_THREADS = 4;
@@ -159,7 +161,8 @@ TEST_F(Http2ResponseWriterTest, ConcurrentSends) {
     workers.emplace_back([handle, i]() {
       for (int j = 0; j < SENDS_PER_THREAD; ++j) {
         if (handle->is_alive()) {
-          handle->send(200, {}, "data_" + std::to_string(i) + "_" + std::to_string(j));
+          handle->send(200, {},
+                       "data_" + std::to_string(i) + "_" + std::to_string(j));
         }
         std::this_thread::sleep_for(1ms);
       }
@@ -172,7 +175,7 @@ TEST_F(Http2ResponseWriterTest, ConcurrentSends) {
   });
 
   // Wait for workers
-  for (auto& t : workers) {
+  for (auto &t : workers) {
     t.join();
   }
 
@@ -189,9 +192,10 @@ TEST_F(Http2ResponseWriterTest, ConcurrentSends) {
 // =============================================================================
 
 namespace {
-class TestScopedResource : public zenith::execution::IScopedResource {
+class TestScopedResource : public astra::execution::IScopedResource {
 public:
-  explicit TestScopedResource(bool& destroyed_flag) : m_destroyed_flag(destroyed_flag) {
+  explicit TestScopedResource(bool &destroyed_flag)
+      : m_destroyed_flag(destroyed_flag) {
   }
 
   ~TestScopedResource() override {
@@ -199,7 +203,7 @@ public:
   }
 
 private:
-  bool& m_destroyed_flag;
+  bool &m_destroyed_flag;
 };
 } // namespace
 
@@ -207,13 +211,16 @@ TEST_F(Http2ResponseWriterTest, ScopedResourceReleasedOnDestruction) {
   bool resource_destroyed = false;
 
   {
-    auto handle = std::make_shared<Http2ResponseWriter>(make_send_fn(), make_post_work());
-    handle->add_scoped_resource(std::make_unique<TestScopedResource>(resource_destroyed));
+    auto handle =
+        std::make_shared<Http2ResponseWriter>(make_send_fn(), make_post_work());
+    handle->add_scoped_resource(
+        std::make_unique<TestScopedResource>(resource_destroyed));
 
     EXPECT_FALSE(resource_destroyed);
   }
 
-  EXPECT_TRUE(resource_destroyed) << "Scoped resource must be released when handle is destroyed";
+  EXPECT_TRUE(resource_destroyed)
+      << "Scoped resource must be released when handle is destroyed";
 }
 
 TEST_F(Http2ResponseWriterTest, MultipleScopedResourcesReleasedOnDestruction) {
@@ -222,10 +229,14 @@ TEST_F(Http2ResponseWriterTest, MultipleScopedResourcesReleasedOnDestruction) {
   bool resource3_destroyed = false;
 
   {
-    auto handle = std::make_shared<Http2ResponseWriter>(make_send_fn(), make_post_work());
-    handle->add_scoped_resource(std::make_unique<TestScopedResource>(resource1_destroyed));
-    handle->add_scoped_resource(std::make_unique<TestScopedResource>(resource2_destroyed));
-    handle->add_scoped_resource(std::make_unique<TestScopedResource>(resource3_destroyed));
+    auto handle =
+        std::make_shared<Http2ResponseWriter>(make_send_fn(), make_post_work());
+    handle->add_scoped_resource(
+        std::make_unique<TestScopedResource>(resource1_destroyed));
+    handle->add_scoped_resource(
+        std::make_unique<TestScopedResource>(resource2_destroyed));
+    handle->add_scoped_resource(
+        std::make_unique<TestScopedResource>(resource3_destroyed));
 
     EXPECT_FALSE(resource1_destroyed);
     EXPECT_FALSE(resource2_destroyed);
@@ -240,9 +251,10 @@ TEST_F(Http2ResponseWriterTest, MultipleScopedResourcesReleasedOnDestruction) {
 TEST_F(Http2ResponseWriterTest, ScopedResourceReleasedInReverseOrder) {
   std::vector<int> destruction_order;
 
-  class OrderedResource : public zenith::execution::IScopedResource {
+  class OrderedResource : public astra::execution::IScopedResource {
   public:
-    OrderedResource(int id, std::vector<int>& order) : m_id(id), m_order(order) {
+    OrderedResource(int id, std::vector<int> &order)
+        : m_id(id), m_order(order) {
     }
     ~OrderedResource() override {
       m_order.push_back(m_id);
@@ -250,14 +262,18 @@ TEST_F(Http2ResponseWriterTest, ScopedResourceReleasedInReverseOrder) {
 
   private:
     int m_id;
-    std::vector<int>& m_order;
+    std::vector<int> &m_order;
   };
 
   {
-    auto handle = std::make_shared<Http2ResponseWriter>(make_send_fn(), make_post_work());
-    handle->add_scoped_resource(std::make_unique<OrderedResource>(1, destruction_order));
-    handle->add_scoped_resource(std::make_unique<OrderedResource>(2, destruction_order));
-    handle->add_scoped_resource(std::make_unique<OrderedResource>(3, destruction_order));
+    auto handle =
+        std::make_shared<Http2ResponseWriter>(make_send_fn(), make_post_work());
+    handle->add_scoped_resource(
+        std::make_unique<OrderedResource>(1, destruction_order));
+    handle->add_scoped_resource(
+        std::make_unique<OrderedResource>(2, destruction_order));
+    handle->add_scoped_resource(
+        std::make_unique<OrderedResource>(3, destruction_order));
   }
 
   // Vector destruction is in forward order (FIFO)
@@ -272,7 +288,8 @@ TEST_F(Http2ResponseWriterTest, ScopedResourceReleasedInReverseOrder) {
 // =============================================================================
 
 TEST_F(Http2ResponseWriterTest, SendWithEmptyData) {
-  auto handle = std::make_shared<Http2ResponseWriter>(make_send_fn(), make_post_work());
+  auto handle =
+      std::make_shared<Http2ResponseWriter>(make_send_fn(), make_post_work());
 
   // Send with empty headers and empty body
   handle->send(204, {}, "");
@@ -304,7 +321,8 @@ TEST_F(Http2ResponseWriterTest, MultipleSendsAllowed) {
 }
 
 TEST_F(Http2ResponseWriterTest, MarkClosedIdempotent) {
-  auto handle = std::make_shared<Http2ResponseWriter>(make_send_fn(), make_post_work());
+  auto handle =
+      std::make_shared<Http2ResponseWriter>(make_send_fn(), make_post_work());
 
   // Multiple mark_closed calls should not crash
   EXPECT_TRUE(handle->is_alive());
@@ -320,7 +338,8 @@ TEST_F(Http2ResponseWriterTest, MarkClosedIdempotent) {
 
 TEST_F(Http2ResponseWriterTest, SendFromDifferentThread) {
   // Simulate SEDA pattern: create on one thread, send from another
-  auto handle = std::make_shared<Http2ResponseWriter>(make_send_fn(), make_post_work());
+  auto handle =
+      std::make_shared<Http2ResponseWriter>(make_send_fn(), make_post_work());
 
   // Keep io_context running until we explicitly stop
   auto work_guard = boost::asio::make_work_guard(io_ctx);
@@ -332,11 +351,7 @@ TEST_F(Http2ResponseWriterTest, SendFromDifferentThread) {
   std::thread worker([handle]() {
     // Simulate processing delay
     std::this_thread::sleep_for(10ms);
-    handle->send(200,
-                 {
-                     {"X-Thread", "worker"}
-    },
-                 "from worker thread");
+    handle->send(200, {{"X-Thread", "worker"}}, "from worker thread");
   });
 
   worker.join();
@@ -354,7 +369,8 @@ TEST_F(Http2ResponseWriterTest, SendFromDifferentThread) {
 }
 
 TEST_F(Http2ResponseWriterTest, SendWithLargeBody) {
-  auto handle = std::make_shared<Http2ResponseWriter>(make_send_fn(), make_post_work());
+  auto handle =
+      std::make_shared<Http2ResponseWriter>(make_send_fn(), make_post_work());
 
   // 1MB body
   std::string large_body(1024 * 1024, 'X');
@@ -367,11 +383,13 @@ TEST_F(Http2ResponseWriterTest, SendWithLargeBody) {
 }
 
 TEST_F(Http2ResponseWriterTest, SendWithManyHeaders) {
-  auto handle = std::make_shared<Http2ResponseWriter>(make_send_fn(), make_post_work());
+  auto handle =
+      std::make_shared<Http2ResponseWriter>(make_send_fn(), make_post_work());
 
   std::map<std::string, std::string> many_headers;
   for (int i = 0; i < 100; ++i) {
-    many_headers["X-Header-" + std::to_string(i)] = "value-" + std::to_string(i);
+    many_headers["X-Header-" + std::to_string(i)] =
+        "value-" + std::to_string(i);
   }
 
   handle->send(200, many_headers, "test");
@@ -384,7 +402,8 @@ TEST_F(Http2ResponseWriterTest, SendWithManyHeaders) {
 
 TEST_F(Http2ResponseWriterTest, DelayedSendAfterCreation) {
   // Simulate SEDA: long processing time before response
-  auto handle = std::make_shared<Http2ResponseWriter>(make_send_fn(), make_post_work());
+  auto handle =
+      std::make_shared<Http2ResponseWriter>(make_send_fn(), make_post_work());
 
   // Keep io_context running until we explicitly stop
   auto work_guard = boost::asio::make_work_guard(io_ctx);
@@ -411,7 +430,8 @@ TEST_F(Http2ResponseWriterTest, DelayedSendAfterCreation) {
 TEST_F(Http2ResponseWriterTest, ConcurrentCloseAndSend) {
   // Race between close and send - should not crash
   auto handle = std::make_shared<Http2ResponseWriter>(
-      [](int, std::map<std::string, std::string>, std::string) {}, make_post_work());
+      [](int, std::map<std::string, std::string>, std::string) {},
+      make_post_work());
 
   std::thread sender([handle]() {
     for (int i = 0; i < 100; ++i) {

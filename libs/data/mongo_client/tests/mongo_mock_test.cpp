@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-using namespace zenith::mongo;
+using namespace astra::mongo;
 using ::testing::_;
 using ::testing::Return;
 
@@ -19,9 +19,11 @@ TEST_F(MongoMockTest, IsConnectedReturnsTrue) {
 
 TEST_F(MongoMockTest, FindOneReturnsDocument) {
   std::string docJson = R"({"name": "test"})";
-  auto successResult = Result<std::optional<std::string>, MongoError>::Ok(docJson);
+  auto successResult =
+      Result<std::optional<std::string>, MongoError>::Ok(docJson);
 
-  EXPECT_CALL(mock_mongo, findOne("test_db", "test_col", _)).WillOnce(Return(successResult));
+  EXPECT_CALL(mock_mongo, findOne("test_db", "test_col", _))
+      .WillOnce(Return(successResult));
 
   auto result = mock_mongo.findOne("test_db", "test_col", "{}");
   ASSERT_TRUE(result.is_ok());
@@ -33,7 +35,8 @@ TEST_F(MongoMockTest, InsertOneCallsUnderlying) {
   EXPECT_CALL(mock_mongo, insertOne("test_db", "test_col", _))
       .WillOnce(Return(Result<void, MongoError>::Ok()));
 
-  auto result = mock_mongo.insertOne("test_db", "test_col", R"({"key": "value"})");
+  auto result =
+      mock_mongo.insertOne("test_db", "test_col", R"({"key": "value"})");
   EXPECT_TRUE(result.is_ok());
 }
 
@@ -41,7 +44,8 @@ TEST_F(MongoMockTest, FindReturnsVector) {
   std::vector<std::string> docs = {R"({"id": 1})", R"({"id": 2})"};
   auto successResult = Result<std::vector<std::string>, MongoError>::Ok(docs);
 
-  EXPECT_CALL(mock_mongo, find("test_db", "test_col", _)).WillOnce(Return(successResult));
+  EXPECT_CALL(mock_mongo, find("test_db", "test_col", _))
+      .WillOnce(Return(successResult));
 
   auto result = mock_mongo.find("test_db", "test_col", "{}");
   ASSERT_TRUE(result.is_ok());
@@ -52,7 +56,8 @@ TEST_F(MongoMockTest, FindOneReturnsErrorWhenNotConnected) {
   auto errorResult = Result<std::optional<std::string>, MongoError>::Err(
       MongoError{MongoError::Code::NotConnected, "Not connected to MongoDB"});
 
-  EXPECT_CALL(mock_mongo, findOne("test_db", "test_col", _)).WillOnce(Return(errorResult));
+  EXPECT_CALL(mock_mongo, findOne("test_db", "test_col", _))
+      .WillOnce(Return(errorResult));
 
   auto result = mock_mongo.findOne("test_db", "test_col", "{}");
   ASSERT_TRUE(result.is_err());

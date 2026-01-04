@@ -1,10 +1,8 @@
-#include <gtest/gtest.h>
-
-#include <chrono>
-#include <thread>
-
 #include <Metrics.h>
 #include <Provider.h>
+#include <chrono>
+#include <gtest/gtest.h>
+#include <thread>
 
 namespace {
 

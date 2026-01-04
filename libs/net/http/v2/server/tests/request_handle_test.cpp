@@ -1,20 +1,17 @@
 #include "Http2Request.h"
 
 #include <gtest/gtest.h>
-
 #include <memory>
 
-using namespace zenith::http2;
+using namespace astra::http2;
 
 class Http2RequestTest : public ::testing::Test {
 protected:
   Http2Request make_request() {
-    return Http2Request("POST", "/api/shorten",
-                        {
-                            {"content-type", "application/json"},
-                            {"accept",       "application/json"}
-    },
-                        R"({"url":"https://example.com"})", {{"page", "1"}});
+    return Http2Request(
+        "POST", "/api/shorten",
+        {{"content-type", "application/json"}, {"accept", "application/json"}},
+        R"({"url":"https://example.com"})", {{"page", "1"}});
   }
 };
 
@@ -71,10 +68,7 @@ TEST_F(Http2RequestTest, QueryParamReturnsEmptyForMissingKey) {
 TEST_F(Http2RequestTest, SetPathParamsWorks) {
   auto req = make_request();
 
-  req.set_path_params({
-      {"id",   "abc123"},
-      {"code", "xyz"   }
-  });
+  req.set_path_params({{"id", "abc123"}, {"code", "xyz"}});
 
   EXPECT_EQ(req.path_param("id"), "abc123");
   EXPECT_EQ(req.path_param("code"), "xyz");

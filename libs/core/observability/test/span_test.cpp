@@ -1,8 +1,7 @@
-#include <gtest/gtest.h>
-
 #include <Provider.h>
 #include <Span.h>
 #include <Tracer.h>
+#include <gtest/gtest.h>
 
 class SpanTest : public ::testing::Test {
 protected:
@@ -60,9 +59,7 @@ TEST_F(SpanTest, SpanEvents) {
   auto span = tracer->start_span("test.operation");
 
   EXPECT_NO_THROW(span->add_event("event1"));
-  EXPECT_NO_THROW(span->add_event("event2", {
-                                                {"key", "value"}
-  }));
+  EXPECT_NO_THROW(span->add_event("event2", {{"key", "value"}}));
   span->end();
 }
 

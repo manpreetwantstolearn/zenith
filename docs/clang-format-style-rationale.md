@@ -321,4 +321,4 @@ While other styles like **Google** and **Microsoft** have merit in their respect
 
 **Document Version**: 1.0  
 **Last Updated**: 2025-12-11  
-**Author**: Zenith Development Team
+**Author**: Astra Development Team

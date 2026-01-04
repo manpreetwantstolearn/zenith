@@ -1,11 +1,9 @@
-#include <gtest/gtest.h>
-
-#include <thread>
-#include <vector>
-
 #include <Metrics.h>
 #include <MetricsRegistry.h>
 #include <Provider.h>
+#include <gtest/gtest.h>
+#include <thread>
+#include <vector>
 
 class SafetyTest : public ::testing::Test {
 protected:
@@ -33,18 +31,14 @@ TEST_F(SafetyTest, NullCounterHandleSafe) {
 
   EXPECT_NO_THROW(null_counter.inc());
   EXPECT_NO_THROW(null_counter.inc(5));
-  EXPECT_NO_THROW(null_counter.inc(100, {
-                                            {"key", "value"}
-  }));
+  EXPECT_NO_THROW(null_counter.inc(100, {{"key", "value"}}));
 }
 
 TEST_F(SafetyTest, NullHistogramHandleSafe) {
   obs::Histogram null_hist;
 
   EXPECT_NO_THROW(null_hist.record(42.5));
-  EXPECT_NO_THROW(null_hist.record(100.0, {
-                                              {"region", "us"}
-  }));
+  EXPECT_NO_THROW(null_hist.record(100.0, {{"region", "us"}}));
 }
 
 TEST_F(SafetyTest, NullGaugeHandleSafe) {
@@ -52,9 +46,7 @@ TEST_F(SafetyTest, NullGaugeHandleSafe) {
 
   EXPECT_NO_THROW(null_gauge.set(100));
   EXPECT_NO_THROW(null_gauge.add(50));
-  EXPECT_NO_THROW(null_gauge.set(200, {
-                                          {"host", "test"}
-  }));
+  EXPECT_NO_THROW(null_gauge.set(200, {{"host", "test"}}));
 }
 
 TEST_F(SafetyTest, MetricsRegistryNonExistentKey) {
@@ -77,7 +69,8 @@ TEST_F(SafetyTest, ManyCountersWithinLimit) {
   std::vector<obs::Counter> counters;
 
   for (int i = 0; i < 100; i++) {
-    auto c = obs::register_counter("counter_" + std::to_string(i), obs::Unit::Dimensionless);
+    auto c = obs::register_counter("counter_" + std::to_string(i),
+                                   obs::Unit::Dimensionless);
     counters.push_back(c);
 
     // Should work
@@ -91,7 +84,8 @@ TEST_F(SafetyTest, CounterRegistrationLimit) {
 
   // Register exactly 256 counters (should all succeed)
   for (int i = 0; i < 256; i++) {
-    auto c = obs::register_counter("limit_counter_" + std::to_string(i), obs::Unit::Dimensionless);
+    auto c = obs::register_counter("limit_counter_" + std::to_string(i),
+                                   obs::Unit::Dimensionless);
     counters.push_back(c);
 
     // Verify handle is valid (non-zero ID expected)
@@ -99,7 +93,8 @@ TEST_F(SafetyTest, CounterRegistrationLimit) {
   }
 
   // 257th counter should fail gracefully (return null handle with ID=0)
-  auto overflow = obs::register_counter("overflow_counter", obs::Unit::Dimensionless);
+  auto overflow =
+      obs::register_counter("overflow_counter", obs::Unit::Dimensionless);
 
   // Null handle should be safe to use (no-op, no crash)
   EXPECT_NO_THROW(overflow.inc());
@@ -125,7 +120,7 @@ TEST_F(SafetyTest, ConcurrentCounterInc) {
     });
   }
 
-  for (auto& t : threads) {
+  for (auto &t : threads) {
     t.join();
   }
 
@@ -134,7 +129,8 @@ TEST_F(SafetyTest, ConcurrentCounterInc) {
 }
 
 TEST_F(SafetyTest, ConcurrentHistogramRecord) {
-  auto hist = obs::register_histogram("concurrent_hist", obs::Unit::Milliseconds);
+  auto hist =
+      obs::register_histogram("concurrent_hist", obs::Unit::Milliseconds);
 
   constexpr int NUM_THREADS = 4;
   constexpr int OPS_PER_THREAD = 1000;
@@ -148,7 +144,7 @@ TEST_F(SafetyTest, ConcurrentHistogramRecord) {
     });
   }
 
-  for (auto& t : threads) {
+  for (auto &t : threads) {
     t.join();
   }
 
@@ -156,7 +152,8 @@ TEST_F(SafetyTest, ConcurrentHistogramRecord) {
 }
 
 TEST_F(SafetyTest, ConcurrentGaugeUpdates) {
-  auto gauge = obs::register_gauge("concurrent_gauge", obs::Unit::Dimensionless);
+  auto gauge =
+      obs::register_gauge("concurrent_gauge", obs::Unit::Dimensionless);
 
   constexpr int NUM_THREADS = 4;
   constexpr int OPS_PER_THREAD = 500;
@@ -174,7 +171,7 @@ TEST_F(SafetyTest, ConcurrentGaugeUpdates) {
     });
   }
 
-  for (auto& t : threads) {
+  for (auto &t : threads) {
     t.join();
   }
 
@@ -185,9 +182,12 @@ TEST_F(SafetyTest, EndToEndFlow) {
   // Full lifecycle test
 
   // 1. Register metrics
-  auto requests_counter = obs::register_counter("requests", obs::Unit::Dimensionless);
-  auto latency_hist = obs::register_histogram("latency", obs::Unit::Milliseconds);
-  auto connections_gauge = obs::register_gauge("connections", obs::Unit::Dimensionless);
+  auto requests_counter =
+      obs::register_counter("requests", obs::Unit::Dimensionless);
+  auto latency_hist =
+      obs::register_histogram("latency", obs::Unit::Milliseconds);
+  auto connections_gauge =
+      obs::register_gauge("connections", obs::Unit::Dimensionless);
 
   // 2. Use from multiple threads
   std::vector<std::thread> threads;
@@ -201,7 +201,7 @@ TEST_F(SafetyTest, EndToEndFlow) {
     });
   }
 
-  for (auto& t : threads) {
+  for (auto &t : threads) {
     t.join();
   }
 
@@ -231,7 +231,7 @@ TEST_F(SafetyTest, AdHocMetricsConcurrent) {
     });
   }
 
-  for (auto& t : threads) {
+  for (auto &t : threads) {
     t.join();
   }
 

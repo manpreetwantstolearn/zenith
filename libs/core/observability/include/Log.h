@@ -5,7 +5,7 @@
 #include <string>
 #include <utility>
 
-namespace zenith::observability {
+namespace astra::observability {
 
 // Log levels (OpenTelemetry standard)
 enum class Level {
@@ -21,30 +21,30 @@ enum class Level {
 using Attributes = std::initializer_list<std::pair<std::string, std::string>>;
 
 // Core logging function
-void log(Level level, const std::string& message, Attributes attrs = {});
+void log(Level level, const std::string &message, Attributes attrs = {});
 
 // Convenience functions
-inline void trace(const std::string& msg, Attributes attrs = {}) {
+inline void trace(const std::string &msg, Attributes attrs = {}) {
   log(Level::Trace, msg, attrs);
 }
 
-inline void debug(const std::string& msg, Attributes attrs = {}) {
+inline void debug(const std::string &msg, Attributes attrs = {}) {
   log(Level::Debug, msg, attrs);
 }
 
-inline void info(const std::string& msg, Attributes attrs = {}) {
+inline void info(const std::string &msg, Attributes attrs = {}) {
   log(Level::Info, msg, attrs);
 }
 
-inline void warn(const std::string& msg, Attributes attrs = {}) {
+inline void warn(const std::string &msg, Attributes attrs = {}) {
   log(Level::Warn, msg, attrs);
 }
 
-inline void error(const std::string& msg, Attributes attrs = {}) {
+inline void error(const std::string &msg, Attributes attrs = {}) {
   log(Level::Error, msg, attrs);
 }
 
-inline void fatal(const std::string& msg, Attributes attrs = {}) {
+inline void fatal(const std::string &msg, Attributes attrs = {}) {
   log(Level::Fatal, msg, attrs);
 }
 
@@ -69,16 +69,16 @@ public:
   ~ScopedLogAttributes();
 
   // Non-copyable, non-movable
-  ScopedLogAttributes(const ScopedLogAttributes&) = delete;
-  ScopedLogAttributes& operator=(const ScopedLogAttributes&) = delete;
-  ScopedLogAttributes(ScopedLogAttributes&&) = delete;
-  ScopedLogAttributes& operator=(ScopedLogAttributes&&) = delete;
+  ScopedLogAttributes(const ScopedLogAttributes &) = delete;
+  ScopedLogAttributes &operator=(const ScopedLogAttributes &) = delete;
+  ScopedLogAttributes(ScopedLogAttributes &&) = delete;
+  ScopedLogAttributes &operator=(ScopedLogAttributes &&) = delete;
 
 private:
   size_t m_stack_size; // For restoring stack on destruction
 };
 
-} // namespace zenith::observability
+} // namespace astra::observability
 
 // Backward compatibility alias
-namespace obs = zenith::observability;
+namespace obs = astra::observability;

@@ -1,42 +1,45 @@
+#include "Http2Server.h"
+
 #include "Http2Request.h"
 #include "Http2Response.h"
-#include "Http2Server.h"
 #include "NgHttp2Server.h"
 
-namespace zenith::http2 {
+namespace astra::http2 {
 
 class Http2Server::Impl {
 public:
-  Impl(const ServerConfig& config) : backend(config) {
+  Impl(const ServerConfig &config) : backend(config) {
   }
 
   NgHttp2Server backend;
 };
 
-Http2Server::Http2Server(const ServerConfig& config) : m_impl(std::make_unique<Impl>(config)) {
+Http2Server::Http2Server(const ServerConfig &config)
+    : m_impl(std::make_unique<Impl>(config)) {
   m_impl->backend.handle("*", "/",
-                         [this](std::shared_ptr<zenith::router::IRequest> req,
-                                std::shared_ptr<zenith::router::IResponse> res) {
+                         [this](std::shared_ptr<astra::router::IRequest> req,
+                                std::shared_ptr<astra::router::IResponse> res) {
                            m_router.dispatch(req, res);
                          });
 }
 
 Http2Server::~Http2Server() = default;
 
-void Http2Server::handle(const std::string& method, const std::string& path, Handler handler) {
+void Http2Server::handle(const std::string &method, const std::string &path,
+                         Handler handler) {
   m_impl->backend.handle(method, path, handler);
 }
 
-zenith::outcome::Result<void, Http2ServerError> Http2Server::start() {
+astra::outcome::Result<void, Http2ServerError> Http2Server::start() {
   return m_impl->backend.start();
 }
 
-zenith::outcome::Result<void, Http2ServerError> Http2Server::join() {
+astra::outcome::Result<void, Http2ServerError> Http2Server::join() {
   return m_impl->backend.join();
 }
 
-zenith::outcome::Result<void, Http2ServerError> Http2Server::stop() {
+astra::outcome::Result<void, Http2ServerError> Http2Server::stop() {
   return m_impl->backend.stop();
 }
 
-} // namespace zenith::http2
+} // namespace astra::http2

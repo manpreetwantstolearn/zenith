@@ -2,15 +2,16 @@
 /// @brief ResolveLink use case implementation
 
 #include "ResolveLink.h"
+
 #include "ShortCode.h"
 
 namespace uri_shortener::application {
 
-ResolveLink::ResolveLink(std::shared_ptr<domain::ILinkRepository> repository) :
-    m_repository(std::move(repository)) {
+ResolveLink::ResolveLink(std::shared_ptr<domain::ILinkRepository> repository)
+    : m_repository(std::move(repository)) {
 }
 
-ResolveLink::Result ResolveLink::execute(const Input& input) {
+ResolveLink::Result ResolveLink::execute(const Input &input) {
   // 1. Validate the short code
   auto code_result = domain::ShortCode::create(input.short_code);
   if (code_result.is_err()) {
@@ -31,7 +32,8 @@ ResolveLink::Result ResolveLink::execute(const Input& input) {
   }
 
   // 4. Return the original URL
-  return Result::Ok(Output{.original_url = std::string(link.original().value())});
+  return Result::Ok(
+      Output{.original_url = std::string(link.original().value())});
 }
 
 } // namespace uri_shortener::application

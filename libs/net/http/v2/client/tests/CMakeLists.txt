@@ -1,6 +1,6 @@
 include(GoogleTest)
 
-zenith_add_test(
+astra_add_test(
     TARGET test_http2_client
     SOURCES 
         http2_client_test.cpp

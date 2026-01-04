@@ -28,7 +28,8 @@ TEST(OriginalUrlTest, CreateWithPath_Succeeds) {
 }
 
 TEST(OriginalUrlTest, CreateWithQueryString_Succeeds) {
-  auto result = OriginalUrl::create("https://example.com/search?q=hello&page=1");
+  auto result =
+      OriginalUrl::create("https://example.com/search?q=hello&page=1");
   ASSERT_TRUE(result.is_ok());
 }
 

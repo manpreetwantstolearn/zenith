@@ -1,10 +1,9 @@
 #include "Http1Server.h"
 
 #include <boost/asio.hpp>
+#include <chrono>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-
-#include <chrono>
 #include <random>
 #include <thread>
 
@@ -12,15 +11,18 @@ using namespace std::chrono_literals;
 using namespace testing;
 
 // Helper to send a request and get response
-std::string send_request(int port, const std::string& method, const std::string& path,
-                         const std::string& body = "") {
+std::string send_request(int port, const std::string &method,
+                         const std::string &path,
+                         const std::string &body = "") {
   try {
     boost::asio::io_context ioc;
     boost::asio::ip::tcp::socket socket(ioc);
-    boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::make_address("127.0.0.1"), port);
+    boost::asio::ip::tcp::endpoint endpoint(
+        boost::asio::ip::make_address("127.0.0.1"), port);
     socket.connect(endpoint);
 
-    std::string req = method + " " + path + " HTTP/1.1\r\nHost: 127.0.0.1\r\nContent-Length: " +
+    std::string req = method + " " + path +
+                      " HTTP/1.1\r\nHost: 127.0.0.1\r\nContent-Length: " +
                       std::to_string(body.size()) + "\r\n\r\n" + body;
     boost::asio::write(socket, boost::asio::buffer(req));
 
@@ -32,7 +34,7 @@ std::string send_request(int port, const std::string& method, const std::string&
     std::string status_line;
     std::getline(is, status_line);
     return status_line;
-  } catch (const std::exception& e) {
+  } catch (const std::exception &e) {
     return "ERROR: " + std::string(e.what());
   }
 }
@@ -40,7 +42,8 @@ std::string send_request(int port, const std::string& method, const std::string&
 class Http1ServerTest : public Test {
 protected:
   void SetUp() override {
-    // Retry with different random ports to avoid collisions in parallel execution
+    // Retry with different random ports to avoid collisions in parallel
+    // execution
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> dis(20000, 60000);
@@ -50,8 +53,10 @@ protected:
       m_port = dis(gen);
 
       try {
-        server_ = std::make_unique<zenith::http1::Server>("127.0.0.1", m_port, 4);
-        server_->handle([](const zenith::router::IRequest& req, zenith::router::IResponse& res) {
+        server_ =
+            std::make_unique<astra::http1::Server>("127.0.0.1", m_port, 4);
+        server_->handle([](const astra::router::IRequest &req,
+                           astra::router::IResponse &res) {
           if (req.path() == "/test") {
             res.set_status(200);
             res.write("Hello Test");
@@ -71,7 +76,7 @@ protected:
         // Wait for server to start
         std::this_thread::sleep_for(100ms);
         return; // Success
-      } catch (const std::exception& e) {
+      } catch (const std::exception &e) {
         // Port likely in use, try another
         server_.reset();
         if (attempt == max_retries - 1) {
@@ -91,7 +96,7 @@ protected:
   }
 
   int m_port;
-  std::unique_ptr<zenith::http1::Server> server_;
+  std::unique_ptr<astra::http1::Server> server_;
   std::thread server_thread_;
 };
 
@@ -123,7 +128,7 @@ TEST_F(Http1ServerTest, ConcurrentRequests) {
     });
   }
 
-  for (auto& t : threads) {
+  for (auto &t : threads) {
     t.join();
   }
 
@@ -155,7 +160,7 @@ TEST_F(Http1ServerTest, HighConcurrency) {
     });
   }
 
-  for (auto& t : threads) {
+  for (auto &t : threads) {
     t.join();
   }
 

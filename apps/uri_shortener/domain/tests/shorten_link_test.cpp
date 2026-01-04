@@ -6,7 +6,6 @@
 #include "ShortenLink.h"
 
 #include <gtest/gtest.h>
-
 #include <memory>
 
 namespace uri_shortener::application::test {
@@ -29,33 +28,40 @@ private:
 
 class MockLinkRepository : public ILinkRepository {
 public:
-  zenith::outcome::Result<void, DomainError> save(const ShortLink& link) override {
+  astra::outcome::Result<void, DomainError>
+  save(const ShortLink &link) override {
     auto code_str = std::string(link.code().value());
     if (m_links.count(code_str)) {
-      return zenith::outcome::Result<void, DomainError>::Err(DomainError::LinkAlreadyExists);
+      return astra::outcome::Result<void, DomainError>::Err(
+          DomainError::LinkAlreadyExists);
     }
     m_links.insert_or_assign(code_str, link);
-    return zenith::outcome::Result<void, DomainError>::Ok();
+    return astra::outcome::Result<void, DomainError>::Ok();
   }
 
-  zenith::outcome::Result<void, DomainError> remove(const ShortCode& code) override {
+  astra::outcome::Result<void, DomainError>
+  remove(const ShortCode &code) override {
     auto code_str = std::string(code.value());
     if (!m_links.count(code_str)) {
-      return zenith::outcome::Result<void, DomainError>::Err(DomainError::LinkNotFound);
+      return astra::outcome::Result<void, DomainError>::Err(
+          DomainError::LinkNotFound);
     }
     m_links.erase(code_str);
-    return zenith::outcome::Result<void, DomainError>::Ok();
+    return astra::outcome::Result<void, DomainError>::Ok();
   }
 
-  zenith::outcome::Result<ShortLink, DomainError> find_by_code(const ShortCode& code) override {
+  astra::outcome::Result<ShortLink, DomainError>
+  find_by_code(const ShortCode &code) override {
     auto code_str = std::string(code.value());
     if (!m_links.count(code_str)) {
-      return zenith::outcome::Result<ShortLink, DomainError>::Err(DomainError::LinkNotFound);
+      return astra::outcome::Result<ShortLink, DomainError>::Err(
+          DomainError::LinkNotFound);
     }
-    return zenith::outcome::Result<ShortLink, DomainError>::Ok(m_links.at(code_str));
+    return astra::outcome::Result<ShortLink, DomainError>::Ok(
+        m_links.at(code_str));
   }
 
-  bool exists(const ShortCode& code) override {
+  bool exists(const ShortCode &code) override {
     return m_links.count(std::string(code.value())) > 0;
   }
 

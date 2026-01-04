@@ -1,33 +1,37 @@
 #include <MetricsRegistry.h>
 
-namespace zenith::observability {
+namespace astra::observability {
 
 // =============================================================================
 // Fluent Registration
 // =============================================================================
 
-MetricsRegistry& MetricsRegistry::counter(const std::string& key, const std::string& full_name,
+MetricsRegistry &MetricsRegistry::counter(const std::string &key,
+                                          const std::string &full_name,
                                           Unit unit) {
   auto c = register_counter(full_name, unit);
   m_counters.emplace(key, c);
   return *this;
 }
 
-MetricsRegistry& MetricsRegistry::histogram(const std::string& key, const std::string& full_name,
+MetricsRegistry &MetricsRegistry::histogram(const std::string &key,
+                                            const std::string &full_name,
                                             Unit unit) {
   auto h = register_histogram(full_name, unit);
   m_histograms.emplace(key, h);
   return *this;
 }
 
-MetricsRegistry& MetricsRegistry::duration_histogram(const std::string& key,
-                                                     const std::string& full_name) {
+MetricsRegistry &
+MetricsRegistry::duration_histogram(const std::string &key,
+                                    const std::string &full_name) {
   auto dh = register_duration_histogram(full_name);
   m_duration_histograms.emplace(key, dh);
   return *this;
 }
 
-MetricsRegistry& MetricsRegistry::gauge(const std::string& key, const std::string& full_name,
+MetricsRegistry &MetricsRegistry::gauge(const std::string &key,
+                                        const std::string &full_name,
                                         Unit unit) {
   auto g = register_gauge(full_name, unit);
   m_gauges.emplace(key, g);
@@ -38,7 +42,7 @@ MetricsRegistry& MetricsRegistry::gauge(const std::string& key, const std::strin
 // Lookup by Key
 // =============================================================================
 
-Counter MetricsRegistry::counter(const std::string& key) const {
+Counter MetricsRegistry::counter(const std::string &key) const {
   auto it = m_counters.find(key);
   if (it != m_counters.end()) {
     return it->second;
@@ -47,7 +51,7 @@ Counter MetricsRegistry::counter(const std::string& key) const {
   return Counter{0};
 }
 
-Histogram MetricsRegistry::histogram(const std::string& key) const {
+Histogram MetricsRegistry::histogram(const std::string &key) const {
   auto it = m_histograms.find(key);
   if (it != m_histograms.end()) {
     return it->second;
@@ -55,7 +59,8 @@ Histogram MetricsRegistry::histogram(const std::string& key) const {
   return Histogram{0};
 }
 
-DurationHistogram MetricsRegistry::duration_histogram(const std::string& key) const {
+DurationHistogram
+MetricsRegistry::duration_histogram(const std::string &key) const {
   auto it = m_duration_histograms.find(key);
   if (it != m_duration_histograms.end()) {
     return it->second;
@@ -63,7 +68,7 @@ DurationHistogram MetricsRegistry::duration_histogram(const std::string& key) co
   return DurationHistogram{0};
 }
 
-Gauge MetricsRegistry::gauge(const std::string& key) const {
+Gauge MetricsRegistry::gauge(const std::string &key) const {
   auto it = m_gauges.find(key);
   if (it != m_gauges.end()) {
     return it->second;
@@ -71,4 +76,4 @@ Gauge MetricsRegistry::gauge(const std::string& key) const {
   return Gauge{0};
 }
 
-} // namespace zenith::observability
+} // namespace astra::observability

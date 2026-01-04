@@ -18,32 +18,34 @@ public:
   };
 
   /// Construct with Http2 client, service resolver, service name, and config
-  HttpDataServiceAdapter(zenith::http2::Http2Client& http2_client,
-                         zenith::service_discovery::IServiceResolver& resolver,
+  HttpDataServiceAdapter(astra::http2::Http2Client &http2_client,
+                         astra::service_discovery::IServiceResolver &resolver,
                          std::string service_name, Config config);
 
   /// Construct with default config
-  HttpDataServiceAdapter(zenith::http2::Http2Client& http2_client,
-                         zenith::service_discovery::IServiceResolver& resolver,
+  HttpDataServiceAdapter(astra::http2::Http2Client &http2_client,
+                         astra::service_discovery::IServiceResolver &resolver,
                          std::string service_name);
 
   ~HttpDataServiceAdapter() override = default;
 
   /// Execute request by translating to HTTP
-  void execute(DataServiceRequest request, DataServiceCallback callback) override;
+  void execute(DataServiceRequest request,
+               DataServiceCallback callback) override;
 
 private:
   /// Translate operation to HTTP method
   static std::string operation_to_method(DataServiceOperation op);
 
   /// Build HTTP path for the operation
-  std::string build_path(DataServiceOperation op, const std::string& entity_id) const;
+  std::string build_path(DataServiceOperation op,
+                         const std::string &entity_id) const;
 
   /// Map HTTP status code to domain error code (0 = success)
   static int map_http_status_to_error(int status_code);
 
-  zenith::http2::Http2Client& m_http2_client;
-  zenith::service_discovery::IServiceResolver& m_resolver;
+  astra::http2::Http2Client &m_http2_client;
+  astra::service_discovery::IServiceResolver &m_resolver;
   std::string m_service_name;
   Config m_config;
 };

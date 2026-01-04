@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.25)
 
-project(zenith
+project(astra
     VERSION 1.0.0
     DESCRIPTION "High-performance C++ microservice platform"
     LANGUAGES C CXX
@@ -29,7 +29,7 @@ enable_testing()
 include(CTest)
 include(GoogleTest)
 find_package(GTest REQUIRED)  # Pre-installed in Docker image
-include(AddZenithTest)
+include(AddAstraTest)
 include(Sanitizers)
 include(Coverage)
 

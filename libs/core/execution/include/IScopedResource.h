@@ -1,16 +1,16 @@
 #pragma once
 
-namespace zenith::execution {
+namespace astra::execution {
 
 class IScopedResource {
 public:
   virtual ~IScopedResource() = default;
 
   IScopedResource() = default;
-  IScopedResource(const IScopedResource&) = delete;
-  IScopedResource& operator=(const IScopedResource&) = delete;
-  IScopedResource(IScopedResource&&) = delete;
-  IScopedResource& operator=(IScopedResource&&) = delete;
+  IScopedResource(const IScopedResource &) = delete;
+  IScopedResource &operator=(const IScopedResource &) = delete;
+  IScopedResource(IScopedResource &&) = delete;
+  IScopedResource &operator=(IScopedResource &&) = delete;
 };
 
-} // namespace zenith::execution
+} // namespace astra::execution

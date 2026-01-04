@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-using namespace zenith::utils;
+using namespace astra::utils;
 
 TEST(UrlTest, ParseQueryString_Empty) {
   auto result = Url::parse_query_string("");

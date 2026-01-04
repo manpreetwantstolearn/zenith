@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-namespace zenith::observability {
+namespace astra::observability {
 namespace testing {
 
 // In-memory log exporter for testing
@@ -21,7 +21,7 @@ public:
     Attributes attributes;
   };
 
-  void export_logs(const std::vector<LogRecord>& logs);
+  void export_logs(const std::vector<LogRecord> &logs);
   std::vector<LogRecord> get_logs() const;
   void clear();
 
@@ -44,9 +44,9 @@ public:
     bool is_error = false;
   };
 
-  void export_spans(const std::vector<Span>& spans);
+  void export_spans(const std::vector<Span> &spans);
   std::vector<Span> get_spans() const;
-  Span find_span(const std::string& name) const;
+  Span find_span(const std::string &name) const;
   void clear();
 
 private:
@@ -68,9 +68,10 @@ private:
 };
 
 // Initialize for testing
-void initialize_in_memory(std::shared_ptr<InMemoryLogExporter> log_exporter = nullptr,
-                          std::shared_ptr<InMemorySpanExporter> span_exporter = nullptr,
-                          std::shared_ptr<InMemoryMetricsReader> metrics_reader = nullptr);
+void initialize_in_memory(
+    std::shared_ptr<InMemoryLogExporter> log_exporter = nullptr,
+    std::shared_ptr<InMemorySpanExporter> span_exporter = nullptr,
+    std::shared_ptr<InMemoryMetricsReader> metrics_reader = nullptr);
 
 } // namespace testing
-} // namespace zenith::observability
+} // namespace astra::observability

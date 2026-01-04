@@ -1,12 +1,10 @@
-#include <gtest/gtest.h>
-
+#include <Metrics.h>
+#include <Provider.h>
 #include <cmath>
+#include <gtest/gtest.h>
 #include <limits>
 #include <thread>
 #include <vector>
-
-#include <Metrics.h>
-#include <Provider.h>
 
 class MetricsExtendedTest : public ::testing::Test {
 protected:
@@ -49,7 +47,7 @@ TEST_F(MetricsExtendedTest, CounterConcurrent100Threads) {
     });
   }
 
-  for (auto& t : threads) {
+  for (auto &t : threads) {
     t.join();
   }
 
@@ -59,15 +57,9 @@ TEST_F(MetricsExtendedTest, CounterConcurrent100Threads) {
 TEST_F(MetricsExtendedTest, CounterWithAllAttributeTypes) {
   auto counter = obs::counter("attr.counter");
 
-  EXPECT_NO_THROW(counter.inc(1, {
-                                     {"str", "val"}
-  }));
-  EXPECT_NO_THROW(counter.inc(1, {
-                                     {"int", std::to_string(42)}
-  }));
-  EXPECT_NO_THROW(counter.inc(1, {
-                                     {"bool", "true"}
-  }));
+  EXPECT_NO_THROW(counter.inc(1, {{"str", "val"}}));
+  EXPECT_NO_THROW(counter.inc(1, {{"int", std::to_string(42)}}));
+  EXPECT_NO_THROW(counter.inc(1, {{"bool", "true"}}));
 }
 
 TEST_F(MetricsExtendedTest, CounterWithEmptyAttributes) {
@@ -77,18 +69,13 @@ TEST_F(MetricsExtendedTest, CounterWithEmptyAttributes) {
 
 TEST_F(MetricsExtendedTest, CounterWithDuplicateAttributeKeys) {
   auto counter = obs::counter("dup.attr");
-  EXPECT_NO_THROW(counter.inc(1, {
-                                     {"key", "val1"},
-                                     {"key", "val2"}
-  }));
+  EXPECT_NO_THROW(counter.inc(1, {{"key", "val1"}, {"key", "val2"}}));
 }
 
 TEST_F(MetricsExtendedTest, CounterWithLongAttributeValue) {
   auto counter = obs::counter("long.attr");
   std::string long_val(10000, 'x');
-  EXPECT_NO_THROW(counter.inc(1, {
-                                     {"key", long_val}
-  }));
+  EXPECT_NO_THROW(counter.inc(1, {{"key", long_val}}));
 }
 
 TEST_F(MetricsExtendedTest, CounterAfterShutdown) {
@@ -160,10 +147,7 @@ TEST_F(MetricsExtendedTest, HistogramVeryLargeValue) {
 
 TEST_F(MetricsExtendedTest, HistogramWithAttributes) {
   auto hist = obs::histogram("attr.hist");
-  EXPECT_NO_THROW(hist.record(42.0, {
-                                        {"method", "GET"},
-                                        {"status", "200"}
-  }));
+  EXPECT_NO_THROW(hist.record(42.0, {{"method", "GET"}, {"status", "200"}}));
 }
 
 TEST_F(MetricsExtendedTest, HistogramConcurrent) {
@@ -178,7 +162,7 @@ TEST_F(MetricsExtendedTest, HistogramConcurrent) {
     });
   }
 
-  for (auto& t : threads) {
+  for (auto &t : threads) {
     t.join();
   }
 
@@ -252,7 +236,7 @@ TEST_F(MetricsExtendedTest, GaugeConcurrentAdditions) {
     });
   }
 
-  for (auto& t : threads) {
+  for (auto &t : threads) {
     t.join();
   }
 
@@ -330,7 +314,7 @@ TEST_F(MetricsExtendedTest, DurationHistogramConcurrent) {
     });
   }
 
-  for (auto& t : threads) {
+  for (auto &t : threads) {
     t.join();
   }
 
@@ -351,9 +335,7 @@ TEST_F(MetricsExtendedTest, DurationHistogramDifferentChronoTypes) {
 TEST_F(MetricsExtendedTest, DurationHistogramWithAttributes) {
   auto hist = obs::register_duration_histogram("attr.duration");
   auto duration = std::chrono::milliseconds(100);
-  EXPECT_NO_THROW(hist.record(duration, {
-                                            {"operation", "query"}
-  }));
+  EXPECT_NO_THROW(hist.record(duration, {{"operation", "query"}}));
 }
 
 // ============================================================================
@@ -392,7 +374,7 @@ TEST_F(MetricsExtendedTest, AllMetricTypesConcurrent) {
     }
   });
 
-  for (auto& t : threads) {
+  for (auto &t : threads) {
     t.join();
   }
 

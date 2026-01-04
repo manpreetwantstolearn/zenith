@@ -1,14 +1,13 @@
 #include "AffinityExecutor.h"
 
-#include <gtest/gtest.h>
-
 #include <atomic>
+#include <gtest/gtest.h>
 #include <latch>
 #include <mutex>
 #include <set>
 #include <thread>
 
-namespace zenith::execution {
+namespace astra::execution {
 
 using namespace std::chrono_literals;
 
@@ -18,7 +17,7 @@ using namespace std::chrono_literals;
 
 class TestHandler : public IMessageHandler {
 public:
-  void handle(Message& msg) override {
+  void handle(Message &msg) override {
     std::lock_guard<std::mutex> lock(m_mutex);
     m_processed_count++;
     m_last_affinity_key = msg.affinity_key;
@@ -148,7 +147,9 @@ TEST_F(AffinityExecutorTest, ProcessesMultipleMessages) {
   executor.start();
 
   for (int i = 0; i < 100; ++i) {
-    Message msg{.affinity_key = static_cast<uint64_t>(i), .trace_ctx = {}, .payload = {}};
+    Message msg{.affinity_key = static_cast<uint64_t>(i),
+                .trace_ctx = {},
+                .payload = {}};
     executor.submit(std::move(msg));
   }
 
@@ -186,7 +187,9 @@ TEST_F(AffinityExecutorTest, DifferentAffinityKeysCanUseDifferentLanes) {
 
   // Submit messages with different affinity keys
   for (int i = 0; i < 100; ++i) {
-    Message msg{.affinity_key = static_cast<uint64_t>(i), .trace_ctx = {}, .payload = {}};
+    Message msg{.affinity_key = static_cast<uint64_t>(i),
+                .trace_ctx = {},
+                .payload = {}};
     executor.submit(std::move(msg));
   }
 
@@ -207,7 +210,9 @@ TEST_F(AffinityExecutorTest, AffinityKeyModuloDistribution) {
   // Keys 2, 6 -> lane 2
   // Keys 3, 7 -> lane 3
   for (int i = 0; i < 10; ++i) {
-    Message msg{.affinity_key = static_cast<uint64_t>(i), .trace_ctx = {}, .payload = {}};
+    Message msg{.affinity_key = static_cast<uint64_t>(i),
+                .trace_ctx = {},
+                .payload = {}};
     executor.submit(std::move(msg));
   }
 
@@ -240,7 +245,7 @@ TEST_F(AffinityExecutorTest, PropagatesTraceContext) {
 TEST_F(AffinityExecutorTest, PayloadPreserved) {
   struct PayloadCapture : public IMessageHandler {
     std::string received;
-    void handle(Message& msg) override {
+    void handle(Message &msg) override {
       received = std::any_cast<std::string>(msg.payload);
     }
   } payload_handler;
@@ -248,7 +253,8 @@ TEST_F(AffinityExecutorTest, PayloadPreserved) {
   AffinityExecutor executor(2, payload_handler);
   executor.start();
 
-  Message msg{.affinity_key = 1, .trace_ctx = {}, .payload = std::string("test data")};
+  Message msg{
+      .affinity_key = 1, .trace_ctx = {}, .payload = std::string("test data")};
   executor.submit(std::move(msg));
 
   std::this_thread::sleep_for(50ms);
@@ -266,7 +272,9 @@ TEST_F(AffinityExecutorTest, SingleLaneExecutor) {
   executor.start();
 
   for (int i = 0; i < 10; ++i) {
-    Message msg{.affinity_key = static_cast<uint64_t>(i), .trace_ctx = {}, .payload = {}};
+    Message msg{.affinity_key = static_cast<uint64_t>(i),
+                .trace_ctx = {},
+                .payload = {}};
     executor.submit(std::move(msg));
   }
 
@@ -283,7 +291,9 @@ TEST_F(AffinityExecutorTest, HighThroughput) {
 
   constexpr int num_messages = 10000;
   for (int i = 0; i < num_messages; ++i) {
-    Message msg{.affinity_key = static_cast<uint64_t>(i), .trace_ctx = {}, .payload = {}};
+    Message msg{.affinity_key = static_cast<uint64_t>(i),
+                .trace_ctx = {},
+                .payload = {}};
     executor.submit(std::move(msg));
   }
 
@@ -299,7 +309,9 @@ TEST_F(AffinityExecutorTest, LongRunningHandler) {
   executor.start();
 
   for (int i = 0; i < 4; ++i) {
-    Message msg{.affinity_key = static_cast<uint64_t>(i), .trace_ctx = {}, .payload = {}};
+    Message msg{.affinity_key = static_cast<uint64_t>(i),
+                .trace_ctx = {},
+                .payload = {}};
     executor.submit(std::move(msg));
   }
 
@@ -309,4 +321,4 @@ TEST_F(AffinityExecutorTest, LongRunningHandler) {
   EXPECT_EQ(handler.processed_count(), 4);
 }
 
-} // namespace zenith::execution
+} // namespace astra::execution

@@ -1,12 +1,11 @@
 #pragma once
 
-#include <memory>
-
 #include <IMessageHandler.h>
 #include <Log.h>
 #include <MetricsRegistry.h>
 #include <Span.h>
 #include <Tracer.h>
+#include <memory>
 
 namespace uri_shortener {
 
@@ -15,14 +14,14 @@ namespace uri_shortener {
  *
  * Adds observability (spans, metrics) to message handling.
  */
-class ObservableMessageHandler : public zenith::execution::IMessageHandler {
+class ObservableMessageHandler : public astra::execution::IMessageHandler {
 public:
-  explicit ObservableMessageHandler(zenith::execution::IMessageHandler& inner);
+  explicit ObservableMessageHandler(astra::execution::IMessageHandler &inner);
 
-  void handle(zenith::execution::Message& msg) override;
+  void handle(astra::execution::Message &msg) override;
 
 private:
-  zenith::execution::IMessageHandler& m_inner;
+  astra::execution::IMessageHandler &m_inner;
   std::shared_ptr<obs::Tracer> m_tracer;
   obs::MetricsRegistry m_metrics;
 };

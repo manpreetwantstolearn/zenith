@@ -1,12 +1,11 @@
 #include "MongoClient.h"
 
+#include <JsonWriter.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include <JsonWriter.h>
-
 using namespace testing;
-using namespace zenith::mongo;
+using namespace astra::mongo;
 
 TEST(MongoClientTest, Instantiation) {
   EXPECT_NO_THROW({ MongoClient client; });
@@ -81,7 +80,8 @@ protected:
   void SetUp() override {
     auto connectResult = m_client.connect("mongodb://127.0.0.1:27017");
     if (connectResult.is_err()) {
-      GTEST_SKIP() << "MongoDB connection failed: " << connectResult.error().message;
+      GTEST_SKIP() << "MongoDB connection failed: "
+                   << connectResult.error().message;
     }
 
     // Try a simple operation to check connectivity
@@ -96,32 +96,38 @@ protected:
 
 TEST_F(MongoClientCRUDTest, CRUDOperations) {
   // Insert using JsonWriter
-  zenith::json::JsonWriter writer;
+  astra::json::JsonWriter writer;
   writer.add("test_key", "test_value");
   std::string docJson = writer.get_string();
 
   auto insertResult = m_client.insertOne("test_db", "test_collection", docJson);
-  ASSERT_TRUE(insertResult.is_ok()) << "Insert failed: " << insertResult.error().message;
+  ASSERT_TRUE(insertResult.is_ok())
+      << "Insert failed: " << insertResult.error().message;
 
   // Find
-  zenith::json::JsonWriter queryWriter;
+  astra::json::JsonWriter queryWriter;
   queryWriter.add("test_key", "test_value");
   std::string queryJson = queryWriter.get_string();
 
   auto findResult = m_client.find("test_db", "test_collection", queryJson);
-  ASSERT_TRUE(findResult.is_ok()) << "Find failed: " << findResult.error().message;
+  ASSERT_TRUE(findResult.is_ok())
+      << "Find failed: " << findResult.error().message;
   EXPECT_FALSE(findResult.value().empty());
 
   // Update
   std::string updateJson = R"({"$set": {"test_key": "updated_value"}})";
-  auto updateResult = m_client.updateMany("test_db", "test_collection", queryJson, updateJson);
-  ASSERT_TRUE(updateResult.is_ok()) << "Update failed: " << updateResult.error().message;
+  auto updateResult =
+      m_client.updateMany("test_db", "test_collection", queryJson, updateJson);
+  ASSERT_TRUE(updateResult.is_ok())
+      << "Update failed: " << updateResult.error().message;
 
   // Delete
-  zenith::json::JsonWriter deleteWriter;
+  astra::json::JsonWriter deleteWriter;
   deleteWriter.add("test_key", "updated_value");
   std::string deleteFilterJson = deleteWriter.get_string();
 
-  auto deleteResult = m_client.deleteMany("test_db", "test_collection", deleteFilterJson);
-  ASSERT_TRUE(deleteResult.is_ok()) << "Delete failed: " << deleteResult.error().message;
+  auto deleteResult =
+      m_client.deleteMany("test_db", "test_collection", deleteFilterJson);
+  ASSERT_TRUE(deleteResult.is_ok())
+      << "Delete failed: " << deleteResult.error().message;
 }

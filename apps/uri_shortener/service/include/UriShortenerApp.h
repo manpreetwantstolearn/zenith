@@ -10,12 +10,12 @@ public:
 
   [[nodiscard]] int run();
 
-  UriShortenerApp(UriShortenerApp&&) noexcept;
-  UriShortenerApp& operator=(UriShortenerApp&&) noexcept;
+  UriShortenerApp(UriShortenerApp &&) noexcept;
+  UriShortenerApp &operator=(UriShortenerApp &&) noexcept;
   ~UriShortenerApp();
 
-  UriShortenerApp(const UriShortenerApp&) = delete;
-  UriShortenerApp& operator=(const UriShortenerApp&) = delete;
+  UriShortenerApp(const UriShortenerApp &) = delete;
+  UriShortenerApp &operator=(const UriShortenerApp &) = delete;
 
 private:
   UriShortenerComponents m_components;

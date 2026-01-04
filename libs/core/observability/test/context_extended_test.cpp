@@ -1,12 +1,10 @@
-#include <gtest/gtest.h>
-
-#include <set>
-#include <thread>
-
 #include <Context.h>
 #include <Provider.h>
 #include <Span.h>
 #include <Tracer.h>
+#include <gtest/gtest.h>
+#include <set>
+#include <thread>
 
 class ContextExtendedTest : public ::testing::Test {
 protected:
@@ -134,13 +132,13 @@ TEST_F(ContextExtendedTest, TraceparentParsingInvalid) {
   EXPECT_FALSE(ctx1.is_valid());
 
   // Invalid version
-  auto ctx2 =
-      obs::Context::from_traceparent("01-00000000000000000000000000000000-0000000000000000-00");
+  auto ctx2 = obs::Context::from_traceparent(
+      "01-00000000000000000000000000000000-0000000000000000-00");
   EXPECT_FALSE(ctx2.is_valid());
 
   // Missing delimiters
-  auto ctx3 =
-      obs::Context::from_traceparent("00000000000000000000000000000000000000000000000000000");
+  auto ctx3 = obs::Context::from_traceparent(
+      "00000000000000000000000000000000000000000000000000000");
   EXPECT_FALSE(ctx3.is_valid());
 }
 
@@ -269,7 +267,7 @@ TEST_F(ContextExtendedTest, ConcurrentContextCreation) {
     });
   }
 
-  for (auto& t : threads) {
+  for (auto &t : threads) {
     t.join();
   }
 

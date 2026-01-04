@@ -14,7 +14,7 @@ target_include_directories(http1.1client
 
 target_link_libraries(http1.1client
     PRIVATE
-        zenith_sanitizers
+        astra_sanitizers
         Boost::system
         Boost::thread
 )
@@ -23,7 +23,7 @@ target_compile_features(http1.1client PUBLIC cxx_std_17)
 
 enable_testing()
 
-zenith_add_test(
+astra_add_test(
     TARGET http1_client_test
     SOURCES tests/http1_client_test.cpp
     LIBRARIES http1.1client

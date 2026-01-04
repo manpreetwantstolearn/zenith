@@ -15,7 +15,7 @@ target_include_directories(mongoclient
 
 target_link_libraries(mongoclient
     PRIVATE
-        zenith_sanitizers
+        astra_sanitizers
         observability
         mongo::mongocxx_static
         mongo::bsoncxx_static
@@ -23,13 +23,13 @@ target_link_libraries(mongoclient
         outcome
 )
 
-zenith_add_test(
+astra_add_test(
     TARGET mongo_integration_test
     SOURCES tests/mongo_integration_test.cpp
     LIBRARIES mongoclient json
 )
 
-zenith_add_test(
+astra_add_test(
     TARGET mongo_mock_test
     SOURCES tests/mongo_mock_test.cpp
     LIBRARIES mongoclient

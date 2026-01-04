@@ -2,12 +2,11 @@
 
 #include "UriShortenerRequestHandler.h"
 
-#include <memory>
-
 #include <Log.h>
 #include <MetricsRegistry.h>
 #include <Span.h>
 #include <Tracer.h>
+#include <memory>
 
 namespace uri_shortener {
 
@@ -18,13 +17,13 @@ namespace uri_shortener {
  */
 class ObservableRequestHandler {
 public:
-  explicit ObservableRequestHandler(UriShortenerRequestHandler& inner);
+  explicit ObservableRequestHandler(UriShortenerRequestHandler &inner);
 
-  void handle(std::shared_ptr<zenith::router::IRequest> req,
-              std::shared_ptr<zenith::router::IResponse> res);
+  void handle(std::shared_ptr<astra::router::IRequest> req,
+              std::shared_ptr<astra::router::IResponse> res);
 
 private:
-  UriShortenerRequestHandler& m_inner;
+  UriShortenerRequestHandler &m_inner;
   std::shared_ptr<obs::Tracer> m_tracer;
   obs::MetricsRegistry m_metrics;
 };

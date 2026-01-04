@@ -3,10 +3,9 @@
 #include "Result.h"
 #include "uri_shortener.pb.h"
 
-#include <google/protobuf/util/json_util.h>
-
 #include <cstdlib>
 #include <fstream>
+#include <google/protobuf/util/json_util.h>
 #include <iostream>
 #include <optional>
 #include <sstream>
@@ -14,11 +13,11 @@
 
 namespace uri_shortener {
 
-using ConfigResult = zenith::outcome::Result<Config, std::string>;
+using ConfigResult = astra::outcome::Result<Config, std::string>;
 
 class ProtoConfigLoader {
 public:
-  static ConfigResult loadFromFile(const std::string& path) {
+  static ConfigResult loadFromFile(const std::string &path) {
     std::ifstream file(path);
     if (!file.is_open()) {
       return ConfigResult::Err("Failed to open config file: " + path);
@@ -33,14 +32,16 @@ public:
     return loadFromFile("config/uri_shortener.json");
   }
 
-  static ConfigResult loadFromString(const std::string& json) {
+  static ConfigResult loadFromString(const std::string &json) {
     Config config;
     google::protobuf::util::JsonParseOptions options;
     options.ignore_unknown_fields = true;
 
-    auto status = google::protobuf::util::JsonStringToMessage(json, &config, options);
+    auto status =
+        google::protobuf::util::JsonStringToMessage(json, &config, options);
     if (!status.ok()) {
-      return ConfigResult::Err("JSON parse error: " + std::string(status.message()));
+      return ConfigResult::Err("JSON parse error: " +
+                               std::string(status.message()));
     }
 
     auto validation_error = validate(config);
@@ -52,9 +53,9 @@ public:
   }
 
 private:
-  static std::optional<std::string> validate(const Config& config) {
+  static std::optional<std::string> validate(const Config &config) {
     if (config.has_bootstrap()) {
-      const auto& bootstrap = config.bootstrap();
+      const auto &bootstrap = config.bootstrap();
 
       if (bootstrap.has_server()) {
         int port = bootstrap.server().port();
@@ -63,7 +64,8 @@ private:
         }
       }
 
-      if (bootstrap.has_execution() && bootstrap.execution().has_pool_executor()) {
+      if (bootstrap.has_execution() &&
+          bootstrap.execution().has_pool_executor()) {
         if (bootstrap.execution().pool_executor().num_workers() <= 0) {
           return "Invalid execution.pool_executor.num_workers: must be > 0";
         }

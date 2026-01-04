@@ -2,10 +2,9 @@
 #include "JsonWriter.h"
 
 #include <benchmark/benchmark.h>
-
 #include <string>
 
-using namespace zenith::json;
+using namespace astra::json;
 
 // =============================================================================
 // Parse Benchmarks
@@ -33,13 +32,14 @@ static const std::string large_json = []() {
     if (i > 0) {
       json += ",";
     }
-    json += "{\"id\":" + std::to_string(i) + ",\"name\":\"item" + std::to_string(i) + "\"}";
+    json += "{\"id\":" + std::to_string(i) + ",\"name\":\"item" +
+            std::to_string(i) + "\"}";
   }
   json += "]}";
   return json;
 }();
 
-static void BM_ParseSmall(benchmark::State& state) {
+static void BM_ParseSmall(benchmark::State &state) {
   for (auto _ : state) {
     auto doc = JsonDocument::parse(small_json);
     benchmark::DoNotOptimize(doc);
@@ -47,7 +47,7 @@ static void BM_ParseSmall(benchmark::State& state) {
 }
 BENCHMARK(BM_ParseSmall);
 
-static void BM_ParseMedium(benchmark::State& state) {
+static void BM_ParseMedium(benchmark::State &state) {
   for (auto _ : state) {
     auto doc = JsonDocument::parse(medium_json);
     benchmark::DoNotOptimize(doc);
@@ -55,7 +55,7 @@ static void BM_ParseMedium(benchmark::State& state) {
 }
 BENCHMARK(BM_ParseMedium);
 
-static void BM_ParseLarge(benchmark::State& state) {
+static void BM_ParseLarge(benchmark::State &state) {
   for (auto _ : state) {
     auto doc = JsonDocument::parse(large_json);
     benchmark::DoNotOptimize(doc);
@@ -67,7 +67,7 @@ BENCHMARK(BM_ParseLarge);
 // Access Benchmarks
 // =============================================================================
 
-static void BM_GetString(benchmark::State& state) {
+static void BM_GetString(benchmark::State &state) {
   auto doc = JsonDocument::parse(medium_json);
   auto user = doc.get_child("user");
 
@@ -78,7 +78,7 @@ static void BM_GetString(benchmark::State& state) {
 }
 BENCHMARK(BM_GetString);
 
-static void BM_GetInt(benchmark::State& state) {
+static void BM_GetInt(benchmark::State &state) {
   auto doc = JsonDocument::parse(medium_json);
   auto user = doc.get_child("user");
 
@@ -89,7 +89,7 @@ static void BM_GetInt(benchmark::State& state) {
 }
 BENCHMARK(BM_GetInt);
 
-static void BM_Contains(benchmark::State& state) {
+static void BM_Contains(benchmark::State &state) {
   auto doc = JsonDocument::parse(medium_json);
 
   for (auto _ : state) {
@@ -103,7 +103,7 @@ BENCHMARK(BM_Contains);
 // Write Benchmarks
 // =============================================================================
 
-static void BM_WriteSmall(benchmark::State& state) {
+static void BM_WriteSmall(benchmark::State &state) {
   for (auto _ : state) {
     JsonWriter writer;
     writer.add("name", "test");
@@ -114,7 +114,7 @@ static void BM_WriteSmall(benchmark::State& state) {
 }
 BENCHMARK(BM_WriteSmall);
 
-static void BM_WriteMedium(benchmark::State& state) {
+static void BM_WriteMedium(benchmark::State &state) {
   for (auto _ : state) {
     JsonWriter writer;
     writer.start_object("user");

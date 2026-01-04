@@ -2,12 +2,12 @@
 # =============================================================================
 # URI Shortener - Runtime Container Image (Kubernetes)
 # =============================================================================
-# Build with Buildah (from zenith root directory, INSIDE the dev container):
+# Build with Buildah (from astra root directory, INSIDE the dev container):
 #   buildah bud -f apps/uri_shortener/Dockerfile --target release -t uri-shortener:v1 .
 #   buildah bud -f apps/uri_shortener/Dockerfile --target debug -t uri-shortener:v1-debug .
 #
 # Prerequisites:
-#   1. Run inside the dev container (zenithbuilder)
+#   1. Run inside the dev container (astrabuilder)
 #   2. Compile binary: cmake --preset clang-release && cmake --build build/clang-release
 #
 # Note: Libraries are copied from /usr/local/lib which exists in the dev container.

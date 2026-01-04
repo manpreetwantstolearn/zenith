@@ -1,18 +1,17 @@
 #include "Router.h"
-
 #include "fuzztest/fuzztest.h"
-#include "gtest/gtest.h"
 
+#include "gtest/gtest.h"
 #include <string>
 
-using namespace zenith::router;
+using namespace astra::router;
 
 // =============================================================================
 // Fuzz Targets
 // =============================================================================
 
 // Core fuzz target: match() should never crash
-void MatchNeverCrashes(const std::string& method, const std::string& path) {
+void MatchNeverCrashes(const std::string &method, const std::string &path) {
   Router router;
 
   // Add some routes
@@ -28,19 +27,19 @@ void MatchNeverCrashes(const std::string& method, const std::string& path) {
 FUZZ_TEST(RouterFuzzTest, MatchNeverCrashes);
 
 // Fuzz adding routes with random paths
-void AddRouteNeverCrashes(const std::string& path) {
+void AddRouteNeverCrashes(const std::string &path) {
   Router router;
 
   try {
     router.get(path, [](auto, auto) {});
-  } catch (const std::exception&) {
+  } catch (const std::exception &) {
     // Allowed
   }
 }
 FUZZ_TEST(RouterFuzzTest, AddRouteNeverCrashes);
 
 // Fuzz with path parameters
-void MatchWithParams(const std::string& userId, const std::string& action) {
+void MatchWithParams(const std::string &userId, const std::string &action) {
   Router router;
   router.get("/users/:userId/:action", [](auto, auto) {});
 
@@ -59,7 +58,7 @@ void MatchWithParams(const std::string& userId, const std::string& action) {
 FUZZ_TEST(RouterFuzzTest, MatchWithParams);
 
 // Fuzz all HTTP methods
-void MatchAllMethods(const std::string& path) {
+void MatchAllMethods(const std::string &path) {
   Router router;
   router.get("/test", [](auto, auto) {});
   router.post("/test", [](auto, auto) {});

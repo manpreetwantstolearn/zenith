@@ -4,11 +4,10 @@
 #include "IRequest.h"
 #include "IResponse.h"
 
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
-
 #include <atomic>
 #include <chrono>
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 #include <thread>
 
 using namespace testing;
@@ -17,9 +16,9 @@ using namespace std::chrono_literals;
 namespace {
 
 // Helper to create proto config for tests
-zenith::http2::ServerConfig make_config(const std::string& address, uint32_t port,
-                                        uint32_t threads = 1) {
-  zenith::http2::ServerConfig config;
+astra::http2::ServerConfig make_config(const std::string &address,
+                                       uint32_t port, uint32_t threads = 1) {
+  astra::http2::ServerConfig config;
   config.set_address(address);
   config.set_port(port);
   config.set_thread_count(threads);
@@ -35,14 +34,15 @@ zenith::http2::ServerConfig make_config(const std::string& address, uint32_t por
 
 // Test 1: Handler receives shared_ptr to types
 TEST(HandlerSignatureTest, HandlerReceivesReferences) {
-  auto server = std::make_unique<zenith::http2::Http2Server>(make_config("127.0.0.1", 9100));
+  auto server = std::make_unique<astra::http2::Http2Server>(
+      make_config("127.0.0.1", 9100));
 
   bool handler_called = false;
 
   // Handler signature: shared_ptr<IRequest>, shared_ptr<IResponse>
   server->handle("GET", "/test",
-                 [&](std::shared_ptr<zenith::router::IRequest> req,
-                     std::shared_ptr<zenith::router::IResponse> res) {
+                 [&](std::shared_ptr<astra::router::IRequest> req,
+                     std::shared_ptr<astra::router::IResponse> res) {
                    handler_called = true;
                    res->close();
                  });
@@ -53,17 +53,18 @@ TEST(HandlerSignatureTest, HandlerReceivesReferences) {
 
 // Test 2: Multiple handlers can be registered
 TEST(HandlerSignatureTest, MultipleHandlers) {
-  auto server = std::make_unique<zenith::http2::Http2Server>(make_config("127.0.0.1", 9101));
+  auto server = std::make_unique<astra::http2::Http2Server>(
+      make_config("127.0.0.1", 9101));
 
   server->handle("GET", "/path1",
-                 [](std::shared_ptr<zenith::router::IRequest> req,
-                    std::shared_ptr<zenith::router::IResponse> res) {
+                 [](std::shared_ptr<astra::router::IRequest> req,
+                    std::shared_ptr<astra::router::IResponse> res) {
                    res->close();
                  });
 
   server->handle("POST", "/path2",
-                 [](std::shared_ptr<zenith::router::IRequest> req,
-                    std::shared_ptr<zenith::router::IResponse> res) {
+                 [](std::shared_ptr<astra::router::IRequest> req,
+                    std::shared_ptr<astra::router::IResponse> res) {
                    res->close();
                  });
 
@@ -72,11 +73,12 @@ TEST(HandlerSignatureTest, MultipleHandlers) {
 
 // Test 3: Handler can access request and response methods
 TEST(HandlerSignatureTest, AccessRequestResponseMethods) {
-  auto server = std::make_unique<zenith::http2::Http2Server>(make_config("127.0.0.1", 9102));
+  auto server = std::make_unique<astra::http2::Http2Server>(
+      make_config("127.0.0.1", 9102));
 
   server->handle("GET", "/test",
-                 [](std::shared_ptr<zenith::router::IRequest> req,
-                    std::shared_ptr<zenith::router::IResponse> res) {
+                 [](std::shared_ptr<astra::router::IRequest> req,
+                    std::shared_ptr<astra::router::IResponse> res) {
                    // Access request methods
                    [[maybe_unused]] auto path = req->path();
                    [[maybe_unused]] auto method = req->method();
@@ -92,24 +94,27 @@ TEST(HandlerSignatureTest, AccessRequestResponseMethods) {
 
 // Test 4: Router integration
 TEST(HandlerSignatureTest, RouterIntegration) {
-  auto server = std::make_unique<zenith::http2::Http2Server>(make_config("127.0.0.1", 9103));
+  auto server = std::make_unique<astra::http2::Http2Server>(
+      make_config("127.0.0.1", 9103));
 
   // Access router directly - now uses shared_ptr
-  server->router().get("/route", [](std::shared_ptr<zenith::router::IRequest> req,
-                                    std::shared_ptr<zenith::router::IResponse> res) {
-    res->set_status(200);
-    res->close();
-  });
+  server->router().get("/route",
+                       [](std::shared_ptr<astra::router::IRequest> req,
+                          std::shared_ptr<astra::router::IResponse> res) {
+                         res->set_status(200);
+                         res->close();
+                       });
 
   SUCCEED();
 }
 
 // Test 5: Handler signature matches Server::Handler type
 TEST(HandlerSignatureTest, HandlerTypeCompatible) {
-  zenith::http2::Http2Server::Handler handler = [](std::shared_ptr<zenith::router::IRequest> req,
-                                                   std::shared_ptr<zenith::router::IResponse> res) {
-    res->close();
-  };
+  astra::http2::Http2Server::Handler handler =
+      [](std::shared_ptr<astra::router::IRequest> req,
+         std::shared_ptr<astra::router::IResponse> res) {
+        res->close();
+      };
 
   EXPECT_TRUE(handler != nullptr);
 }

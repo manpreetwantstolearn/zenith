@@ -5,14 +5,14 @@
 
 #include <atomic>
 
-namespace zenith::resilience {
+namespace astra::resilience {
 
 class AtomicLoadShedder : public ILoadShedder {
 public:
   explicit AtomicLoadShedder(LoadShedderPolicy policy);
 
   std::optional<LoadShedderGuard> try_acquire() override;
-  void update_policy(const LoadShedderPolicy& policy) override;
+  void update_policy(const LoadShedderPolicy &policy) override;
   [[nodiscard]] size_t current_count() const override;
   [[nodiscard]] size_t max_concurrent() const override;
 
@@ -24,4 +24,4 @@ private:
   std::string m_name;
 };
 
-} // namespace zenith::resilience
+} // namespace astra::resilience

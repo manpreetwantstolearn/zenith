@@ -34,12 +34,12 @@ find_package(OpenSSL REQUIRED)
 target_link_libraries(http2server 
     PUBLIC
         protobuf::libprotobuf
-        zenith_router
-        zenith_execution
+        astra_router
+        astra_execution
         outcome
     PRIVATE
-        zenith_utils
-        zenith_sanitizers
+        astra_utils
+        astra_sanitizers
         Boost::system 
         Boost::thread 
         Boost::chrono
@@ -56,7 +56,7 @@ target_compile_definitions(http2server PRIVATE HAS_NGHTTP2)
 enable_testing()
 
 # Test executable
-zenith_add_test(
+astra_add_test(
     TARGET http2_server_test
     SOURCES 
         tests/http2_server_test.cpp
