@@ -19,9 +19,9 @@
 #include <resilience/impl/AtomicLoadShedder.h>
 #include <resilience/policy/LoadShedderPolicy.h>
 
+#include <AffinityExecutor.h>
 #include <Log.h>
 #include <Provider.h>
-#include <StickyQueue.h>
 
 namespace uri_shortener {
 
@@ -60,7 +60,7 @@ UriShortenerBuilder& UriShortenerBuilder::backend() {
 }
 
 UriShortenerBuilder& UriShortenerBuilder::messaging() {
-  return msgHandler().pool().reqHandler().wrapObservable();
+  return msgHandler().executor().reqHandler().wrapObservable();
 }
 
 UriShortenerBuilder& UriShortenerBuilder::resilience() {
@@ -110,30 +110,29 @@ UriShortenerBuilder& UriShortenerBuilder::dataAdapter() {
 
 UriShortenerBuilder& UriShortenerBuilder::msgHandler() {
   m_components.msg_handler =
-      std::make_unique<UriShortenerMessageHandler>(m_components.data_adapter, nullptr);
+      std::make_unique<UriShortenerMessageHandler>(m_components.data_adapter);
   return *this;
 }
 
-UriShortenerBuilder& UriShortenerBuilder::pool() {
-  size_t workers = 4;
-  if (m_config.bootstrap().has_execution() && m_config.bootstrap().execution().has_shared_queue()) {
-    workers = m_config.bootstrap().execution().shared_queue().num_workers();
+UriShortenerBuilder& UriShortenerBuilder::executor() {
+  size_t num_lanes = 4;
+  if (m_config.bootstrap().has_execution() &&
+      m_config.bootstrap().execution().has_pool_executor()) {
+    num_lanes = m_config.bootstrap().execution().pool_executor().num_workers();
   }
 
   m_components.obs_msg_handler =
       std::make_unique<ObservableMessageHandler>(*m_components.msg_handler);
-  m_components.pool =
-      std::make_unique<zenith::execution::StickyQueue>(workers, *m_components.obs_msg_handler);
+  m_components.executor = std::make_unique<zenith::execution::AffinityExecutor>(
+      num_lanes, *m_components.obs_msg_handler);
 
-  auto response_queue =
-      std::shared_ptr<zenith::execution::IQueue>(m_components.pool.get(), [](auto*) {});
-  m_components.msg_handler->setResponseQueue(response_queue);
+  m_components.msg_handler->setResponseExecutor(*m_components.executor);
 
   return *this;
 }
 
 UriShortenerBuilder& UriShortenerBuilder::reqHandler() {
-  m_components.req_handler = std::make_unique<UriShortenerRequestHandler>(*m_components.pool);
+  m_components.req_handler = std::make_unique<UriShortenerRequestHandler>(*m_components.executor);
   return *this;
 }
 
@@ -170,7 +169,7 @@ zenith::outcome::Result<UriShortenerApp, BuilderError> UriShortenerBuilder::buil
   initObservability();
 
   m_components.server = std::make_unique<zenith::http2::Http2Server>(bootstrap.server());
-  m_components.pool->start();
+  m_components.executor->start();
 
   return zenith::outcome::Result<UriShortenerApp, BuilderError>::Ok(
       UriShortenerApp(std::move(m_components)));

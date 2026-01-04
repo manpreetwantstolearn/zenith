@@ -9,7 +9,7 @@
 #include <memory>
 #include <thread>
 
-#include <IQueue.h>
+#include <IExecutor.h>
 #include <Message.h>
 
 using namespace uri_shortener::service;
@@ -31,12 +31,12 @@ public:
 };
 
 // ===========================================================================
-// Mock Queue
+// Mock Executor
 // ===========================================================================
 
-class MockQueue : public IQueue {
+class MockExecutor : public IExecutor {
 public:
-  MOCK_METHOD(bool, submit, (Message msg), (override));
+  MOCK_METHOD(void, submit, (Message msg), (override));
 };
 
 // ===========================================================================
@@ -46,21 +46,20 @@ public:
 class DataServiceHandlerTest : public ::testing::Test {
 protected:
   void SetUp() override {
-    m_mock_queue = std::make_shared<MockQueue>();
   }
 
   MockDataServiceAdapter m_mock_adapter;
-  std::shared_ptr<MockQueue> m_mock_queue;
+  MockExecutor m_mock_executor;
 };
 
 // Basic message routing
 TEST_F(DataServiceHandlerTest, RoutesDataServiceRequestToAdapter) {
-  DataServiceHandler handler(m_mock_adapter, m_mock_queue);
+  DataServiceHandler handler(m_mock_adapter, m_mock_executor);
 
   DataServiceRequest ds_req{DataServiceOperation::FIND, "test123", "", nullptr, nullptr};
 
   Message msg;
-  msg.session_id = 42;
+  msg.affinity_key = 42;
   msg.payload = ds_req;
 
   EXPECT_CALL(m_mock_adapter, execute(_, _)).Times(1);
@@ -68,21 +67,21 @@ TEST_F(DataServiceHandlerTest, RoutesDataServiceRequestToAdapter) {
   handler.handle(msg);
 }
 
-// Callback submits to StickyQueue
-TEST_F(DataServiceHandlerTest, AdapterCallbackSubmitsToStickyQueue) {
-  DataServiceHandler handler(m_mock_adapter, m_mock_queue);
+// Callback submits to executor
+TEST_F(DataServiceHandlerTest, AdapterCallbackSubmitsToExecutor) {
+  DataServiceHandler handler(m_mock_adapter, m_mock_executor);
 
   DataServiceRequest ds_req{DataServiceOperation::FIND, "abc123", "", nullptr, nullptr};
 
   Message msg;
-  msg.session_id = 123;
+  msg.affinity_key = 123;
   msg.payload = ds_req;
 
   DataServiceCallback captured_callback;
 
   EXPECT_CALL(m_mock_adapter, execute(_, _)).WillOnce(SaveArg<1>(&captured_callback));
 
-  EXPECT_CALL(*m_mock_queue, submit(_)).WillOnce(::testing::Return(true));
+  EXPECT_CALL(m_mock_executor, submit(_)).Times(1);
 
   handler.handle(msg);
 
@@ -94,14 +93,14 @@ TEST_F(DataServiceHandlerTest, AdapterCallbackSubmitsToStickyQueue) {
   captured_callback(std::move(resp));
 }
 
-// Session ID preserved
-TEST_F(DataServiceHandlerTest, SessionIdPreservedInResponse) {
-  DataServiceHandler handler(m_mock_adapter, m_mock_queue);
+// Affinity key preserved
+TEST_F(DataServiceHandlerTest, AffinityKeyPreservedInResponse) {
+  DataServiceHandler handler(m_mock_adapter, m_mock_executor);
 
   DataServiceRequest ds_req{DataServiceOperation::FIND, "xyz", "", nullptr, nullptr};
 
   Message msg;
-  msg.session_id = 9999;
+  msg.affinity_key = 9999;
   msg.payload = ds_req;
 
   DataServiceCallback captured_callback;
@@ -109,9 +108,8 @@ TEST_F(DataServiceHandlerTest, SessionIdPreservedInResponse) {
 
   EXPECT_CALL(m_mock_adapter, execute(_, _)).WillOnce(SaveArg<1>(&captured_callback));
 
-  EXPECT_CALL(*m_mock_queue, submit(_)).WillOnce([&captured_response_msg](Message m) {
+  EXPECT_CALL(m_mock_executor, submit(_)).WillOnce([&captured_response_msg](Message m) {
     captured_response_msg = std::move(m);
-    return true;
   });
 
   handler.handle(msg);
@@ -121,19 +119,19 @@ TEST_F(DataServiceHandlerTest, SessionIdPreservedInResponse) {
   resp.success = true;
   captured_callback(std::move(resp));
 
-  // Verify session ID preserved
-  EXPECT_EQ(captured_response_msg.session_id, 9999);
+  // Verify affinity key preserved
+  EXPECT_EQ(captured_response_msg.affinity_key, 9999);
 }
 
 // Trace context preserved
 TEST_F(DataServiceHandlerTest, TraceContextPreservedInResponse) {
-  DataServiceHandler handler(m_mock_adapter, m_mock_queue);
+  DataServiceHandler handler(m_mock_adapter, m_mock_executor);
 
   DataServiceRequest ds_req{DataServiceOperation::SAVE, "", R"({"url":"https://test.com"})",
                             nullptr, nullptr};
 
   Message msg;
-  msg.session_id = 1;
+  msg.affinity_key = 1;
   msg.trace_ctx = obs::Context{}; // Would have real trace context
   msg.payload = ds_req;
 
@@ -142,27 +140,27 @@ TEST_F(DataServiceHandlerTest, TraceContextPreservedInResponse) {
 
   EXPECT_CALL(m_mock_adapter, execute(_, _)).WillOnce(SaveArg<1>(&captured_callback));
 
-  EXPECT_CALL(*m_mock_queue, submit(_)).WillOnce([&captured_response_msg](Message m) {
+  EXPECT_CALL(m_mock_executor, submit(_)).WillOnce([&captured_response_msg](Message m) {
     captured_response_msg = std::move(m);
-    return true;
   });
 
   handler.handle(msg);
 
   captured_callback(DataServiceResponse{});
 
-  // Response should have trace context (verification limited without real context)
+  // Response should have trace context (verification limited without real
+  // context)
   SUCCEED();
 }
 
 // Error response handling
-TEST_F(DataServiceHandlerTest, ErrorResponseSubmittedToQueue) {
-  DataServiceHandler handler(m_mock_adapter, m_mock_queue);
+TEST_F(DataServiceHandlerTest, ErrorResponseSubmittedToExecutor) {
+  DataServiceHandler handler(m_mock_adapter, m_mock_executor);
 
   DataServiceRequest ds_req{DataServiceOperation::FIND, "notfound", "", nullptr, nullptr};
 
   Message msg;
-  msg.session_id = 500;
+  msg.affinity_key = 500;
   msg.payload = ds_req;
 
   DataServiceCallback captured_callback;
@@ -170,9 +168,8 @@ TEST_F(DataServiceHandlerTest, ErrorResponseSubmittedToQueue) {
 
   EXPECT_CALL(m_mock_adapter, execute(_, _)).WillOnce(SaveArg<1>(&captured_callback));
 
-  EXPECT_CALL(*m_mock_queue, submit(_)).WillOnce([&captured_response_msg](Message m) {
+  EXPECT_CALL(m_mock_executor, submit(_)).WillOnce([&captured_response_msg](Message m) {
     captured_response_msg = std::move(m);
-    return true;
   });
 
   handler.handle(msg);

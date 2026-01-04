@@ -1,5 +1,6 @@
 /// @file proto_config_extended_test.cpp
-/// @brief Extended TDD tests for protobuf config - edge cases, validation, file I/O
+/// @brief Extended TDD tests for protobuf config - edge cases, validation, file
+/// I/O
 /// @note Tests for new config structure with imported library definitions
 
 #include "execution.pb.h"
@@ -50,9 +51,9 @@ TEST(EdgeCasesTest, PortMaxUint32) {
 }
 
 TEST(EdgeCasesTest, WorkerCountMax) {
-  execution::SharedQueueConfig sq;
-  sq.set_num_workers(std::numeric_limits<uint32_t>::max());
-  EXPECT_EQ(sq.num_workers(), std::numeric_limits<uint32_t>::max());
+  execution::PoolExecutorConfig pe;
+  pe.set_num_workers(std::numeric_limits<uint32_t>::max());
+  EXPECT_EQ(pe.num_workers(), std::numeric_limits<uint32_t>::max());
 }
 
 TEST(EdgeCasesTest, TraceSampleRateZero) {

@@ -1,13 +1,12 @@
-find_package(Threads REQUIRED)
 find_package(Protobuf REQUIRED)
 
-# Generate protobuf code
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS config/execution.proto)
 
 add_library(zenith_execution
-    src/SharedQueue.cpp
-    src/StickyQueue.cpp
-    src/ObservableMessagePool.cpp
+    src/MessageQueue.cpp
+    src/AffinityExecutor.cpp
+    src/PoolExecutor.cpp
+    src/ObservableExecutor.cpp
     ${PROTO_SRCS}
 )
 
@@ -20,13 +19,11 @@ target_include_directories(zenith_execution
 target_link_libraries(zenith_execution
     PRIVATE
         zenith_sanitizers
-        Threads::Threads
     PUBLIC
         observability
         protobuf::libprotobuf
 )
 
-# Add tests if testing is enabled
 if(BUILD_TESTING)
     add_subdirectory(tests)
 endif()

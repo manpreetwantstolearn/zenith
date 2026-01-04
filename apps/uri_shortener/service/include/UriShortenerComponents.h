@@ -10,7 +10,7 @@ namespace zenith::service_discovery {
 class IServiceResolver;
 }
 namespace zenith::execution {
-class StickyQueue;
+class AffinityExecutor;
 }
 namespace zenith::resilience {
 class AtomicLoadShedder;
@@ -48,7 +48,7 @@ struct UriShortenerComponents {
 
   std::unique_ptr<UriShortenerMessageHandler> msg_handler;
   std::unique_ptr<ObservableMessageHandler> obs_msg_handler;
-  std::unique_ptr<zenith::execution::StickyQueue> pool;
+  std::unique_ptr<zenith::execution::AffinityExecutor> executor;
   std::unique_ptr<UriShortenerRequestHandler> req_handler;
   std::unique_ptr<ObservableRequestHandler> obs_req_handler;
 

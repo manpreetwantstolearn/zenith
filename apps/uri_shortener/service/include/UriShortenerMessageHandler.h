@@ -6,8 +6,8 @@
 #include <memory>
 
 #include <Context.h>
+#include <IExecutor.h>
 #include <IMessageHandler.h>
-#include <IQueue.h>
 #include <IRequest.h>
 #include <IResponse.h>
 
@@ -15,16 +15,15 @@ namespace uri_shortener {
 
 class UriShortenerMessageHandler : public zenith::execution::IMessageHandler {
 public:
-  UriShortenerMessageHandler(std::shared_ptr<service::IDataServiceAdapter> adapter,
-                             std::shared_ptr<zenith::execution::IQueue> response_queue);
+  explicit UriShortenerMessageHandler(std::shared_ptr<service::IDataServiceAdapter> adapter);
 
-  void setResponseQueue(std::shared_ptr<zenith::execution::IQueue> queue);
+  void setResponseExecutor(zenith::execution::IExecutor& executor);
 
   void handle(zenith::execution::Message& msg) override;
 
 private:
   void processHttpRequest(std::shared_ptr<zenith::router::IRequest> req,
-                          std::shared_ptr<zenith::router::IResponse> res, uint64_t session_id,
+                          std::shared_ptr<zenith::router::IResponse> res, uint64_t affinity_key,
                           obs::Context& trace_ctx);
 
   void processDataServiceResponse(service::DataServiceResponse& resp);
@@ -33,7 +32,7 @@ private:
   service::DataServiceOperation to_data_service_op(const std::string& operation);
 
   std::shared_ptr<service::IDataServiceAdapter> m_adapter;
-  std::shared_ptr<zenith::execution::IQueue> m_response_queue;
+  zenith::execution::IExecutor* m_response_executor{nullptr};
 };
 
 } // namespace uri_shortener

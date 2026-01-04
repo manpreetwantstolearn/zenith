@@ -11,7 +11,7 @@ uri_shortener::Config makeValidConfig() {
   config.set_schema_version(1);
   config.mutable_bootstrap()->mutable_server()->set_address("127.0.0.1");
   config.mutable_bootstrap()->mutable_server()->set_port(8080);
-  config.mutable_bootstrap()->mutable_execution()->mutable_shared_queue()->set_num_workers(2);
+  config.mutable_bootstrap()->mutable_execution()->mutable_pool_executor()->set_num_workers(2);
   config.mutable_bootstrap()->mutable_service()->set_name("uri-shortener-test");
   config.mutable_bootstrap()->mutable_service()->set_environment("test");
   return config;

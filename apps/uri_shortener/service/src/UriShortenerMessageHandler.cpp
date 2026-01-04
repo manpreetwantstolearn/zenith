@@ -17,21 +17,18 @@ using RequestResponsePair = std::pair<std::shared_ptr<zenith::router::IRequest>,
                                       std::shared_ptr<zenith::router::IResponse>>;
 
 UriShortenerMessageHandler::UriShortenerMessageHandler(
-    std::shared_ptr<service::IDataServiceAdapter> adapter,
-    std::shared_ptr<zenith::execution::IQueue> response_queue) :
-    m_adapter(std::move(adapter)), m_response_queue(std::move(response_queue)) {
+    std::shared_ptr<service::IDataServiceAdapter> adapter) : m_adapter(std::move(adapter)) {
 }
 
-void UriShortenerMessageHandler::setResponseQueue(
-    std::shared_ptr<zenith::execution::IQueue> queue) {
-  m_response_queue = std::move(queue);
+void UriShortenerMessageHandler::setResponseExecutor(zenith::execution::IExecutor& executor) {
+  m_response_executor = &executor;
 }
 
 void UriShortenerMessageHandler::handle(zenith::execution::Message& msg) {
   try {
     // Try pair payload first (new format - HTTP request)
     auto& pair = std::any_cast<RequestResponsePair&>(msg.payload);
-    processHttpRequest(pair.first, pair.second, msg.session_id, msg.trace_ctx);
+    processHttpRequest(pair.first, pair.second, msg.affinity_key, msg.trace_ctx);
   } catch (const std::bad_any_cast&) {
     try {
       // Try DataServiceResponse (callback from adapter)
@@ -45,7 +42,8 @@ void UriShortenerMessageHandler::handle(zenith::execution::Message& msg) {
 
 void UriShortenerMessageHandler::processHttpRequest(std::shared_ptr<zenith::router::IRequest> req,
                                                     std::shared_ptr<zenith::router::IResponse> res,
-                                                    uint64_t session_id, obs::Context& trace_ctx) {
+                                                    uint64_t affinity_key,
+                                                    obs::Context& trace_ctx) {
   std::string method(req->method());
   std::string path(req->path());
   std::string body(req->body());
@@ -106,22 +104,22 @@ void UriShortenerMessageHandler::processHttpRequest(std::shared_ptr<zenith::rout
     return;
   }
 
-  // Capture session_id and trace_ctx for callback
-  auto captured_session_id = session_id;
+  // Capture affinity_key and trace_ctx for callback
+  auto captured_affinity_key = affinity_key;
   auto captured_trace_ctx = trace_ctx;
-  auto response_queue = m_response_queue;
+  auto response_executor = m_response_executor;
 
-  // Call adapter with callback that submits response to queue
-  m_adapter->execute(ds_req, [response_queue, captured_session_id,
+  // Call adapter with callback that submits response to executor
+  m_adapter->execute(ds_req, [response_executor, captured_affinity_key,
                               captured_trace_ctx](service::DataServiceResponse resp) {
-    // Submit response back to StickyQueue for processing
+    // Submit response back to executor for processing
     zenith::execution::Message response_msg;
-    response_msg.session_id = captured_session_id;
+    response_msg.affinity_key = captured_affinity_key;
     response_msg.trace_ctx = captured_trace_ctx;
     response_msg.payload = std::move(resp);
 
-    if (response_queue) {
-      response_queue->submit(std::move(response_msg));
+    if (response_executor) {
+      response_executor->submit(std::move(response_msg));
     }
   });
 }

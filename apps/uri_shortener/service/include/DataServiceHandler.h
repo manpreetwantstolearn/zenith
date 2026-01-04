@@ -4,29 +4,28 @@
 
 #include <memory>
 
+#include <IExecutor.h>
 #include <IMessageHandler.h>
-#include <IQueue.h>
 
 namespace uri_shortener::service {
 
-/// Handler for DataServiceRequest messages on SharedQueue
-/// Extracts requests, calls adapter, and submits responses back to StickyQueue
+/// Handler for DataServiceRequest messages
+/// Extracts requests, calls adapter, and submits responses back to executor
 class DataServiceHandler : public zenith::execution::IMessageHandler {
 public:
-  /// Construct with adapter and response queue
+  /// Construct with adapter and response executor
   /// @param adapter The data service adapter to use
-  /// @param response_queue Queue to submit responses back to
-  DataServiceHandler(IDataServiceAdapter& adapter,
-                     std::shared_ptr<zenith::execution::IQueue> response_queue);
+  /// @param response_executor Executor to submit responses back to
+  DataServiceHandler(IDataServiceAdapter& adapter, zenith::execution::IExecutor& response_executor);
 
   ~DataServiceHandler() override = default;
 
-  /// Handle a message from SharedQueue
+  /// Handle a message
   void handle(zenith::execution::Message& msg) override;
 
 private:
   IDataServiceAdapter& m_adapter;
-  std::shared_ptr<zenith::execution::IQueue> m_response_queue;
+  zenith::execution::IExecutor& m_response_executor;
 };
 
 } // namespace uri_shortener::service
