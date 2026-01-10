@@ -20,7 +20,7 @@ protected:
     m_config.set_request_timeout_ms(100);
   }
 
-  ClientConfig m_config;
+  ::http2::ClientConfig m_config;
 };
 
 TEST_F(Http2ClientTest, ConstructionDoesNotThrow) {
@@ -350,7 +350,7 @@ protected:
     m_config.set_request_timeout_ms(100);
   }
 
-  ClientConfig m_config;
+  ::http2::ClientConfig m_config;
 };
 
 TEST_F(NgHttp2ClientTest, InitialStateIsDisconnected) {
@@ -433,7 +433,7 @@ protected:
     m_config.set_request_timeout_ms(100);
   }
 
-  ClientConfig m_config;
+  ::http2::ClientConfig m_config;
 };
 
 TEST_F(ClientDispatcherTest, ConstructionDoesNotThrow) {

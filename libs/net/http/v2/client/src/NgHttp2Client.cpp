@@ -19,7 +19,7 @@ struct ResponseStream {
 } // namespace
 
 NgHttp2Client::NgHttp2Client(const std::string &host, uint16_t port,
-                             const ClientConfig &config,
+                             const ::http2::ClientConfig &config,
                              OnCloseCallback on_close, OnErrorCallback on_error)
     : m_host(host), m_port(port), m_config(config),
       m_on_close(std::move(on_close)), m_on_error(std::move(on_error)) {

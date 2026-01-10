@@ -4,7 +4,7 @@
 
 namespace astra::http2 {
 
-ClientDispatcher::ClientDispatcher(const ClientConfig &config)
+ClientDispatcher::ClientDispatcher(const ::http2::ClientConfig &config)
     : m_config(config) {
   m_work = std::make_unique<
       boost::asio::executor_work_guard<boost::asio::io_context::executor_type>>(

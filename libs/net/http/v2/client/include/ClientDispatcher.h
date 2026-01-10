@@ -11,7 +11,7 @@ namespace astra::http2 {
 
 class ClientDispatcher {
 public:
-  explicit ClientDispatcher(const ClientConfig &config);
+  explicit ClientDispatcher(const ::http2::ClientConfig &config);
   ~ClientDispatcher();
 
   ClientDispatcher(const ClientDispatcher &) = delete;
@@ -33,7 +33,7 @@ private:
   std::thread m_io_thread;
 
   std::unordered_map<std::string, std::unique_ptr<NgHttp2Client>> m_clients;
-  ClientConfig m_config;
+  ::http2::ClientConfig m_config;
 };
 
 } // namespace astra::http2

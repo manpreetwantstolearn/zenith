@@ -6,7 +6,7 @@ namespace astra::http2 {
 
 class Http2Client::Impl {
 public:
-  explicit Impl(const ClientConfig &config) : m_dispatcher(config) {
+  explicit Impl(const ::http2::ClientConfig &config) : m_dispatcher(config) {
   }
 
   void submit(const std::string &host, uint16_t port, const std::string &method,
@@ -20,7 +20,7 @@ private:
   ClientDispatcher m_dispatcher;
 };
 
-Http2Client::Http2Client(const ClientConfig &config)
+Http2Client::Http2Client(const ::http2::ClientConfig &config)
     : m_impl(std::make_unique<Impl>(config)) {
 }
 
