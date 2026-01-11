@@ -49,6 +49,7 @@ public:
 
   bool is_connected() const;
   ConnectionState state() const;
+  bool is_dead() const;
 
 private:
   void ensure_connected();
@@ -77,6 +78,7 @@ private:
   std::atomic<ConnectionState> m_state{ConnectionState::DISCONNECTED};
   std::mutex m_connect_mutex;
   std::queue<PendingRequest> m_pending_requests;
+  std::atomic<bool> m_is_dead{false};
 };
 
 } // namespace astra::http2
